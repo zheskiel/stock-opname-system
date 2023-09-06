@@ -306,12 +306,12 @@ $structure = [
                                 0 => [
                                     'name' => 'Cipondoh',
                                     'location' => $locationDetails
-                                ]
-                            ]
                                 ],
                                 1 => [
                                     'name' => 'Cilegon'
                                 ]
+                            ]
+                        ]
                     ]
                 ],
                 1 => [

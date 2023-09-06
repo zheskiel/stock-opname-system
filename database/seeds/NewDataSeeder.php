@@ -59,16 +59,21 @@ class NewDataSeeder extends BaseSeeder
         $brandName = $brandBase['name'];
 
         $this->brandModel = new $this->brand;
-        $this->brandModel = $this->brandModel->create([
-            'name'      => $brandName,
-            'slug'      => $this->processTitleSlug($brandName),
-            'admin_id'  => $admin->id
-        ]);
+        $this->brandModel = $this->brandModel
+            ->create([
+                'name'      => $brandName,
+                'slug'      => $this->processTitleSlug($brandName),
+                'admin_id'  => $admin->id
+            ]);
 
         $this->buildProvince($brandBase);
+
+        $admin->update([
+            'brand_id' => $this->brandModel->id
+        ]);
     }
 
-    public function buildProvince($brandBase, $extraParams = []) :void
+    public function buildProvince($brandBase) :void
     {
         if (isset($brandBase['province'])) {
             echo "Build Province Data\n\n";
@@ -78,19 +83,13 @@ class NewDataSeeder extends BaseSeeder
             foreach($provinces as $provItem) {
                 $provinceName = $provItem['name'];
 
-                $defaultParams = [
-                    'name'     => $provinceName,
-                    'slug'     => $this->processTitleSlug($provinceName),
-                ];
-
-                $extraParams = array_merge($extraParams, [
-                    'brand_id' => $this->brandModel->id
-                ]);
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->provinceModel = new $this->province;
-                $this->provinceModel = $this->provinceModel->create($finalParams);
+                $this->provinceModel = $this->provinceModel
+                    ->create([
+                        'name'     => $provinceName,
+                        'slug'     => $this->processTitleSlug($provinceName),
+                        'brand_id' => $this->brandModel->id
+                    ]);
 
                 $this->buildRegency($provItem);
             }
@@ -107,19 +106,13 @@ class NewDataSeeder extends BaseSeeder
             foreach($regencies as $regItem) {
                 $regencyName = $regItem['name'];
 
-                $defaultParams = [
-                    'name' => $regencyName,
-                    'slug' => $this->processTitleSlug($regencyName),
-                ];
-
-                $extraParams = [
-                    'province_id' => $this->provinceModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->regencyModel = new $this->regency;
-                $this->regencyModel = $this->regencyModel->create($finalParams);
+                $this->regencyModel = $this->regencyModel
+                    ->create([
+                        'name'        => $regencyName,
+                        'slug'        => $this->processTitleSlug($regencyName),
+                        'province_id' => $this->provinceModel->id
+                    ]);
 
                 $this->buildDistrict($regItem);
             }
@@ -136,19 +129,13 @@ class NewDataSeeder extends BaseSeeder
             foreach($districts as $disItem) {
                 $districtName = $disItem['name'];
 
-                $defaultParams = [
-                    'name' => $districtName,
-                    'slug' => $this->processTitleSlug($districtName),
-                ];
-
-                $extraParams = [
-                    'regency_id'    => $this->regencyModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->districtModel = new $this->district;
-                $this->districtModel = $this->districtModel->create($finalParams);
+                $this->districtModel = $this->districtModel
+                    ->create([
+                        'name'       => $districtName,
+                        'slug'       => $this->processTitleSlug($districtName),
+                        'regency_id' => $this->regencyModel->id
+                    ]);
 
                 $this->buildLocation($disItem);
             }
@@ -166,20 +153,14 @@ class NewDataSeeder extends BaseSeeder
                 $locationName = $locItem['name'];
                 $locationAlias = $locItem['alias'];
 
-                $defaultParams = [
-                    'name'  => $locationName,
-                    'slug'  => $this->processTitleSlug($locationName),
-                    'alias' => $locationAlias,
-                ];
-
-                $extraParams = [
-                    'district_id' => $this->districtModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->locationModel = new $this->location;
-                $this->locationModel = $this->locationModel->create($finalParams);
+                $this->locationModel = $this->locationModel
+                    ->create([
+                        'name'  => $locationName,
+                        'alias' => $locationAlias,
+                        'slug'  => $this->processTitleSlug($locationName),
+                        'district_id' => $this->districtModel->id
+                    ]);
 
                 $this->buildOutlet($locItem);
             }
@@ -196,19 +177,13 @@ class NewDataSeeder extends BaseSeeder
             foreach($outlets as $outItem) {
                 $outletName = $outItem['name'];
 
-                $defaultParams = [
-                    'name' => $outletName,
-                    'slug' => $this->processTitleSlug($outletName),
-                ];
-
-                $extraParams = [
-                    'location_id' => $this->locationModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->outletModel = new $this->outlet;
-                $this->outletModel = $this->outletModel->create($finalParams);
+                $this->outletModel = $this->outletModel
+                    ->create([
+                        'name' => $outletName,
+                        'slug' => $this->processTitleSlug($outletName),
+                        'location_id' => $this->locationModel->id
+                    ]);
 
                 $this->buildManager($outItem);
             }
@@ -225,22 +200,17 @@ class NewDataSeeder extends BaseSeeder
 
             $slug = $this->processTitleSlug($managerName);
 
-            $defaultParams = [
-                'name'      => $managerName,
-                'slug'      => $slug,
-                'email'     => "$slug@gmail.com",
-                'password'  => bcrypt('test123')
-            ];
-
-            $extraParams = [
-                'outlet_id'   => $this->outletModel->id
-            ];
-
-            $finalParams = array_merge($defaultParams, $extraParams);
-            
             $this->managerModel = new $this->manager;
             $this->managerModel = $this->managerModel
-                ->firstOrCreate(['slug' => $slug], $finalParams);
+                ->firstOrCreate(
+                    ['slug' => $slug],
+                    [
+                        'name'        => $managerName,
+                        'slug'        => $slug,
+                        'email'       => $slug . "@gmail.com",
+                        'password'    => bcrypt('test123'),
+                        'outlet_id'   => $this->outletModel->id
+                    ]);
 
             $this->outletModel
                 ->update([
@@ -264,20 +234,13 @@ class NewDataSeeder extends BaseSeeder
             {
                 $levelTitle = $level['title'];
 
-                $defaultParams = [
-                    'name' => $levelTitle,
-                    'slug' => $this->processTitleSlug($levelTitle),
-                ];
-
-                $extraParams = [
-                    'outlet_id'   => $this->outletModel->id,
-                    'manager_id'  => $this->managerModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->svModel = $this->supervisor
-                    ->create($finalParams);
+                    ->create([
+                        'name' => $levelTitle,
+                        'slug' => $this->processTitleSlug($levelTitle),
+                        'outlet_id'   => $this->outletModel->id,
+                        'manager_id'  => $this->managerModel->id
+                    ]);
 
                 $this->buildStaffTypes($level);
             }
@@ -295,19 +258,14 @@ class NewDataSeeder extends BaseSeeder
                 $typeTitle = $type['title'];
                 $typeSlug = $this->processTitleSlug($typeTitle);
 
-                $defaultParams = [
-                    'name' => $typeTitle,
-                    'slug'  => $typeSlug
-                ];
-
-                $extraParams = [
-                    'supervisor_id' => $this->svModel->id
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $this->staffTypesModel = $this->type
-                    ->firstOrCreate(['slug' => $typeSlug], $finalParams);
+                    ->firstOrCreate(
+                        ['slug' => $typeSlug],
+                        [
+                            'name' => $typeTitle,
+                            'slug'  => $typeSlug,
+                            'supervisor_id' => $this->svModel->id
+                        ]);
                 
                 $this->buildStaff($type);
             }
@@ -326,24 +284,19 @@ class NewDataSeeder extends BaseSeeder
                 $staffName = $staff['name'];
                 $staffSlug = $this->processTitleSlug($staffName);
 
-                $defaultParams = [
-                    'name'      => $staffName,
-                    'slug'      => $staffSlug,
-                    'email'     => "$staffSlug@gmail.com",
-                    'password'  => bcrypt('test123')
-                ];
-
-                $extraParams = [
-                    'outlet_id'     => $this->outletModel->id,
-                    'manager_id'    => $this->managerModel->id,
-                    'supervisor_id' => $this->svModel->id,
-                    'type_id'       => $this->staffTypesModel->id,
-                ];
-
-                $finalParams = array_merge($defaultParams, $extraParams);
-
                 $currentStaff = $this->staff
-                    ->firstOrCreate(['slug' => $staffSlug], $finalParams);
+                    ->firstOrCreate(
+                        ['slug' => $staffSlug], 
+                        [
+                            'name'          => $staffName,
+                            'slug'          => $staffSlug,
+                            'email'         => $staffSlug . "@gmail.com",
+                            'password'      => bcrypt('test123'),
+                            'outlet_id'     => $this->outletModel->id,
+                            'manager_id'    => $this->managerModel->id,
+                            'supervisor_id' => $this->svModel->id,
+                            'type_id'       => $this->staffTypesModel->id,
+                        ]);
             }
         }
     }

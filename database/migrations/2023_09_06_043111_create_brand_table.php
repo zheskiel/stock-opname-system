@@ -20,7 +20,7 @@ class CreateBrandTable extends Migration
                 $table->increments('id');
                 $table->string('name');
                 $table->string('slug');
-                $table->string('admin_id')->nullable();
+                $table->integer('admin_id')->unsigned();
                 $table->timestamps();
             });
         }
