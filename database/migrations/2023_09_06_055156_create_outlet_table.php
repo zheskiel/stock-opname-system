@@ -29,7 +29,8 @@ class CreateOutletTable extends Migration
             foreach ($this->relations as $relation) {
                 Schema::table($this->tableName, function (Blueprint $table) use ($relation) {
                     $table->integer($relation.'_id')->unsigned()->nullable()->after('slug');
-                    $table->foreign($relation.'_id')->references('id')->on($relation);
+                    $table->foreign($relation.'_id')->references('id')->on($relation)
+                        ->onDelete('set null')->onUpdate('cascade');
                 });
             }
         }

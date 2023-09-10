@@ -11,6 +11,7 @@ class Supervisor extends Model
     protected $fillable = [
         'name',
         'slug',
+        'is_supervisor'
     ];
 
     protected $with = [];
@@ -19,6 +20,8 @@ class Supervisor extends Model
         'id',
         'outlet_id',
         'manager_id',
+        'supervisor_type_id',
+        'staff_id',
         'created_at',
         'updated_at',
     ];
@@ -26,5 +29,15 @@ class Supervisor extends Model
     public function type()
     {
         return $this->hasMany('App\Models\StaffType', 'supervisor_id', 'id')->with('staff');
+    }
+
+    public function staff()
+    {
+        return $this->belongsTo('App\Models\Staff', 'staff_id');
+    }
+
+    public function staffs()
+    {
+        return $this->hasManyThrough('App\Models\Staff', 'App\Models\StaffType', 'id', 'staff_type_id');
     }
 }

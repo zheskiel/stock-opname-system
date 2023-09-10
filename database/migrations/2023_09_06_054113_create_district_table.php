@@ -26,7 +26,8 @@ class CreateDistrictTable extends Migration
 
             Schema::table($this->tableName, function (Blueprint $table) {
                 $table->integer($this->relationName.'_id')->unsigned()->nullable()->after('slug');
-                $table->foreign($this->relationName.'_id')->references('id')->on($this->relationName);
+                $table->foreign($this->relationName.'_id')->references('id')->on($this->relationName)
+                    ->onDelete('set null')->onUpdate('cascade');
             });
         }
     }

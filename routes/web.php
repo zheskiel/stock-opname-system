@@ -3,7 +3,8 @@
 use App\Models\ {
     Brand,
     Province,
-    Manager
+    Manager,
+    Master
 };
 
 /*
@@ -17,7 +18,27 @@ use App\Models\ {
 |
 */
 
-Route::get('/', function () {
+// Route::get('/', 'IndexController@Index');
+Route::get('/test', 'IndexController@Test');
+
+Route::get('/master', function() {
+    $master = Master::with(['unit'])
+        ->get()
+        ->each(function($query) {
+            $units = json_decode($query->units, true);
+
+            uasort($units, function ($item1, $item2) {
+                return $item2['value'] <=> $item1['value'];
+            });
+
+            $query->units = $units;
+
+            return $query;
+        });
+
+    return response()->json($master);
+});
+Route::get('/hierarchy', function () {
     $item = Brand::with(['province'])->first();
     // $item = Manager::with(['supervisor'])->where('slug', 'manager-1')->first();
     // $item = Province::with(['regency'])
@@ -26,5 +47,5 @@ Route::get('/', function () {
 
     return response()->json($item);
 
-    return view('welcome');
+    // return view('welcome');
 });

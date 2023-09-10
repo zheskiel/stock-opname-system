@@ -4,10 +4,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateStaffTypeTable extends Migration
+class CreateUnitTable extends Migration
 {
-    private $tableName = 'staff_type';
-    private $relationName = 'supervisor';
+    private $tableName = 'unit';
 
     /**
      * Run the migrations.
@@ -22,12 +21,6 @@ class CreateStaffTypeTable extends Migration
                 $table->string('name');
                 $table->string('slug');
                 $table->timestamps();
-            });
-
-            Schema::table($this->tableName, function (Blueprint $table) {
-                $table->integer($this->relationName.'_id')->unsigned()->nullable()->after('slug');
-                $table->foreign($this->relationName.'_id')->references('id')->on($this->relationName)
-                    ->onDelete('set null')->onUpdate('cascade');
             });
         }
     }

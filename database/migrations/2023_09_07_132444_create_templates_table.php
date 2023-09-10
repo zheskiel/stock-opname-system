@@ -4,10 +4,9 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateStaffTypeTable extends Migration
+class CreateTemplatesTable extends Migration
 {
-    private $tableName = 'staff_type';
-    private $relationName = 'supervisor';
+    private $tableName = 'template';
 
     /**
      * Run the migrations.
@@ -19,17 +18,14 @@ class CreateStaffTypeTable extends Migration
         if (!Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('name');
-                $table->string('slug');
+                $table->string('product_code');
+                $table->string('product_name');
+                $table->string('unit_label');
+                $table->integer('unit_value')->default(null);
+                $table->integer('receipt_tolerance');
                 $table->timestamps();
             });
-
-            Schema::table($this->tableName, function (Blueprint $table) {
-                $table->integer($this->relationName.'_id')->unsigned()->nullable()->after('slug');
-                $table->foreign($this->relationName.'_id')->references('id')->on($this->relationName)
-                    ->onDelete('set null')->onUpdate('cascade');
-            });
-        }
+        };
     }
 
     /**

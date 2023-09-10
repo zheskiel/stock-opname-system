@@ -1,5 +1,9 @@
 <?php
 
+use App\Services\ {
+    StaffService
+};
+
 use App\Models\ {
     Admin,
     Brand,
@@ -9,6 +13,7 @@ use App\Models\ {
     Location,
     Outlet,
     Supervisor,
+    SupervisorType,
     StaffType,
     Staff,
     Manager
@@ -17,6 +22,7 @@ use App\Models\ {
 class NewDataSeeder extends BaseSeeder
 {
     public function __construct(
+        StaffService $staffService,
         Admin $admin,
         Brand $brand,
         Province $province,
@@ -25,28 +31,51 @@ class NewDataSeeder extends BaseSeeder
         Location $location,
         Outlet $outlet,
         Supervisor $supervisor,
+        SupervisorType $supervisorType,
         StaffType $type,
         Staff $staff,
         Manager $manager
     ) {
-        $this->admin      = $admin;
-        $this->brand      = $brand;
-        $this->province   = $province;
-        $this->regency    = $regency;
-        $this->district   = $district;
-        $this->location   = $location;
-        $this->outlet     = $outlet;
-        $this->supervisor = $supervisor;
-        $this->type       = $type;
-        $this->staff      = $staff;
-        $this->manager    = $manager;
+        $this->admin          = $admin;
+        $this->brand          = $brand;
+        $this->province       = $province;
+        $this->regency        = $regency;
+        $this->district       = $district;
+        $this->location       = $location;
+        $this->outlet         = $outlet;
+        $this->supervisor     = $supervisor;
+        $this->supervisorType = $supervisorType;
+        $this->type           = $type;
+        $this->staff          = $staff;
+        $this->manager        = $manager;
 
-        $this->structure = require_once(__DIR__ . '/StructureData2.php');
+        $this->staffService   = $staffService;
+
+        list($svParams, $parameters) = require_once(__DIR__ . '/StructureData.php');
+
+        $this->structure = $parameters;
+        $this->svParams = $svParams;
     }
 
     public function run()
     {
+        $this->buildUtilities();
         $this->buildBrand();
+    }
+
+    private function buildUtilities()
+    {
+        foreach($this->svParams as $param) {
+            $name = $param;
+            $slug = $this->processTitleSlug($name);
+
+            $this->supervisorType->firstOrCreate(
+                ['slug' => $slug],
+                [
+                    'name' => $name,
+                    'slug' => $slug
+                ]);
+        }
     }
 
     public function buildBrand() :void
@@ -233,27 +262,51 @@ class NewDataSeeder extends BaseSeeder
             foreach($svLevel as $level)
             {
                 $levelTitle = $level['title'];
+                $levelSlug = $this->processTitleSlug($levelTitle);
+
+                $svType = $this->supervisorType
+                    ->where('slug', $levelSlug)
+                    ->first();
 
                 $this->svModel = $this->supervisor
                     ->create([
-                        'name' => $levelTitle,
-                        'slug' => $this->processTitleSlug($levelTitle),
-                        'outlet_id'   => $this->outletModel->id,
-                        'manager_id'  => $this->managerModel->id
+                        'name'               => $svType->name . ' - ' . $this->outletModel->name,
+                        'slug'               => $svType->slug . '-' . $this->outletModel->slug,
+                        'supervisor_type_id' => $svType->id,
+                        'outlet_id'          => $this->outletModel->id,
+                        'manager_id'         => $this->managerModel->id
                     ]);
 
-                $this->buildStaffTypes($level);
+                $choosenSV = $this->buildStaffTypes($level);
+                $choosenSVSlug = $this->processTitleSlug($choosenSV);
+
+                $query = $this->staff->where('slug', $choosenSVSlug);
+                $crStaff = $query->first();
+
+                $this->svModel->update([
+                    'staff_id' => $crStaff->id
+                ]);
+
+                $crStaff->update([
+                    'is_supervisor' => true,
+                    'supervisor_id' => NULL,
+                    'staff_type_id' => NULL
+                ]);
             }
         }
     }
 
-    public function buildStaffTypes($level):void
+    public function buildStaffTypes($level):string
     {
+        $choosenStaff = '';
+
         if (isset($level['types'])) {
             echo "Build " . $this->outletModel->name . "'s Staff Types Data\n\n";
 
             $types = $level['types'];
             
+            $staffList = [];
+
             foreach($types as $type) {
                 $typeTitle = $type['title'];
                 $typeSlug = $this->processTitleSlug($typeTitle);
@@ -267,37 +320,42 @@ class NewDataSeeder extends BaseSeeder
                             'supervisor_id' => $this->svModel->id
                         ]);
                 
-                $this->buildStaff($type);
+                $staffs = $this->buildStaff($type);
+
+                $staffList = array_merge($staffList, $staffs);
             }
+
+            $randStaff = rand(0, count($staffList) - 1);
+            $choosenStaff = $staffList[$randStaff];
+
+            return $choosenStaff;
         }
     }
 
-    public function buildStaff($type):void
+    public function buildStaff($type):array
     {
+        $staffLists = [];
+
         if (isset($type['staff'])) {
-            echo "Build " . $this->outletModel->name . "'s Staff Data\n\n";
+            echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
 
             $staffs = $type['staff'];
 
-            foreach($staffs as $staff)
+            foreach($staffs as $k => $staff)
             {
-                $staffName = $staff['name'];
-                $staffSlug = $this->processTitleSlug($staffName);
+                $currentStaff = $this->staffService
+                    ->createData([
+                        $staff,
+                        $this->staffTypesModel,
+                        $this->outletModel,
+                        $this->managerModel,
+                        $this->svModel
+                    ]);
 
-                $currentStaff = $this->staff
-                    ->firstOrCreate(
-                        ['slug' => $staffSlug], 
-                        [
-                            'name'          => $staffName,
-                            'slug'          => $staffSlug,
-                            'email'         => $staffSlug . "@gmail.com",
-                            'password'      => bcrypt('test123'),
-                            'outlet_id'     => $this->outletModel->id,
-                            'manager_id'    => $this->managerModel->id,
-                            'supervisor_id' => $this->svModel->id,
-                            'type_id'       => $this->staffTypesModel->id,
-                        ]);
+                $staffLists[] = $currentStaff->name;
             }
         }
+
+        return $staffLists;
     }
 }

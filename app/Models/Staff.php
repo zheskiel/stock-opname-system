@@ -20,7 +20,7 @@ class Staff extends Model
         'id',
         'outlet_id',
         'manager_id',
-        'type_id',
+        'staff_type_id',
         'supervisor_id',
         'password',
         'remember_token',
@@ -45,6 +45,6 @@ class Staff extends Model
 
     public function type()
     {
-        return $this->belongsTo('App\Models\Type', 'type_id');
+        return $this->belongsTo('App\Models\StaffType', 'staff_type_id');
     }
 }
