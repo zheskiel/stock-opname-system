@@ -12,6 +12,11 @@ class BaseController extends Controller
         return Config::processTitleSlug($string);
     }
 
+    public function sortUnitsByValue($items, $param)
+    {
+        return Config::sortUnitsByValue($items, $param);
+    }
+
     public function getUserIpAddress($ipaddress = '') : string
     {
         return Config::getUserIpAddress($ipaddress);

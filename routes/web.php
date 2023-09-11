@@ -22,8 +22,7 @@ use App\Models\ {
 Route::get('/test', 'IndexController@Test');
 
 Route::get('/master', function() {
-    $master = Master::with(['unit'])
-        ->get()
+    $master = Master::get()
         ->each(function($query) {
             $units = json_decode($query->units, true);
 

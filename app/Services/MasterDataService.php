@@ -3,7 +3,7 @@ namespace App\Services;
 
 use App\Repositories\MasterDataRepository;
 
-class MasterDataService
+class MasterDataService extends BaseService
 {
     protected $masterDataRepository;
 

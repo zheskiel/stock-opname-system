@@ -37,6 +37,8 @@ class MasterDataSeeder extends BaseSeeder
             if ($item[0] == 'Product ID') {
                 $startKey = $key;
                 $titleArr = $item;
+
+                break;
             }
         }
 
@@ -54,6 +56,8 @@ class MasterDataSeeder extends BaseSeeder
                 $dataList[$titleArr[$z]] = $item[$z];
             }
 
+            // Include only items from Inventory & Non Inventory's Category Type
+            // Exclude all other items
             if (
                 $dataList['Category Type'] == 'Inventory' ||
                 $dataList['Category Type'] == 'Non Inventory'
@@ -85,6 +89,7 @@ class MasterDataSeeder extends BaseSeeder
             $newData = array_merge($listArr[$l][0], [ 'units' => $unitList ]);
             $newData['units'] = json_encode($newData['units']);
 
+            // Remove arrays of data
             array_diff($newData, $this->unsetLists);
 
             $listArr[$l] = $newData;
@@ -114,8 +119,7 @@ class MasterDataSeeder extends BaseSeeder
     {
         $collection = $this->getCollection();
 
-        list($startKey, $titleArr) = $this
-            ->getStartKeyAndTitleArray($collection);
+        list($startKey, $titleArr) = $this->getStartKeyAndTitleArray($collection);
 
         $list = $this->getListData($collection, $titleArr, $startKey);
         $listArr = $this->getUnitListData($list);

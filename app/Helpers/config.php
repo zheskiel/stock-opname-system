@@ -14,6 +14,17 @@ class Config
         return strtolower(preg_replace('~[^\p{L}\p{N}\n]+~u', '-', $string));
     }
 
+    static function sortUnitsByValue($query, $param)
+    {
+        $units = json_decode($query->units, true);
+
+        uasort($units, function ($item1, $item2) use ($param) {
+            return $item2[$param] <=> $item1[$param];
+        });
+
+        return $units;
+    }
+
     static function getUserIpAddress($ipaddress = '') : string
     {
         switch ($ipaddress)

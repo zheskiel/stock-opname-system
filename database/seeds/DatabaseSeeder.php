@@ -10,7 +10,7 @@ class DatabaseSeeder extends BaseSeeder
     public function run()
     {
         $this->call(AdminTableSeeder::class);
-        $this->call(NewDataSeeder::class);
+        $this->call(HierarchyDataSeeder::class);
         $this->call(MasterDataSeeder::class);
     }
 }

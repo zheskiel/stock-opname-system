@@ -2,10 +2,12 @@
 
 use Illuminate\Database\Seeder;
 
+use App\Helpers\Config;
+
 class BaseSeeder extends Seeder
 {
-    public function processTitleSlug($string)
+    public function processTitleSlug($string) : string
     {
-        return strtolower(preg_replace('~[^\p{L}\p{N}\n]+~u', '-', $string));
+        return Config::processTitleSlug($string);
     }
 }

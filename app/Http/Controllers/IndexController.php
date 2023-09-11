@@ -17,40 +17,34 @@ class IndexController extends BaseController
 
     public function Test(Request $request)
     {
-        $model = $this->master;
-
         $page = (int) $request->get('page', 1);
 
+        $model = $this->master;
         $total = $model->count();
         $query = $model
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
             ->get();
 
-        $data = $query
-            ->map(function($query) {
-                $units = json_decode($query->units, true);
+        $data = $query->map(function($query) {
+            $query->units = $this->sortUnitsByValue($query, 'value');
 
-                uasort($units, function ($item1, $item2) {
-                    return $item2['value'] <=> $item1['value'];
-                });
-
-                $query->units = $units;
-
-                return $query;
-            });
+            return $query;
+        });
 
         $result = $this->generatePagination($data, $total, $this->limit, $page);
 
         return response()->json($result);
     }
 
-    private function getStartKeyAndTitleArray($collection, $startKey = 0)
+    private function getStartKeyAndTitleArray($collection, $startKey = 0) : array
     {
         foreach ($collection as $key => $item) {
             if ($item[0] == 'Product ID') {
                 $startKey = $key;
                 $titleArr = $item;
+
+                break;
             }
         }
 
@@ -85,6 +79,8 @@ class IndexController extends BaseController
                 $dataList[$titleArr[$z]] = $item[$z];
             }
 
+            // Include only items from Inventory & Non Inventory's Category Type
+            // Exclude all other items
             if (
                 $dataList['Category Type'] == 'Inventory' ||
                 $dataList['Category Type'] == 'Non Inventory'
@@ -110,9 +106,7 @@ class IndexController extends BaseController
 
             arsort( $unitList );
 
-            $newData = array_merge($list[$l][0], [
-                'units' => $unitList
-            ]);
+            $newData = array_merge($list[$l][0], ['units' => $unitList]);
 
             $unsetLists = [
                 'Unit',
@@ -137,8 +131,6 @@ class IndexController extends BaseController
         });
 
         foreach($list as $k => $item) {
-            // echo "\nCreate data for $k\n\n\n";
-            // dd( $item );
             $master = $this->master->firstOrCreate([
                 'product_id' => $item["Product ID"]
             ],[

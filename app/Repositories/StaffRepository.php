@@ -12,28 +12,45 @@ class StaffRepository extends BaseRepository
         $this->staff = $staff;
     }
 
-    public function save($params)
+    public function searchByFirstAndParam($search, $param)
     {
-        list($staff, $staffType, $outlet, $manager, $supervisor) = $params;
+        return $this->staff->where($search, $param)->first();
+    }
+
+    public function saveSeeder($parameters)
+    {
+        list($staff, $staffType, $outlet, $manager, $supervisor) = $parameters;
 
         $staffName = $staff['name'];
         $staffSlug = $this->processTitleSlug($staffName);
 
-        $data = $this->staff
-            ->firstOrCreate(
-                ['slug' => $staffSlug],
-                [
-                    'name'          => $staffName,
-                    'slug'          => $staffSlug,
-                    'email'         => $staffSlug . "@gmail.com",
-                    'password'      => bcrypt('test123'),
-                    'outlet_id'     => $outlet->id,
-                    'manager_id'    => $manager->id,
-                    'supervisor_id' => $supervisor->id,
-                    'staff_type_id' => $staffType->id,
-                ]
-            );
+        $query = ['slug' => $staffSlug];
+        $params = [
+            'name'          => $staffName,
+            'slug'          => $staffSlug,
+            'email'         => $staffSlug . "@gmail.com",
+            'password'      => bcrypt('test123'),
+            'outlet_id'     => $outlet->id,
+            'manager_id'    => $manager->id,
+            'supervisor_id' => $supervisor->id,
+            'staff_type_id' => $staffType->id,
+        ];
 
-        return $data;
+        return $this->firstOrCreate($query, $params);
+    }
+
+    public function updateByParams($params)
+    {
+        return $this->update($params);
+    }
+
+    public function firstOrCreate($query, $params)
+    {
+        return $this->staff->firstOrCreate($query, $params);
+    }
+
+    public function update($params)
+    {
+        return $this->staff->update($params);
     }
 }

@@ -12,9 +12,18 @@ class StaffService
         $this->staffRepository = $staffRepository;
     }
 
-    public function createData($data)
+    public function searchByFirstAndParam($search, $param)
     {
-        return $this->staffRepository
-            ->save($data);
+        return $this->staffRepository->searchByFirstAndParam($search, $param);
+    }
+
+    public function createSeederData($data)
+    {
+        return $this->staffRepository->saveSeeder($data);
+    }
+
+    public function updateByParams($params)
+    {
+        return $this->staffRepository->updateByParams($params);
     }
 }
