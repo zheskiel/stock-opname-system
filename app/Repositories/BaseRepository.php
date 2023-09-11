@@ -1,12 +1,9 @@
 <?php
 namespace App\Repositories;
 
-use App\Helpers\Config;
+use App\Traits\HelpersTrait;
 
 class BaseRepository
 {
-    public function processTitleSlug($data)
-    {
-        return Config::processTitleSlug($data);
-    }
+    use HelpersTrait;
 }

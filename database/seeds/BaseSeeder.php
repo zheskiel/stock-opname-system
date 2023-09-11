@@ -2,17 +2,9 @@
 
 use Illuminate\Database\Seeder;
 
-use App\Helpers\Config;
+use App\Traits\HelpersTrait;
 
 class BaseSeeder extends Seeder
 {
-    public function processTitleSlug($string) : string
-    {
-        return Config::processTitleSlug($string);
-    }
-
-    public function sortUnitsByValue($query, $param)
-    {
-        return Config::sortUnitsByValue($query, $param);
-    }
+    use HelpersTrait;
 }

@@ -1,12 +1,9 @@
 <?php
 namespace App\Services;
 
-use App\Helpers\Config;
+use App\Traits\HelpersTrait;
 
 class BaseService
 {
-    public function processTitleSlug($data)
-    {
-        return Config::processTitleSlug($data);
-    }
+    use HelpersTrait;
 }
