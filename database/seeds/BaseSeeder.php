@@ -10,4 +10,9 @@ class BaseSeeder extends Seeder
     {
         return Config::processTitleSlug($string);
     }
+
+    public function sortUnitsByValue($query, $param)
+    {
+        return Config::sortUnitsByValue($query, $param);
+    }
 }

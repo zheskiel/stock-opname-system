@@ -17,8 +17,8 @@ class SupervisorService extends BaseService
         return $this->supervisorRepository->saveSeeder($data);
     }
 
-    public function updateByParams($params)
+    public function updateByParams($model, $params)
     {
-        return $this->supervisorRepository->updateByParams($params);
+        return $this->supervisorRepository->updateByParams($model, $params);
     }
 }

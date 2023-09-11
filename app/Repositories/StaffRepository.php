@@ -19,7 +19,7 @@ class StaffRepository extends BaseRepository
 
     public function saveSeeder($parameters)
     {
-        list($staff, $staffType, $outlet, $manager, $supervisor) = $parameters;
+        list($level, $staff, $staffType, $outlet, $manager, $supervisor) = $parameters;
 
         $staffName = $staff['name'];
         $staffSlug = $this->processTitleSlug($staffName);
@@ -34,23 +34,19 @@ class StaffRepository extends BaseRepository
             'manager_id'    => $manager->id,
             'supervisor_id' => $supervisor->id,
             'staff_type_id' => $staffType->id,
+            'sv_type_label' => $level['title']
         ];
 
         return $this->firstOrCreate($query, $params);
     }
 
-    public function updateByParams($params)
+    public function updateByParams($model, $params)
     {
-        return $this->update($params);
+        return $model->update($params);
     }
 
     public function firstOrCreate($query, $params)
     {
         return $this->staff->firstOrCreate($query, $params);
-    }
-
-    public function update($params)
-    {
-        return $this->staff->update($params);
     }
 }

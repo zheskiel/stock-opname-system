@@ -11,6 +11,7 @@ class Outlet extends Model
     protected $fillable = [
         'name',
         'slug',
+        'manager_id'
     ];
 
     protected $with = [

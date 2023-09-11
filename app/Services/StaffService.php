@@ -22,8 +22,8 @@ class StaffService
         return $this->staffRepository->saveSeeder($data);
     }
 
-    public function updateByParams($params)
+    public function updateByParams($model, $params)
     {
-        return $this->staffRepository->updateByParams($params);
+        return $this->staffRepository->updateByParams($model, $params);
     }
 }

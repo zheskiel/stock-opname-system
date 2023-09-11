@@ -14,7 +14,9 @@ class Supervisor extends Model
         'is_supervisor'
     ];
 
-    protected $with = [];
+    protected $with = [
+        'supervisor_pic'
+    ];
 
     protected $hidden = [
         'id',
@@ -26,12 +28,14 @@ class Supervisor extends Model
         'updated_at',
     ];
 
+
+
     public function type()
     {
         return $this->hasMany('App\Models\StaffType', 'supervisor_id', 'id')->with('staff');
     }
 
-    public function staff()
+    public function supervisor_pic()
     {
         return $this->belongsTo('App\Models\Staff', 'staff_id');
     }

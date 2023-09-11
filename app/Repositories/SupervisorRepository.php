@@ -17,11 +17,6 @@ class SupervisorRepository extends BaseRepository
         return $this->supervisor->create($params);
     }
 
-    public function update($params)
-    {
-        return $this->supervisor->update($params);
-    }
-
     public function saveSeeder($params)
     {
         list($supervisorType, $outlet, $manager) = $params;
@@ -37,7 +32,7 @@ class SupervisorRepository extends BaseRepository
         return $this->create($params);
     }
 
-    public function updateByParams($params)
+    public function updateByParams($model, $params)
     {
         list($crStaff) = $params;
 
@@ -45,6 +40,6 @@ class SupervisorRepository extends BaseRepository
             'staff_id' => $crStaff->id
         ];
 
-        return $this->update($params);
+        return $model->update($params);
     }
 }

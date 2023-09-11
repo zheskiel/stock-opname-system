@@ -166,9 +166,10 @@ class HierarchyDataSeeder extends BaseSeeder
             $this->managerModel = $this->managerService
                 ->createSeederData([ $outItem, $this->outletModel ]);
 
-            $this->outletService->updateByParams([
+            $this->outletModel->update([
                 'manager_id' => $this->managerModel->id
             ]);
+            // $this->outletService->updateByParams();
 
             $this->buildSupervisor($outItem['manager']);
         }
@@ -197,8 +198,8 @@ class HierarchyDataSeeder extends BaseSeeder
                 $crStaff = $this->staffService
                     ->searchByFirstAndParam('slug', $this->processTitleSlug($choosenSV));
 
-                $this->supervisorService->updateByParams([ $crStaff ]);
-                $this->staffService->updateByParams([
+                $this->supervisorService->updateByParams($this->svModel, [$crStaff]);
+                $this->staffService->updateByParams($crStaff, [
                     'is_supervisor' => true,
                     'supervisor_id' => NULL,
                     'staff_type_id' => NULL
@@ -220,7 +221,7 @@ class HierarchyDataSeeder extends BaseSeeder
                 $this->staffTypesModel = $this->staffTypeService
                     ->createSeederData([$type, $this->svModel]);
                 
-                $staffs = $this->buildStaff($type);
+                $staffs = $this->buildStaff($level, $type);
 
                 $staffList = array_merge($staffList, $staffs);
             }
@@ -232,7 +233,7 @@ class HierarchyDataSeeder extends BaseSeeder
         }
     }
 
-    public function buildStaff($type, $staffLists = []):array
+    public function buildStaff($level, $type, $staffLists = []):array
     {
         if (isset($type['staff'])) {
             echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
@@ -243,6 +244,7 @@ class HierarchyDataSeeder extends BaseSeeder
             {
                 $currentStaff = $this->staffService
                     ->createSeederData([
+                        $level,
                         $staff,
                         $this->staffTypesModel,
                         $this->outletModel,
