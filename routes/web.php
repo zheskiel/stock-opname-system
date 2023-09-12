@@ -9,7 +9,10 @@ use App\Models\ {
 };
 
 
-// Route::get('/', 'IndexController@Index');
+Route::get('/', function() {
+    return View('welcome');
+});
+
 Route::get('/test', 'IndexController@Test');
 
 Route::get('/master', function() {
