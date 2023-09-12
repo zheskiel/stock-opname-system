@@ -19,6 +19,8 @@ class StaffTypeRepository extends BaseRepository
         $typeTitle = $type['title'];
         $typeSlug = $this->processTitleSlug($typeTitle);
 
+        $typeSlug = $typeSlug."_".$supervisor->slug;
+
         $data = $this->staffType
             ->firstOrCreate(
                 ['slug' => $typeSlug],

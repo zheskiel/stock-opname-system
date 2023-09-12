@@ -100,7 +100,7 @@ class MasterDataSeeder extends BaseSeeder
 
     private function getCollection() : array
     {
-        $filepath = __DIR__ . '/Master Product Data - 20230815142421.xlsx';
+        $filepath = __DIR__ . '/Master Product Data.xlsx';
 
         $excel = C::make('Excel');
         $excel->load($filepath);

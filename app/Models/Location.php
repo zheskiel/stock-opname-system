@@ -25,6 +25,6 @@ class Location extends Model
 
     public function outlet()
     {
-        return $this->hasMany('App\Models\Outlet', 'location_id', 'id')->with('manager');
+        return $this->hasMany('App\Models\Outlet', 'location_id', 'id');
     }
 }

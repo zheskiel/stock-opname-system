@@ -18,6 +18,31 @@ use App\Models\Admin;
 
 class HierarchyDataSeeder extends BaseSeeder
 {
+    private $admin;
+    private $brandService;
+    private $managerService;
+    private $staffService;
+    private $staffTypeService;
+    private $supervisorService;
+    private $supervisorTypeService;
+    private $locationService;
+    private $outletService;
+    private $districtService;
+    private $regencyService;
+    private $provinceService;
+    private $structure;
+    private $svParams;
+
+    private $brandModel;
+    private $provinceModel;
+    private $regencyModel;
+    private $districtModel;
+    private $locationModel;
+    private $outletModel;
+    private $managerModel;
+    private $svModel;
+    private $staffTypesModel;
+
     public function __construct(
         BrandService $brandService,
         ManagerService $managerService,
@@ -153,32 +178,31 @@ class HierarchyDataSeeder extends BaseSeeder
 
                 $this->outletModel = $this->outletService->createSeederData($params);
 
-                $this->buildManager($outItem);
+                $this->buildManager($outItem, $this->outletModel);
             }
         }
     }
 
-    public function buildManager($outItem):void
+    public function buildManager($outItem, $outlet):void
     {
         if(isset($outItem['manager'])) {
-            echo "Build " . $this->outletModel->name . "'s Manager Data\n\n";
+            echo "Build " . $outlet->name . "'s Manager Data\n\n";
 
             $this->managerModel = $this->managerService
-                ->createSeederData([ $outItem, $this->outletModel ]);
+                ->createSeederData([ $outItem ]);
 
             $this->outletModel->update([
                 'manager_id' => $this->managerModel->id
             ]);
-            // $this->outletService->updateByParams();
 
-            $this->buildSupervisor($outItem['manager']);
+            $this->buildSupervisor($outItem['manager'], $this->managerModel, $outlet);
         }
     }
 
-    public function buildSupervisor($svItems):void
+    public function buildSupervisor($svItems, $manager, $outlet):void
     {
         if (isset($svItems['supervisor'])) {
-            echo "Build " . $this->outletModel->name . "'s Supervisor Data\n\n";
+            echo "Build " . $outlet->name . "'s Supervisor Data\n\n";
 
             $supervisor = $svItems['supervisor'];
             $svLevel = $supervisor['level'];
@@ -186,14 +210,17 @@ class HierarchyDataSeeder extends BaseSeeder
             foreach($svLevel as $level)
             {
                 $svType = $this->supervisorTypeService->getFirstItemByQuery($level);
+
                 $this->svModel = $this->supervisorService
                     ->createSeederData([
                         $svType,
-                        $this->outletModel,
+                        $outlet,
                         $this->managerModel
                     ]);
+                
+                $manager->supervisor()->attach($this->svModel, ['outlet_id' => $outlet->id]);
 
-                $choosenSV = $this->buildStaffTypes($level);
+                $choosenSV = $this->buildStaffTypes($level, $this->svModel);
 
                 $crStaff = $this->staffService
                     ->searchByFirstAndParam('slug', $this->processTitleSlug($choosenSV));
@@ -208,7 +235,7 @@ class HierarchyDataSeeder extends BaseSeeder
         }
     }
 
-    public function buildStaffTypes($level, $choosenStaff = ''):string
+    public function buildStaffTypes($level, $supervisor, $choosenStaff = ''):string
     {
         if (isset($level['types'])) {
             echo "Build " . $this->outletModel->name . "'s Staff Types Data\n\n";
@@ -221,7 +248,7 @@ class HierarchyDataSeeder extends BaseSeeder
                 $this->staffTypesModel = $this->staffTypeService
                     ->createSeederData([$type, $this->svModel]);
                 
-                $staffs = $this->buildStaff($level, $type);
+                $staffs = $this->buildStaff($level, $type, $this->staffTypesModel, $supervisor);
 
                 $staffList = array_merge($staffList, $staffs);
             }
@@ -233,14 +260,14 @@ class HierarchyDataSeeder extends BaseSeeder
         }
     }
 
-    public function buildStaff($level, $type, $staffLists = []):array
+    public function buildStaff($level, $type, $staffType, $supervisor, $staffLists = []):array
     {
         if (isset($type['staff'])) {
             echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
 
             $staffs = $type['staff'];
 
-            foreach($staffs as $k => $staff)
+            foreach($staffs as $staff)
             {
                 $currentStaff = $this->staffService
                     ->createSeederData([
@@ -251,6 +278,8 @@ class HierarchyDataSeeder extends BaseSeeder
                         $this->managerModel,
                         $this->svModel
                     ]);
+
+                $supervisor->multiPivotType()->attach($staffType, ['staff_id' => $currentStaff->id]);
 
                 $staffLists[] = $currentStaff->name;
             }

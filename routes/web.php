@@ -2,21 +2,12 @@
 
 use App\Models\ {
     Brand,
-    Province,
+    Master,
     Manager,
-    Master
+    Supervisor,
+    StaffType
 };
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
 
 // Route::get('/', 'IndexController@Index');
 Route::get('/test', 'IndexController@Test');
@@ -38,13 +29,20 @@ Route::get('/master', function() {
     return response()->json($master);
 });
 Route::get('/hierarchy', function () {
-    $item = Brand::with(['province'])->first();
-    // $item = Manager::with(['supervisor'])->where('slug', 'manager-1')->first();
-    // $item = Province::with(['regency'])
-    //     ->where('id', 1)
-    //     ->first();
+    $items = Brand::with(['province'])->first();
+    // $items = StaffType::get();
 
-    return response()->json($item);
+    // foreach ($items as $item) {
+    //     $staffs[] = $item->staffs($item->id);
+    // }
+
+    // $items = $staffs;
+
+    // $data = $items->staffsSameTypeOnly()->get();
+
+    // dd( $items->staffs()->get() );
+
+    return response()->json($items);
 
     // return view('welcome');
 });

@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Staff;
+
 class StaffType extends Model
 {
     protected $table = "staff_type";
@@ -22,8 +24,8 @@ class StaffType extends Model
         'updated_at',
     ];
 
-    public function staff()
+    public function staffs()
     {
-        return $this->hasMany('App\Models\Staff', 'staff_type_id', 'id');
+        return $this->belongsToMany(Staff::class, 'staff_supervisor_staff_type');
     }
 }

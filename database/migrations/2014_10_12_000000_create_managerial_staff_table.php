@@ -44,8 +44,8 @@ class CreateManagerialStaffTable extends Migration
                 $table->string('name');
                 $table->string('slug');
                 $table->string('email')->unique();
-                $table->string('sv_type_label')->nullable();
                 $table->boolean('is_supervisor')->default(false);
+                $table->string('sv_type_label')->nullable();
                 $table->string('password');
                 $table->rememberToken();
                 $table->timestamps();

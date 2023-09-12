@@ -12,24 +12,29 @@ class Manager extends Model
         'name',
         'slug',
         'email',
-        'password',
-        'outlet_id'
+        'password'
     ];
 
-    protected $with = [];
+    protected $with = [
+        'supervisor'
+    ];
 
     protected $hidden = [
-        'id',
+        // 'id',
         'password',
         'remember_token',
-        'outlet_id',
         'created_at',
         'updated_at',
     ];
 
+    public function outlets()
+    {
+        return $this->belongsToMany('App\Models\Outlet');
+    }
+
     public function supervisor()
     {
-        return $this->hasMany('App\Models\Supervisor', 'outlet_id', 'id')->with('type');
+        return $this->belongsToMany('App\Models\Supervisor', 'manager_outlet_supervisor');
     }
 
     public function staff()

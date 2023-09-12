@@ -15,7 +15,7 @@ class Outlet extends Model
     ];
 
     protected $with = [
-        'manager'
+        'supervisor',
     ];
 
     protected $hidden = [
@@ -28,6 +28,11 @@ class Outlet extends Model
 
     public function manager()
     {
-        return $this->belongsTo('App\Models\Manager', 'manager_id')->with(['supervisor']);
+        return $this->belongsTo('App\Models\Manager', 'manager_id');
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsToMany('App\Models\Supervisor', 'manager_outlet_supervisor');
     }
 }

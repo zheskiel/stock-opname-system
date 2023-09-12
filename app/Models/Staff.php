@@ -29,6 +29,7 @@ class Staff extends Model
         'remember_token',
         'created_at',
         'updated_at',
+        'pivot'
     ];
 
     public function manager()
@@ -39,11 +40,6 @@ class Staff extends Model
     public function outlet()
     {
         return $this->belongsTo('App\Models\Outlet', 'outlet_id');
-    }
-
-    public function staff()
-    {
-        return $this->belongsTo('App\Models\Staff', 'staff_id');
     }
 
     public function type()

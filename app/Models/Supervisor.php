@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+use App\Models\Staffs;
+
 class Supervisor extends Model
 {
     protected $table = "supervisor";
@@ -11,11 +13,13 @@ class Supervisor extends Model
     protected $fillable = [
         'name',
         'slug',
+        'outlet_id',
         'is_supervisor'
     ];
 
     protected $with = [
-        'supervisor_pic'
+        'supervisor_pic',
+        'type'
     ];
 
     protected $hidden = [
@@ -26,13 +30,22 @@ class Supervisor extends Model
         'staff_id',
         'created_at',
         'updated_at',
+        'pivot'
     ];
 
-
+    public function multiPivotType()
+    {
+        return $this->belongsToMany('App\Models\StaffType', 'staff_supervisor_staff_type');
+    }
 
     public function type()
     {
-        return $this->hasMany('App\Models\StaffType', 'supervisor_id', 'id')->with('staff');
+        return $this->hasMany('App\Models\StaffType')->with('staffs');
+    }
+
+    public function manager()
+    {
+        return $this->belongsTo('App\Models\Manager', 'manager_id');
     }
 
     public function supervisor_pic()
@@ -42,6 +55,7 @@ class Supervisor extends Model
 
     public function staffs()
     {
-        return $this->hasManyThrough('App\Models\Staff', 'App\Models\StaffType', 'id', 'staff_type_id');
+        return $this->belongsToMany('App\Models\Staff', 'staff_supervisor_staff_type');
+        // return $this->hasMany('App\Models\Staff', 'supervisor_id', 'id');
     }
 }

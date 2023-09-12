@@ -1,17 +1,11 @@
 <?php
 $svParams = [
     'Leader Kitchen',
-    'Outlet Supervisor'
+    'Outlet Supervisor',
+    'Head Production',
+    'Central Kitchen Supervisor'
 ];
 
-$managers = [
-    'manager 1',
-    'manager 2',
-    'manager 3',
-    'manager 4',
-    'manager 5',
-    'manager 6'
-];
 
 $locationDetails = [
     0 => [
@@ -19,13 +13,75 @@ $locationDetails = [
         'alias' => 'GLC',
         'outlet' => [
             0 => [
-                'name' => 'GLC 1',
+                'name' => 'Central Kitchen',
                 'manager' => [
-                    'name' => $managers[0],
+                    'name' => 'manager 1',
                     'supervisor' => [
                         'level' => [
                             0 => [
-                                'title'     => $svParams[0],
+                                // Head Production
+                                'title'     => 'Head Production',
+                                'assistant' => [
+                                    0 => [
+                                        'title' => 'Vice Head Production'
+                                    ]
+                                ],
+                                'types' => [ // Staff Types
+                                    0 => [
+                                        'title' => 'Cook',
+                                        'staff' => [
+                                            0 => [
+                                                'name' => 'Head Production - Cook - Staff 1',
+                                            ],
+                                            1 => [
+                                                'name' => 'Head Production - Cook - Staff 2',
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            1 => [
+                                // Central Kitchen Supervisor
+                                'title' => 'Central Kitchen Supervisor',
+                                'assistant' => [
+                                    0 => [
+                                        'title' => 'Vice Central Kitchen Supervisor'
+                                    ]
+                                ],
+                                'types' => [ // Staff Types
+                                    0 => [
+                                        'title' => 'Production Staff',
+                                        'staff' => [
+                                            0 => [
+                                                'name' => 'Central Kitchen Supervisor - Production Staff - Staff 1',
+                                            ]
+                                        ]
+                                    ],
+                                    1 => [
+                                        'title' => 'Store Keeper',
+                                        'staff' => [
+                                            0 => [
+                                                'name' => 'Central Kitchen Supervisor - Store Keeper - Staff 1',
+                                            ],
+                                            1 => [
+                                                'name' => 'Central Kitchen Supervisor - Store Keeper - Staff 2',
+                                            ]
+                                        ]
+                                    ]      
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            1 => [
+                'name' => 'GLC 1',
+                'manager' => [
+                    'name' => 'manager 1',
+                    'supervisor' => [
+                        'level' => [
+                            0 => [
+                                'title'     => 'Leader Kitchen',
                                 'assistant' => [
                                     0 => [
                                         'title' => 'Vice Leader Kitchen'
@@ -54,7 +110,7 @@ $locationDetails = [
                                 ]
                             ],
                             1 => [
-                                'title' => $svParams[1],
+                                'title' => 'Outlet Supervisor',
                                 'assistant' => [
                                     0 => [
                                         'title' => 'Vice Outlet Supervisor'
@@ -100,14 +156,14 @@ $locationDetails = [
                     ]
                 ]
             ],
-            1 => [
+            2 => [
                 'name' => 'GLC 2',
                 'manager' => [
-                    'name' => $managers[0],
+                    'name' => 'Manager 1',
                     'supervisor' => [
                         'level' => [
                             0 => [
-                                'title' => $svParams[1],
+                                'title' => 'Outlet Supervisor',
                                 'assistant' => [
                                     0 => [
                                         'title' => 'Vice Outlet Supervisor'
@@ -162,11 +218,11 @@ $locationDetails = [
             0 => [
                 'name' => 'Alsut 1',
                 'manager' => [
-                    'name' => $managers[1],
+                    'name' => 'manager 2',
                     'supervisor' => [
                         'level' => [
                             0 => [
-                                'title' => $svParams[0],
+                                'title' => 'Leader Kitchen',
                                 'assistant' => [
                                     0 => [
                                         'title' => 'Vice Leader Kitchen'
@@ -192,10 +248,10 @@ $locationDetails = [
                                 ]
                             ],
                             1 => [
-                                'title' => $svParams[1],
+                                'title' => 'Outlet Supervisor',
                                 'assistant' => [
                                     0 => [
-                                        'title' => 'Vice Outlet Supervisor'
+                                        'title' => 'Vice ' . 'Outlet Supervisor'
                                     ]
                                 ],
                                 'types' => [ // Staff Types
@@ -241,7 +297,7 @@ $locationDetails = [
             1 => [
                 'name' => 'Alsut 2',
                 'manager' => [
-                    'name' => $managers[1],
+                    'name' => 'manager 2',
                 ]
             ]
         ]
@@ -253,11 +309,11 @@ $locationDetails = [
             0 => [
                 'name' => 'Serpong 1',
                 'manager' => [
-                    'name' => $managers[2],
+                    'name' => 'manager 3',
                     'supervisor' => [
                         'level' => [
                             0 => [
-                                'title' => $svParams[0],
+                                'title' => 'Leader Kitchen',
                                 'assistant' => [
                                     0 => [
                                         'title' => 'Vice Leader Kitchen'
@@ -289,7 +345,7 @@ $locationDetails = [
             1 => [
                 'name' => 'Serpong 2',
                 'manager' => [
-                    'name' => $managers[5],
+                    'name' => 'manager 6',
                 ]
             ]
         ]

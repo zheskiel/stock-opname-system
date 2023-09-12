@@ -14,7 +14,7 @@ class ManagerRepository extends BaseRepository
 
     public function saveSeeder($parameters)
     {
-        list($outItem, $outlet) = $parameters;
+        list($outItem) = $parameters;
 
         $manager = $outItem['manager'];
         $managerName = $manager['name'];
@@ -26,8 +26,7 @@ class ManagerRepository extends BaseRepository
             'name'        => $managerName,
             'slug'        => $slug,
             'email'       => $slug . "@gmail.com",
-            'password'    => bcrypt('test123'),
-            'outlet_id'   => $outlet->id
+            'password'    => bcrypt('test123')
         ];
 
         return $this->manager->firstOrCreate($query, $params);
