@@ -12,6 +12,7 @@ class Location extends Model
         'name',
         'slug',
         'alias',
+        'district_id',
     ];
 
     protected $with = [];

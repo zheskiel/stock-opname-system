@@ -11,6 +11,7 @@ class Regency extends Model
     protected $fillable = [
         'name',
         'slug',
+        'province_id',
     ];
 
     protected $with = [];

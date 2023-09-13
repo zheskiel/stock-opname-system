@@ -11,6 +11,7 @@ use Illuminate\Foundation\Testing\DatabaseTransactions;
 use App\Models\Brand;
 use App\Models\District;
 use App\Models\Location;
+use App\Models\Outlet;
 use App\Models\Province;
 use App\Models\Regency;
 use App\Traits\HelpersTrait;
@@ -35,10 +36,15 @@ class ExampleTest extends TestCase
 
         $slug = $this->processTitleSlug($name);
 
-        $brand = factory(Brand::class)->create([
-            'name' => $name,
-            'slug' => $slug
-        ]);
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name
+        ], $attributes);
+
+        $brand = Brand::firstOrCreate(
+            $attributes,
+            factory(Brand::class)->raw($newAttributes)
+        );
         
         $this->assertEquals($brand->name, $name);
         $this->assertEquals($brand->slug, $slug);
@@ -49,19 +55,22 @@ class ExampleTest extends TestCase
     private function createProvinces($pItem, $brand)
     {
         $pName = $pItem['name'];
-
         $pSlug = $this->processTitleSlug($pName);
 
-        $params = [
+        $attributes = ['slug' => $pSlug];
+        $newAttributes = array_merge([
             'name' => $pName,
-            'slug' => $pSlug,
             'brand_id' => $brand->id
-        ];
+        ], $attributes);
 
-        $province = factory(Province::class)->create($params);
+        $province = Province::firstOrCreate(
+            $attributes,
+            factory(Province::class)->raw($newAttributes)
+        );
 
         $this->assertEquals($province->name, $pName);
         $this->assertEquals($province->slug, $pSlug);
+        $this->assertEquals($province->brand_id, $brand->id);
 
         return $province;
     }
@@ -71,16 +80,20 @@ class ExampleTest extends TestCase
         $rName = $rItem['name'];
         $rSlug = $this->processTitleSlug($rName);
 
-        $params = [
+        $attributes = ['slug' => $rSlug];
+        $newAttributes = array_merge([
             'name' => $rName,
-            'slug' => $rSlug,
             'province_id' => $province->id
-        ];
+        ], $attributes);
 
-        $regency = factory(Regency::class)->create($params);
+        $regency = Regency::firstOrCreate(
+            $attributes,
+            factory(Regency::class)->raw($newAttributes)
+        );
 
         $this->assertEquals($regency->name, $rName);
         $this->assertEquals($regency->slug, $rSlug);
+        $this->assertEquals($regency->province_id, $province->id);
 
         return $regency;
     }
@@ -90,16 +103,20 @@ class ExampleTest extends TestCase
         $dName = $dItem['name'];
         $dSlug = $this->processTitleSlug($dName);
 
-        $params = [
+        $attributes = ['slug' => $dSlug];
+        $newAttributes = array_merge([
             'name' => $dName,
-            'slug' => $dSlug,
             'regency_id' => $regency->id
-        ];
+        ], $attributes);
 
-        $district = factory(District::class)->create($params);
+        $district = District::firstOrCreate(
+            $attributes,
+            factory(District::class)->raw($newAttributes)
+        );
 
         $this->assertEquals($district->name, $dName);
         $this->assertEquals($district->slug, $dSlug);
+        $this->assertEquals($district->regency_id, $regency->id);
 
         return $district;
     }
@@ -108,19 +125,47 @@ class ExampleTest extends TestCase
     {
         $lName = $lItem['name'];
         $lSlug = $this->processTitleSlug($lName);
+
         $lAlias = $lItem['alias'];
 
-        $params = [
+        $attributes = ['slug' => $lSlug];
+        $newAttributes = array_merge([
             'name' => $lName,
-            'slug' => $lSlug,
             'alias' => $lAlias,
             'district_id' => $district->id
-        ];
+        ], $attributes);
 
-        $location = factory(Location::class)->create($params);
+        $location = Location::firstOrCreate(
+            $attributes,
+            factory(Location::class)->raw($newAttributes)
+        );
 
         $this->assertEquals($location->name, $lName);
         $this->assertEquals($location->slug, $lSlug);
+        $this->assertEquals($location->district_id, $district->id);
+
+        return $location;
+    }
+
+    private function createOutlets($oItem, $location)
+    {
+        $oName = $oItem['name'];
+        $oSlug = $this->processTitleSlug($oName);
+
+        $attributes = ['slug' => $oSlug];
+        $newAttributes = array_merge([
+            'name' => $oName,
+            'location_id' => $location->id
+        ], $attributes);
+
+        $outlet = Outlet::firstOrCreate(
+            $attributes,
+            factory(Outlet::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals($outlet->name, $oName);
+        $this->assertEquals($outlet->slug, $oSlug);
+        $this->assertEquals($outlet->location_id, $location->id);
 
         return $location;
     }
@@ -243,7 +288,7 @@ class ExampleTest extends TestCase
                             if (isset($rItem['district'])) {
                                 $districts = $rItem['district'];
 
-                                foreach ($districts as $k => $dItem)
+                                foreach ($districts as $dItem)
                                 {
                                     $district = $this->createDistricts($dItem, $regency);
 
@@ -253,6 +298,62 @@ class ExampleTest extends TestCase
                                         foreach ($locations as $lItem)
                                         {
                                             $this->createLocations($lItem, $district);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public function testOutletCreation()
+    {
+        list($svParams, $structure) = $this->loadFiles();
+
+        $items = $structure['brand'];
+
+        foreach ($items as $item) {
+            $brand = $this->createBrands($item);
+
+            if (isset($item['province'])) {
+                $provinces = $item['province'];
+
+                foreach($provinces as $pItem)
+                {
+                    $province = $this->createProvinces($pItem, $brand);
+
+                    if (isset($pItem['regency'])) {
+                        $regencies = $pItem['regency'];
+
+                        foreach ($regencies as $rItem)
+                        {
+                            $regency = $this->createRegencies($rItem, $province);
+
+                            if (isset($rItem['district'])) {
+                                $districts = $rItem['district'];
+
+                                foreach ($districts as $dItem)
+                                {
+                                    $district = $this->createDistricts($dItem, $regency);
+
+                                    if (isset($dItem['location'])) {
+                                        $locations = $dItem['location'];
+
+                                        foreach ($locations as $lItem)
+                                        {
+                                            $location = $this->createLocations($lItem, $district);
+
+                                            if (isset($lItem['outlet'])) {
+                                                $outlets = $lItem['outlet'];
+
+                                                foreach ($outlets as $oItem)
+                                                {
+                                                    $this->createOutlets($oItem, $location);
+                                                }
+                                            }
                                         }
                                     }
                                 }

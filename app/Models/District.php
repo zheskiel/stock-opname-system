@@ -11,6 +11,7 @@ class District extends Model
     protected $fillable = [
         'name',
         'slug',
+        'regency_id',
     ];
 
     protected $with = [];
