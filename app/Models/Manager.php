@@ -16,11 +16,11 @@ class Manager extends Model
     ];
 
     protected $with = [
-        'supervisor'
+        // 'supervisor'
     ];
 
     protected $hidden = [
-        // 'id',
+        'id',
         'password',
         'remember_token',
         'created_at',
