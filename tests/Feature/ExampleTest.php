@@ -18,7 +18,7 @@ use App\Traits\HelpersTrait;
 
 class ExampleTest extends TestCase
 {
-    // use RefreshDatabase;
+    use RefreshDatabase;
     use HelpersTrait;
 
     private $structure;
