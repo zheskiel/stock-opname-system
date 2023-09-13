@@ -14,8 +14,7 @@ use App\Traits\HelpersTrait;
 
 class ExampleTest extends TestCase
 {
-    use RefreshDatabase;
-    use HelpersTrait;
+    use RefreshDatabase, HelpersTrait;
 
     private $brand;
 
