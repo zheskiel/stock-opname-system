@@ -2,7 +2,7 @@
 
 use App\Models\Brand;
 
-$factory->define(Brand::class, function ($name, $slug) {
+$factory->define(Brand::class, function ($name = null, $slug = null) {
     return [
         'name' => $name,
         'slug' => $slug,

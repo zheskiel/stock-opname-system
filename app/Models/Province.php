@@ -11,6 +11,7 @@ class Province extends Model
     protected $fillable = [
         'name',
         'slug',
+        'brand_id'
     ];
 
     protected $with = [];
