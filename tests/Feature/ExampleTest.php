@@ -4,9 +4,6 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 
 use App\Models\Brand;
 use App\Models\District;
@@ -30,9 +27,9 @@ class ExampleTest extends TestCase
         return include(__DIR__ . '/../../database/seeds/StructureData.php');
     }
 
-    private function createBrands($item)
+    private function createBrands($bItem)
     {
-        $name = $item['name'];
+        $name = $bItem['name'];
 
         $slug = $this->processTitleSlug($name);
 
@@ -41,15 +38,15 @@ class ExampleTest extends TestCase
             'name' => $name
         ], $attributes);
 
-        $brand = Brand::firstOrCreate(
+        $item = Brand::firstOrCreate(
             $attributes,
             factory(Brand::class)->raw($newAttributes)
         );
         
-        $this->assertEquals($brand->name, $name);
-        $this->assertEquals($brand->slug, $slug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
 
-        return $brand;
+        return $item;
     }
 
     private function createProvinces($pItem, $brand)
@@ -63,16 +60,16 @@ class ExampleTest extends TestCase
             'brand_id' => $brand->id
         ], $attributes);
 
-        $province = Province::firstOrCreate(
+        $item = Province::firstOrCreate(
             $attributes,
             factory(Province::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($province->name, $pName);
-        $this->assertEquals($province->slug, $pSlug);
-        $this->assertEquals($province->brand_id, $brand->id);
+        $this->assertEquals($item->name, $pName);
+        $this->assertEquals($item->slug, $pSlug);
+        $this->assertEquals($item->brand_id, $brand->id);
 
-        return $province;
+        return $item;
     }
 
     private function createRegencies($rItem, $province)
@@ -86,16 +83,16 @@ class ExampleTest extends TestCase
             'province_id' => $province->id
         ], $attributes);
 
-        $regency = Regency::firstOrCreate(
+        $item = Regency::firstOrCreate(
             $attributes,
             factory(Regency::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($regency->name, $rName);
-        $this->assertEquals($regency->slug, $rSlug);
-        $this->assertEquals($regency->province_id, $province->id);
+        $this->assertEquals($item->name, $rName);
+        $this->assertEquals($item->slug, $rSlug);
+        $this->assertEquals($item->province_id, $province->id);
 
-        return $regency;
+        return $item;
     }
 
     private function createDistricts($dItem, $regency)
@@ -109,16 +106,16 @@ class ExampleTest extends TestCase
             'regency_id' => $regency->id
         ], $attributes);
 
-        $district = District::firstOrCreate(
+        $item = District::firstOrCreate(
             $attributes,
             factory(District::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($district->name, $dName);
-        $this->assertEquals($district->slug, $dSlug);
-        $this->assertEquals($district->regency_id, $regency->id);
+        $this->assertEquals($item->name, $dName);
+        $this->assertEquals($item->slug, $dSlug);
+        $this->assertEquals($item->regency_id, $regency->id);
 
-        return $district;
+        return $item;
     }
 
     private function createLocations($lItem, $district)
@@ -135,16 +132,16 @@ class ExampleTest extends TestCase
             'district_id' => $district->id
         ], $attributes);
 
-        $location = Location::firstOrCreate(
+        $item = Location::firstOrCreate(
             $attributes,
             factory(Location::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($location->name, $lName);
-        $this->assertEquals($location->slug, $lSlug);
-        $this->assertEquals($location->district_id, $district->id);
+        $this->assertEquals($item->name, $lName);
+        $this->assertEquals($item->slug, $lSlug);
+        $this->assertEquals($item->district_id, $district->id);
 
-        return $location;
+        return $item;
     }
 
     private function createOutlets($oItem, $location)
@@ -158,210 +155,126 @@ class ExampleTest extends TestCase
             'location_id' => $location->id
         ], $attributes);
 
-        $outlet = Outlet::firstOrCreate(
+        $item = Outlet::firstOrCreate(
             $attributes,
             factory(Outlet::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($outlet->name, $oName);
-        $this->assertEquals($outlet->slug, $oSlug);
-        $this->assertEquals($outlet->location_id, $location->id);
+        $this->assertEquals($item->name, $oName);
+        $this->assertEquals($item->slug, $oSlug);
+        $this->assertEquals($item->location_id, $location->id);
 
-        return $location;
+        return $item;
     }
 
     /**
-     * @return void
+     * @dataProvider hierarchyProvider
      */
-    public function testBrandCreation()
+    public function testCreation($lastKey)
     {
         list($svParams, $structure) = $this->loadFiles();
 
         $items = $structure['brand'];
 
-        foreach ($items as $item) {
-            $this->createBrands($item);
-        }
+        $this->beforeCreateBrands($items, $lastKey);
     }
 
-    /**
-     * @return void
-     */
-    public function testProvinceCreation()
+    public function hierarchyProvider()
     {
-        list($svParams, $structure) = $this->loadFiles();
+        return [
+            ['brand'],
+            ['province'],
+            ['regency'],
+            ['district'],
+            ['location'],
+            ['outlet'],
+        ];
+    }
 
-        $items = $structure['brand'];
-
+    private function beforeCreateBrands($items, $lastKey)
+    {
         foreach ($items as $item) {
             $brand = $this->createBrands($item);
 
-            $provinces = $item['province'];
+            $key = 'province';
 
-            foreach($provinces as $pItem)
-            {
-                $this->createProvinces($pItem, $brand);
+            if ($lastKey !== $key && isset($item[$key])) {
+                $provinces = $item[$key];
+
+                $this->beforeCreateProvinces($provinces, $brand, $lastKey);
             }
         }
     }
 
-    public function testRegencyCreation()
+    private function beforeCreateProvinces($items, $brand, $lastKey)
     {
-        list($svParams, $structure) = $this->loadFiles();
+        foreach($items as $item)
+        {
+            $province = $this->createProvinces($item, $brand);
 
-        $items = $structure['brand'];
+            $key = 'regency';
 
-        foreach ($items as $item) {
-            $brand = $this->createBrands($item);
+            if ($lastKey !== $key && isset($item[$key])) {
+                $regencies = $item[$key];
 
-            $provinces = $item['province'];
-
-            foreach($provinces as $pItem)
-            {
-                $province = $this->createProvinces($pItem, $brand);
-
-                $regencies = $pItem['regency'];
-
-                foreach ($regencies as $rItem)
-                {
-                    $this->createRegencies($rItem, $province);
-                }
+                $this->beforeCreateRegencies($regencies, $province, $lastKey);
             }
         }
     }
 
-    public function testDistrictCreation()
+    private function beforeCreateRegencies($items, $province, $lastKey)
     {
-        list($svParams, $structure) = $this->loadFiles();
+        foreach ($items as $item)
+        {
+            $regency = $this->createRegencies($item, $province);
 
-        $items = $structure['brand'];
+            $key = 'district';
 
-        foreach ($items as $item) {
-            $brand = $this->createBrands($item);
+            if ($lastKey !== $key && isset($item[$key])) {
+                $districts = $item[$key];
 
-            $provinces = $item['province'];
-
-            foreach($provinces as $pItem)
-            {
-                $province = $this->createProvinces($pItem, $brand);
-
-                $regencies = $pItem['regency'];
-
-                foreach ($regencies as $rItem)
-                {
-                    $regency = $this->createRegencies($rItem, $province);
-
-                    $districts = $rItem['district'];
-
-                    foreach ($districts as $dItem)
-                    {
-                        $this->createDistricts($dItem, $regency);
-                    }
-                }
+                $this->beforeCreateDistrict($districts, $regency, $lastKey);
             }
         }
     }
 
-    public function testLocationCreation()
+    private function beforeCreateDistrict($items, $regency, $lastKey)
     {
-        list($svParams, $structure) = $this->loadFiles();
+        foreach ($items as $item)
+        {
+            $district = $this->createDistricts($item, $regency);
 
-        $items = $structure['brand'];
+            $key = 'location';
 
-        foreach ($items as $item) {
-            $brand = $this->createBrands($item);
+            if ($lastKey !== $key && isset($item[$key])) {
+                $locations = $item[$key];
 
-            if (isset($item['province'])) {
-                $provinces = $item['province'];
-
-                foreach($provinces as $pItem)
-                {
-                    $province = $this->createProvinces($pItem, $brand);
-
-                    if (isset($pItem['regency'])) {
-                        $regencies = $pItem['regency'];
-
-                        foreach ($regencies as $rItem)
-                        {
-                            $regency = $this->createRegencies($rItem, $province);
-
-                            if (isset($rItem['district'])) {
-                                $districts = $rItem['district'];
-
-                                foreach ($districts as $dItem)
-                                {
-                                    $district = $this->createDistricts($dItem, $regency);
-
-                                    if (isset($dItem['location'])) {
-                                        $locations = $dItem['location'];
-
-                                        foreach ($locations as $lItem)
-                                        {
-                                            $this->createLocations($lItem, $district);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->beforeCreateLocation($locations, $district, $lastKey);
             }
         }
     }
 
-    public function testOutletCreation()
+    private function beforeCreateLocation($items, $district, $lastKey)
     {
-        list($svParams, $structure) = $this->loadFiles();
+        foreach ($items as $item)
+        {
+            $location = $this->createLocations($item, $district);
 
-        $items = $structure['brand'];
+            $key = 'outlet';
 
-        foreach ($items as $item) {
-            $brand = $this->createBrands($item);
+            if ($lastKey !== $key && isset($item[$key])) {
+                $outlets = $item[$key];
 
-            if (isset($item['province'])) {
-                $provinces = $item['province'];
-
-                foreach($provinces as $pItem)
-                {
-                    $province = $this->createProvinces($pItem, $brand);
-
-                    if (isset($pItem['regency'])) {
-                        $regencies = $pItem['regency'];
-
-                        foreach ($regencies as $rItem)
-                        {
-                            $regency = $this->createRegencies($rItem, $province);
-
-                            if (isset($rItem['district'])) {
-                                $districts = $rItem['district'];
-
-                                foreach ($districts as $dItem)
-                                {
-                                    $district = $this->createDistricts($dItem, $regency);
-
-                                    if (isset($dItem['location'])) {
-                                        $locations = $dItem['location'];
-
-                                        foreach ($locations as $lItem)
-                                        {
-                                            $location = $this->createLocations($lItem, $district);
-
-                                            if (isset($lItem['outlet'])) {
-                                                $outlets = $lItem['outlet'];
-
-                                                foreach ($outlets as $oItem)
-                                                {
-                                                    $this->createOutlets($oItem, $location);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                $this->beforeCreateOutlet($outlets, $location);
             }
+        }
+    }
+
+    private function beforeCreateOutlet($items, $location)
+    {
+        foreach ($items as $item)
+        {
+            $this->createOutlets($item, $location);
         }
     }
 }
