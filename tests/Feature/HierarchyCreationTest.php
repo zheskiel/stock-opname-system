@@ -22,7 +22,7 @@ use App\Models\ {
 
 class HierarchyCreationTest extends TestCase
 {
-    // use RefreshDatabase;
+    use RefreshDatabase;
     use HelpersTrait;
 
     private $structure, $svParams;
