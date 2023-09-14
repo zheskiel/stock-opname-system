@@ -5,18 +5,20 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-use App\Models\Brand;
-use App\Models\District;
-use App\Models\Location;
-use App\Models\Manager;
-use App\Models\Outlet;
-use App\Models\Province;
-use App\Models\Regency;
-use App\Models\Staff;
-use App\Models\StaffType;
-use App\Models\Supervisor;
-use App\Models\SupervisorType;
 use App\Traits\HelpersTrait;
+use App\Models\ {
+    Brand,
+    District,
+    Location,
+    Manager,
+    Outlet,
+    Province,
+    Regency,
+    Staff,
+    StaffType,
+    Supervisor,
+    SupervisorType
+};
 
 class HierarchyCreationTest extends TestCase
 {
