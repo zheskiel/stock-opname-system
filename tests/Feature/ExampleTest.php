@@ -287,6 +287,10 @@ class ExampleTest extends TestCase
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
+        $this->assertEquals($item->outlet_id, $outlet->id);
+        $this->assertEquals($item->manager_id, $manager->id);
+        $this->assertEquals($item->supervisor_id, $supervisor->id);
+        $this->assertEquals($item->staff_type_id, $staffType->id);
 
         return $item;
     }
