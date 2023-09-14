@@ -18,7 +18,7 @@ use App\Models\Supervisor;
 use App\Models\SupervisorType;
 use App\Traits\HelpersTrait;
 
-class ExampleTest extends TestCase
+class HierarchyCreationTest extends TestCase
 {
     use RefreshDatabase;
     use HelpersTrait;
