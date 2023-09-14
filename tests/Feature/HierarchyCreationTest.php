@@ -329,7 +329,8 @@ class HierarchyCreationTest extends TestCase
 
     private function beforeCreateBrands($items, $lastKey)
     {
-        foreach ($items as $item) {
+        foreach ($items as $item)
+        {
             $brand = $this->createBrands($item);
 
             $key = 'province';
@@ -506,10 +507,11 @@ class HierarchyCreationTest extends TestCase
 
     private function getRandomStaffFromCertainLevel($staffs, $level)
     {
-        $currentStaffType = $staffs[$level];
-        $totalStaff = count($currentStaffType);
+        $crStaffType = $staffs[$level];
+
+        $totalStaff = count($crStaffType);
         $randStaff = rand(0, $totalStaff - 1);
 
-        return $currentStaffType[$randStaff];
+        return $crStaffType[$randStaff];
     }
 }
