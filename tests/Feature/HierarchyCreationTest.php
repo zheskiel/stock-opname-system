@@ -25,13 +25,33 @@ class HierarchyCreationTest extends TestCase
     use RefreshDatabase;
     use HelpersTrait;
 
-    private $structure;
-    private $svParams;
+    private $structure, $svParams;
 
-
-    public function loadFiles()
+    /**
+     * @dataProvider hierarchyProvider
+     */
+    public function testCreation($lastKey)
     {
-        return include(__DIR__ . '/../../database/seeds/StructureData.php');
+        $filePath = '/../../database/seeds/StructureData.php';
+        $structureData = include(__DIR__ . $filePath);
+
+        list($svParams, $structure) = $structureData;
+
+        $items = $structure['brand'];
+
+        $this->beforeCreateBrands($items, $lastKey);
+    }
+
+    public function hierarchyProvider()
+    {
+        return [
+            ['brand'],
+            ['province'],
+            ['regency'],
+            ['district'],
+            ['location'],
+            ['outlet'],
+        ];
     }
 
     private function createBrands($item)
@@ -295,30 +315,6 @@ class HierarchyCreationTest extends TestCase
         $this->assertEquals($item->staff_type_id, $staffType->id);
 
         return $item;
-    }
-
-    /**
-     * @dataProvider hierarchyProvider
-     */
-    public function testCreation($lastKey)
-    {
-        list($svParams, $structure) = $this->loadFiles();
-
-        $items = $structure['brand'];
-
-        $this->beforeCreateBrands($items, $lastKey);
-    }
-
-    public function hierarchyProvider()
-    {
-        return [
-            ['brand'],
-            ['province'],
-            ['regency'],
-            ['district'],
-            ['location'],
-            ['outlet'],
-        ];
     }
 
     private function afterCreate($model, $target, $relation)
