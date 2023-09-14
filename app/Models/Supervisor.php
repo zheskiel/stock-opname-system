@@ -13,6 +13,7 @@ class Supervisor extends Model
     protected $fillable = [
         'name',
         'slug',
+        'manager_id',
         'outlet_id',
         'is_supervisor'
     ];

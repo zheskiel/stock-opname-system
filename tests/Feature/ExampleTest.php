@@ -190,6 +190,31 @@ class ExampleTest extends TestCase
         return $item;
     }
 
+    private function createSupervisors($item, $manager, $outlet)
+    {
+        $name = $item['title'] . ' - ' . $outlet->name;
+        $slug = $this->processTitleSlug($name);
+
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name,
+            'manager_id'  => $manager->id,
+            'outlet_id'   => $outlet->id
+        ], $attributes);
+
+        $item = Supervisor::firstOrCreate(
+            $attributes,
+            factory(Supervisor::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
+        $this->assertEquals($item->outlet_id, $outlet->id);
+        $this->assertEquals($item->manager_id, $manager->id);
+
+        return $item;
+    }
+
     /**
      * @dataProvider hierarchyProvider
      */
@@ -312,9 +337,26 @@ class ExampleTest extends TestCase
     {
         foreach ($items as $item)
         {
-            $manager = $this->createManagers($item['manager']);
+            $managerData = $item['manager'];
 
-            $this->createOutlets($item, $manager, $location);
+            $manager = $this->createManagers($managerData);
+            $outlet = $this->createOutlets($item, $manager, $location);
+
+            if (isset($managerData['supervisor'])) {
+                $supervisorData = $managerData['supervisor'];
+
+                $this->beforeCreateSupervisor($supervisorData, $manager, $outlet);
+            }
+        }
+    }
+
+    private function beforeCreateSupervisor($items, $manager, $outlet)
+    {
+        $itemsData = $items['level'];
+
+        foreach ($itemsData as $item)
+        {
+            $this->createSupervisors($item, $manager, $outlet);
         }
     }
 }
