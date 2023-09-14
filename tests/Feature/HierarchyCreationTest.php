@@ -239,6 +239,8 @@ class HierarchyCreationTest extends TestCase
         $this->assertEquals($item->outlet_id, $outlet->id);
         $this->assertEquals($item->manager_id, $manager->id);
 
+        $manager->supervisor()->attach($item, ['outlet_id' => $outlet->id]);
+
         return $item;
     }
 
@@ -498,6 +500,8 @@ class HierarchyCreationTest extends TestCase
 
             $supervisor->staff_id = $staff->id;
             $supervisor->save();
+
+            $supervisor->multiPivotType()->attach($staffType, ['staff_id' => $staff->id]);
 
             $staffs[] = $staff;
         }
