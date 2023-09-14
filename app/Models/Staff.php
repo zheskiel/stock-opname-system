@@ -11,9 +11,17 @@ class Staff extends Model
     protected $fillable = [
         'name',
         'slug',
-        'supervisor_type_label',
+        'email',
+        'sv_type_label',
+        'outlet_id',
+        'manager_id',
+        'staff_type_id',
         'supervisor_id',
-        'is_supervisor'
+        'is_supervisor',
+        'password',
+        'remember_token',
+        'created_at',
+        'updated_at',
     ];
 
     protected $with = [];

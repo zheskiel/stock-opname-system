@@ -12,6 +12,8 @@ use App\Models\Manager;
 use App\Models\Outlet;
 use App\Models\Province;
 use App\Models\Regency;
+use App\Models\Staff;
+use App\Models\StaffType;
 use App\Models\Supervisor;
 use App\Models\SupervisorType;
 use App\Traits\HelpersTrait;
@@ -261,6 +263,34 @@ class ExampleTest extends TestCase
         return $item;
     }
 
+    private function createStaffs($params)
+    {
+        list ($item, $staffType, $supervisor, $supervisorType, $manager, $outlet) = $params;
+
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
+
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name,
+            'sv_type_label' => $supervisorType->name,
+            'supervisor_id' => $supervisor->id,
+            'staff_type_id' => $staffType->id,
+            'manager_id'    => $manager->id,
+            'outlet_id'     => $outlet->id,
+        ], $attributes);
+
+        $item = Staff::firstOrCreate(
+            $attributes,
+            factory(Staff::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
+
+        return $item;
+    }
+
     /**
      * @dataProvider hierarchyProvider
      */
@@ -405,7 +435,15 @@ class ExampleTest extends TestCase
             $supervisorType = $this->beforeCreateSupervisorType($item);
             $supervisor = $this->createSupervisors($item, $supervisorType, $manager, $outlet);
 
-            $this->beforeCreateStaffTypes($item, $supervisor);
+            $params = [
+                $item,
+                $supervisor,
+                $supervisorType,
+                $manager,
+                $outlet
+            ];
+
+            $this->beforeCreateStaffTypes($params);
         }
     }
 
@@ -414,13 +452,33 @@ class ExampleTest extends TestCase
         return $this->createSupervisorTypes($item);
     }
 
-    private function beforeCreateStaffTypes($items, $supervisor)
+    private function beforeCreateStaffTypes($params)
     {
+        list ($items, $supervisor, $supervisorType, $manager, $outlet) = $params;
+
         $itemsData = $items['types'];
 
         foreach ($itemsData as $item)
         {
-            $this->createStaffTypes($item, $supervisor);
+            $staffType = $this->createStaffTypes($item, $supervisor);
+
+            $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
+
+            $this->beforeCreateStaffs($newParams);
+        }
+    }
+
+    private function beforeCreateStaffs($params)
+    {
+        list ($items, $staffType, $supervisor, $supervisorType, $manager, $outlet) = $params;
+
+        $itemsData = $items['staff'];
+
+        foreach($itemsData as $item)
+        {
+            $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
+
+            $this->createStaffs($newParams);
         }
     }
 }
