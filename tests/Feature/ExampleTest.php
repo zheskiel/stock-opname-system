@@ -49,14 +49,14 @@ class ExampleTest extends TestCase
         return $item;
     }
 
-    private function createProvinces($pItem, $brand)
+    private function createProvinces($item, $brand)
     {
-        $pName = $pItem['name'];
-        $pSlug = $this->processTitleSlug($pName);
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
 
-        $attributes = ['slug' => $pSlug];
+        $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
-            'name' => $pName,
+            'name' => $name,
             'brand_id' => $brand->id
         ], $attributes);
 
@@ -65,21 +65,21 @@ class ExampleTest extends TestCase
             factory(Province::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($item->name, $pName);
-        $this->assertEquals($item->slug, $pSlug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->brand_id, $brand->id);
 
         return $item;
     }
 
-    private function createRegencies($rItem, $province)
+    private function createRegencies($item, $province)
     {
-        $rName = $rItem['name'];
-        $rSlug = $this->processTitleSlug($rName);
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
 
-        $attributes = ['slug' => $rSlug];
+        $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
-            'name' => $rName,
+            'name' => $name,
             'province_id' => $province->id
         ], $attributes);
 
@@ -88,21 +88,21 @@ class ExampleTest extends TestCase
             factory(Regency::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($item->name, $rName);
-        $this->assertEquals($item->slug, $rSlug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->province_id, $province->id);
 
         return $item;
     }
 
-    private function createDistricts($dItem, $regency)
+    private function createDistricts($item, $regency)
     {
-        $dName = $dItem['name'];
-        $dSlug = $this->processTitleSlug($dName);
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
 
-        $attributes = ['slug' => $dSlug];
+        $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
-            'name' => $dName,
+            'name' => $name,
             'regency_id' => $regency->id
         ], $attributes);
 
@@ -111,24 +111,24 @@ class ExampleTest extends TestCase
             factory(District::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($item->name, $dName);
-        $this->assertEquals($item->slug, $dSlug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->regency_id, $regency->id);
 
         return $item;
     }
 
-    private function createLocations($lItem, $district)
+    private function createLocations($item, $district)
     {
-        $lName = $lItem['name'];
-        $lSlug = $this->processTitleSlug($lName);
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
 
-        $lAlias = $lItem['alias'];
+        $alias = $item['alias'];
 
-        $attributes = ['slug' => $lSlug];
+        $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
-            'name' => $lName,
-            'alias' => $lAlias,
+            'name' => $name,
+            'alias' => $alias,
             'district_id' => $district->id
         ], $attributes);
 
@@ -137,21 +137,21 @@ class ExampleTest extends TestCase
             factory(Location::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($item->name, $lName);
-        $this->assertEquals($item->slug, $lSlug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->district_id, $district->id);
 
         return $item;
     }
 
-    private function createOutlets($oItem, $location)
+    private function createOutlets($item, $location)
     {
-        $oName = $oItem['name'];
-        $oSlug = $this->processTitleSlug($oName);
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
 
-        $attributes = ['slug' => $oSlug];
+        $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
-            'name' => $oName,
+            'name' => $name,
             'location_id' => $location->id
         ], $attributes);
 
@@ -160,8 +160,8 @@ class ExampleTest extends TestCase
             factory(Outlet::class)->raw($newAttributes)
         );
 
-        $this->assertEquals($item->name, $oName);
-        $this->assertEquals($item->slug, $oSlug);
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->location_id, $location->id);
 
         return $item;
