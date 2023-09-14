@@ -1,8 +1,14 @@
 <?php
 
 use App\Models\Brand;
+use Faker\Generator as Faker;
 
-$factory->define(Brand::class, function ($name = null, $slug = null) {
+$factory->define(Brand::class, function (
+    Faker $faker, $params = null
+) {
+    $name = $params['name'] ?? null;
+    $slug = $params['slug'] ?? null;
+
     return [
         'name' => $name,
         'slug' => $slug,

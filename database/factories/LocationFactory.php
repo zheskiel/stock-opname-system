@@ -1,8 +1,16 @@
 <?php
 
 use App\Models\Location;
+use Faker\Generator as Faker;
 
-$factory->define(Location::class, function ($name = null, $slug = null, $alias = null, $district_id = null) {
+$factory->define(Location::class, function (
+    Faker $faker, $params = null
+) {
+    $name = $params['name'] ?? null;
+    $slug = $params['slug'] ?? null;
+    $alias = $params['alias'] ?? null;
+    $district_id = $params['district_id'] ?? null;
+
     return [
         'name' => $name,
         'slug' => $slug,

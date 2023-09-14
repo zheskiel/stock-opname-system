@@ -8,6 +8,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Brand;
 use App\Models\District;
 use App\Models\Location;
+use App\Models\Manager;
 use App\Models\Outlet;
 use App\Models\Province;
 use App\Models\Regency;
@@ -94,16 +95,6 @@ class ExampleTest extends TestCase
         return $item;
     }
 
-    private function afterCreate($model, $target, $relation)
-    {
-        $items = $target->{$relation};
-
-        foreach ( $items as $item )
-        {
-            $this->assertInstanceOf($model, $item);
-        }
-    }
-
     private function createDistricts($item, $regency)
     {
         $name = $item['name'];
@@ -153,7 +144,7 @@ class ExampleTest extends TestCase
         return $item;
     }
 
-    private function createOutlets($item, $location)
+    private function createOutlets($item, $manager, $location)
     {
         $name = $item['name'];
         $slug = $this->processTitleSlug($name);
@@ -161,6 +152,7 @@ class ExampleTest extends TestCase
         $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
             'name' => $name,
+            'manager_id' => $manager->id,
             'location_id' => $location->id
         ], $attributes);
 
@@ -171,7 +163,29 @@ class ExampleTest extends TestCase
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
+        $this->assertEquals($item->manager_id, $manager->id);
         $this->assertEquals($item->location_id, $location->id);
+
+        return $item;
+    }
+
+    private function createManagers($item)
+    {
+        $name = $item['name'];
+        $slug = $this->processTitleSlug($name);
+
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name,
+        ], $attributes);
+
+        $item = Manager::firstOrCreate(
+            $attributes,
+            factory(Manager::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals(ucwords($item->name), ucwords($name));
+        $this->assertEquals($item->slug, $slug);
 
         return $item;
     }
@@ -198,6 +212,16 @@ class ExampleTest extends TestCase
             ['location'],
             ['outlet'],
         ];
+    }
+
+    private function afterCreate($model, $target, $relation)
+    {
+        $items = $target->{$relation};
+
+        foreach ( $items as $item )
+        {
+            $this->assertInstanceOf($model, $item);
+        }
     }
 
     private function beforeCreateBrands($items, $lastKey)
@@ -288,7 +312,9 @@ class ExampleTest extends TestCase
     {
         foreach ($items as $item)
         {
-            $this->createOutlets($item, $location);
+            $manager = $this->createManagers($item['manager']);
+
+            $this->createOutlets($item, $manager, $location);
         }
     }
 }
