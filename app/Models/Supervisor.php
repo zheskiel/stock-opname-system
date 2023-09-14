@@ -15,7 +15,8 @@ class Supervisor extends Model
         'slug',
         'manager_id',
         'outlet_id',
-        'is_supervisor'
+        'is_supervisor',
+        'supervisor_type_id'
     ];
 
     protected $with = [

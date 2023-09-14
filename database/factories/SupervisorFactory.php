@@ -10,11 +10,13 @@ $factory->define(Supervisor::class, function (
     $slug = $params['slug'] ?? null;
     $outlet_id = $params['outlet_id'] ?? null;
     $manager_id = $params['manager_id'] ?? null;
+    $supervisor_type_id = $params['supervisor_type_id'] ?? null;
 
     return [
         'title' => $title,
         'slug' => $slug,
         'outlet_id' => $outlet_id,
-        'manager_id' => $manager_id
+        'manager_id' => $manager_id,
+        'supervisor_type_id' => $supervisor_type_id,
     ];
 });

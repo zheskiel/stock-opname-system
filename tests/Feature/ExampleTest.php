@@ -12,6 +12,8 @@ use App\Models\Manager;
 use App\Models\Outlet;
 use App\Models\Province;
 use App\Models\Regency;
+use App\Models\Supervisor;
+use App\Models\SupervisorType;
 use App\Traits\HelpersTrait;
 
 class ExampleTest extends TestCase
@@ -190,7 +192,7 @@ class ExampleTest extends TestCase
         return $item;
     }
 
-    private function createSupervisors($item, $manager, $outlet)
+    private function createSupervisors($item, $supervisorType, $manager, $outlet)
     {
         $name = $item['title'] . ' - ' . $outlet->name;
         $slug = $this->processTitleSlug($name);
@@ -198,6 +200,7 @@ class ExampleTest extends TestCase
         $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
             'name' => $name,
+            'supervisor_type_id' => $supervisorType->id,
             'manager_id'  => $manager->id,
             'outlet_id'   => $outlet->id
         ], $attributes);
@@ -211,6 +214,27 @@ class ExampleTest extends TestCase
         $this->assertEquals($item->slug, $slug);
         $this->assertEquals($item->outlet_id, $outlet->id);
         $this->assertEquals($item->manager_id, $manager->id);
+
+        return $item;
+    }
+
+    private function createSupervisorTypes($item)
+    {
+        $name = $item['title'];
+        $slug = $this->processTitleSlug($name);
+
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name,
+        ], $attributes);
+
+        $item = SupervisorType::firstOrCreate(
+            $attributes,
+            factory(SupervisorType::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
 
         return $item;
     }
@@ -356,7 +380,14 @@ class ExampleTest extends TestCase
 
         foreach ($itemsData as $item)
         {
-            $this->createSupervisors($item, $manager, $outlet);
+            $supervisorType = $this->beforeCreateSupervisorType($item);
+
+            $this->createSupervisors($item, $supervisorType, $manager, $outlet);
         }
+    }
+
+    private function beforeCreateSupervisorType($item)
+    {
+        return $this->createSupervisorTypes($item);
     }
 }
