@@ -12,6 +12,9 @@ use Importer as C;
 
 class MasterDataSeeder extends BaseSeeder
 {
+    private $masterDataService;
+    private $master;
+
     private $unsetLists = [
         'Unit',
         'Qty',
@@ -31,7 +34,7 @@ class MasterDataSeeder extends BaseSeeder
         $this->master = $master;
     }
 
-    private function getStartKeyAndTitleArray($collection, $startKey = 0) : array
+    private function getStartKeyAndTitleArray($collection, $startKey = 0, $titleArr = "") : array
     {
         foreach ($collection as $key => $item) {
             if ($item[0] == 'Product ID') {
@@ -74,7 +77,7 @@ class MasterDataSeeder extends BaseSeeder
         foreach($listArr as $l => $items) {
             $unitList = [];
 
-            foreach($items as $i => $item) {
+            foreach($items as $item) {
                 $unitList[ $item['Unit'] ] = [
                     'value'                 => $item['Qty'],
                     'barcode_number'        => $item['Barcode Number'],
@@ -110,7 +113,7 @@ class MasterDataSeeder extends BaseSeeder
 
     private function createMasterData($listArr) : void
     {
-        foreach($listArr as $k => $data) {
+        foreach($listArr as $data) {
             $this->masterDataService->createData($data);
         }
     }
@@ -121,8 +124,8 @@ class MasterDataSeeder extends BaseSeeder
 
         list($startKey, $titleArr) = $this->getStartKeyAndTitleArray($collection);
 
-        $list = $this->getListData($collection, $titleArr, $startKey);
-        $listArr = $this->getUnitListData($list);
+        $listData = $this->getListData($collection, $titleArr, $startKey);
+        $listArr  = $this->getUnitListData($listData);
 
         $this->createMasterData($listArr);
     }
