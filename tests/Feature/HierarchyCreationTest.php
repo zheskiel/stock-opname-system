@@ -442,11 +442,7 @@ class HierarchyCreationTest extends TestCase
             );
 
             $params = [
-                $item,
-                $supervisor,
-                $supervisorType,
-                $manager,
-                $outlet
+                $item, $supervisor, $supervisorType, $manager, $outlet
             ];
 
             $this->beforeCreateStaffTypes($params);
@@ -471,11 +467,11 @@ class HierarchyCreationTest extends TestCase
         {
             $staffType = $this->createStaffTypes($item, $supervisor);
 
-            $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
+            $newParams = [
+                $item, $staffType, $supervisor, $supervisorType, $manager, $outlet
+            ];
 
-            $staff = $this->beforeCreateStaffs($newParams);
-
-            $staffs[$level] = $staff;
+            $staffs[$level] = $this->beforeCreateStaffs($newParams);
         }
 
         $crStaff = $this->getRandomStaffFromCertainLevel($staffs, $level);
@@ -487,26 +483,17 @@ class HierarchyCreationTest extends TestCase
         $crStaff->save();
     }
 
-    private function getRandomStaffFromCertainLevel($staffs, $level)
-    {
-        $currentStaffType = $staffs[$level];
-        $totalStaff = count($currentStaffType);
-        $randStaff = rand(0, $totalStaff - 1);
-
-        return $currentStaffType[$randStaff];
-    }
-
-    private function beforeCreateStaffs($params)
+    private function beforeCreateStaffs($params, $staffs = [])
     {
         list ($items, $staffType, $supervisor, $supervisorType, $manager, $outlet) = $params;
 
         $itemsData = $items['staff'];
 
-        $staffs = [];
-
         foreach($itemsData as $item)
         {
-            $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
+            $newParams = [
+                $item, $staffType, $supervisor, $supervisorType, $manager, $outlet
+            ];
 
             $staff = $this->createStaffs($newParams);
 
@@ -517,5 +504,14 @@ class HierarchyCreationTest extends TestCase
         }
 
         return $staffs;
+    }
+
+    private function getRandomStaffFromCertainLevel($staffs, $level)
+    {
+        $currentStaffType = $staffs[$level];
+        $totalStaff = count($currentStaffType);
+        $randStaff = rand(0, $totalStaff - 1);
+
+        return $currentStaffType[$randStaff];
     }
 }
