@@ -27,10 +27,9 @@ class ExampleTest extends TestCase
         return include(__DIR__ . '/../../database/seeds/StructureData.php');
     }
 
-    private function createBrands($bItem)
+    private function createBrands($item)
     {
-        $name = $bItem['name'];
-
+        $name = $item['name'];
         $slug = $this->processTitleSlug($name);
 
         $attributes = ['slug' => $slug];
@@ -93,6 +92,16 @@ class ExampleTest extends TestCase
         $this->assertEquals($item->province_id, $province->id);
 
         return $item;
+    }
+
+    private function afterCreate($model, $target, $relation)
+    {
+        $items = $target->{$relation};
+
+        foreach ( $items as $item )
+        {
+            $this->assertInstanceOf($model, $item);
+        }
     }
 
     private function createDistricts($item, $regency)
@@ -202,6 +211,7 @@ class ExampleTest extends TestCase
                 $provinces = $item[$key];
 
                 $this->beforeCreateProvinces($provinces, $brand, $lastKey);
+                $this->afterCreate(Province::class, $brand, $key);
             }
         }
     }
@@ -218,6 +228,7 @@ class ExampleTest extends TestCase
                 $regencies = $item[$key];
 
                 $this->beforeCreateRegencies($regencies, $province, $lastKey);
+                $this->afterCreate(Regency::class, $province, $key);
             }
         }
     }
@@ -234,6 +245,7 @@ class ExampleTest extends TestCase
                 $districts = $item[$key];
 
                 $this->beforeCreateDistrict($districts, $regency, $lastKey);
+                $this->afterCreate(District::class, $regency, $key);
             }
         }
     }
@@ -250,6 +262,7 @@ class ExampleTest extends TestCase
                 $locations = $item[$key];
 
                 $this->beforeCreateLocation($locations, $district, $lastKey);
+                $this->afterCreate(Location::class, $district, $key);
             }
         }
     }
@@ -266,6 +279,7 @@ class ExampleTest extends TestCase
                 $outlets = $item[$key];
 
                 $this->beforeCreateOutlet($outlets, $location);
+                $this->afterCreate(Outlet::class, $location, $key);
             }
         }
     }
