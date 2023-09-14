@@ -478,7 +478,10 @@ class ExampleTest extends TestCase
         {
             $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
 
-            $this->createStaffs($newParams);
+            $staff = $this->createStaffs($newParams);
+
+            $supervisor->staff_id = $staff->id;
+            $supervisor->save();
         }
     }
 }
