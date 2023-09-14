@@ -437,7 +437,9 @@ class ExampleTest extends TestCase
         foreach ($itemsData as $item)
         {
             $supervisorType = $this->beforeCreateSupervisorType($item);
-            $supervisor = $this->createSupervisors($item, $supervisorType, $manager, $outlet);
+            $supervisor = $this->createSupervisors(
+                $item, $supervisorType, $manager, $outlet
+            );
 
             $params = [
                 $item,
@@ -460,6 +462,9 @@ class ExampleTest extends TestCase
     {
         list ($items, $supervisor, $supervisorType, $manager, $outlet) = $params;
 
+        $staffs = [];
+        $level = $items['title'];
+
         $itemsData = $items['types'];
 
         foreach ($itemsData as $item)
@@ -468,8 +473,22 @@ class ExampleTest extends TestCase
 
             $newParams = [$item, $staffType, $supervisor, $supervisorType, $manager, $outlet];
 
-            $this->beforeCreateStaffs($newParams);
+            $staff = $this->beforeCreateStaffs($newParams);
+
+            $staffs[$level] = $staff;
         }
+
+        $currentStaffType = $staffs[$level];
+        $totalStaff = count($currentStaffType);
+        $randStaff = rand(0, $totalStaff - 1);
+
+        $choosenStaff = $currentStaffType[$randStaff];
+
+        $choosenStaff->is_supervisor = true;
+        $choosenStaff->supervisor_id = NULL;
+        $choosenStaff->staff_type_id = NULL;
+
+        $choosenStaff->save();
     }
 
     private function beforeCreateStaffs($params)
@@ -477,6 +496,8 @@ class ExampleTest extends TestCase
         list ($items, $staffType, $supervisor, $supervisorType, $manager, $outlet) = $params;
 
         $itemsData = $items['staff'];
+
+        $staffs = [];
 
         foreach($itemsData as $item)
         {
@@ -486,6 +507,10 @@ class ExampleTest extends TestCase
 
             $supervisor->staff_id = $staff->id;
             $supervisor->save();
+
+            $staffs[] = $staff;
         }
+
+        return $staffs;
     }
 }

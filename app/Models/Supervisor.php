@@ -58,6 +58,5 @@ class Supervisor extends Model
     public function staffs()
     {
         return $this->belongsToMany('App\Models\Staff', 'staff_supervisor_staff_type');
-        // return $this->hasMany('App\Models\Staff', 'supervisor_id', 'id');
     }
 }
