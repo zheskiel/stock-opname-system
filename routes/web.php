@@ -1,5 +1,5 @@
 <?php
-
+use App\Traits\HelpersTrait;
 use App\Models\ {
     Brand,
     Master,
@@ -18,13 +18,7 @@ Route::get('/test', 'IndexController@Test');
 Route::get('/master', function() {
     $master = Master::get()
         ->each(function($query) {
-            $units = json_decode($query->units, true);
-
-            uasort($units, function ($item1, $item2) {
-                return $item2['value'] <=> $item1['value'];
-            });
-
-            $query->units = $units;
+            $query->units = HelpersTrait::sortUnitsByValue($query, 'value');
 
             return $query;
         });
@@ -33,19 +27,6 @@ Route::get('/master', function() {
 });
 Route::get('/hierarchy', function () {
     $items = Brand::with(['province'])->first();
-    // $items = StaffType::get();
-
-    // foreach ($items as $item) {
-    //     $staffs[] = $item->staffs($item->id);
-    // }
-
-    // $items = $staffs;
-
-    // $data = $items->staffsSameTypeOnly()->get();
-
-    // dd( $items->staffs()->get() );
 
     return response()->json($items);
-
-    // return view('welcome');
 });

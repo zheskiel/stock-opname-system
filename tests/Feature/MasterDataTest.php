@@ -1,8 +1,12 @@
 <?php
 
-use App\Services\ {
-    MasterDataService
-};
+namespace Tests\Feature;
+
+use Tests\TestCase;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+
+use App\Traits\HelpersTrait;
 
 use App\Models\ {
     Master
@@ -10,9 +14,12 @@ use App\Models\ {
 
 use Importer as C;
 
-class MasterDataSeeder extends BaseSeeder
+class MasterDataTest extends TestCase
 {
-    private $masterDataService;
+    use RefreshDatabase;
+    use HelpersTrait;
+
+    private $master;
     private $unsetLists = [
         'Unit',
         'Qty',
@@ -23,12 +30,6 @@ class MasterDataSeeder extends BaseSeeder
         'Flag Sales Unit',
         'Barcode Number'
     ];
-
-    public function __construct(
-        MasterDataService $masterDataService
-    ) {
-        $this->masterDataService = $masterDataService;
-    }
 
     private function getStartKeyAndTitleArray($collection, $startKey = 0, $titleArr = "") : array
     {
@@ -50,7 +51,7 @@ class MasterDataSeeder extends BaseSeeder
 
         $newCollection = array_slice($collection, $startKey, $endKey);
 
-        foreach ($newCollection as $item) {
+        foreach ($newCollection as $key => $item) {
             for ($z=0; $z < count($item); $z++) {
                 $dataList[$titleArr[$z]] = $item[$z];
             }
@@ -97,24 +98,48 @@ class MasterDataSeeder extends BaseSeeder
         return $listArr;
     }
 
-    private function getCollection() : array
+    private function getCollection()
     {
-        $filepath = __DIR__ . '/Master Product Data.xlsx';
+        $filePath = '/../../database/seeds/Master Product Data.xlsx';
+        $file = __DIR__ . $filePath;
 
         $excel = C::make('Excel');
-        $excel->load($filepath);
+        $excel->load($file);
 
         return $excel->getCollection()->toArray();
     }
 
-    private function createMasterData($listArr) : void
+    private function createMasterData($listArr)
     {
         foreach($listArr as $data) {
-            $this->masterDataService->createData($data);
+            $params = [
+                'product_id'        => $data["Product ID"],
+                'category'          => $data["Category"],
+                'subcategory'       => $data["Subcategory"],
+                'category_type'     => $data["Category Type"],
+                'bom_name'          => $data["BOM Name"],
+                'product_code'      => $data["Product Code"],
+                'product_name'      => $data["Product Name"],
+                'base_price'        => $data["Base Price"],
+                'requestable'       => $data["Requestable"],
+                'receipt_tolerance' => $data["Receipt Tolerance (%)"],
+                'saleable'          => $data["Saleable(YES/NO)"],
+                'notes'             => $data["Notes"],
+                'vat'               => $data["VAT"],
+                'status_uom'        => $data["Status UOM"],
+                'formula'           => $data["Formula Of These Menu"],
+                'units'             => $data['units']
+            ];
+
+            Master::firstOrCreate([
+                'product_id' => $data["Product ID"]
+            ], $params);
         }
+
+        return Master::first();
     }
 
-    public function run()
+    private function initMasterData()
     {
         $collection = $this->getCollection();
 
@@ -123,6 +148,18 @@ class MasterDataSeeder extends BaseSeeder
         $listData = $this->getListData($collection, $titleArr, $startKey);
         $listArr  = $this->getUnitListData($listData);
 
-        $this->createMasterData($listArr);
+        $master = $this->createMasterData($listArr);
+
+        return [$listArr, $master];
+    }
+
+    public function testMasterDataCreation()
+    {
+        list($listArr, $master) = $this->initMasterData();
+
+        $currentItem = $listArr[$master->product_id];
+
+        $this->assertEquals($currentItem['Product ID'], $master->product_id);
+        $this->assertEquals($currentItem['Category'], $master->category);
     }
 }
