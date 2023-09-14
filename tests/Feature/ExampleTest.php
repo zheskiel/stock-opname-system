@@ -239,6 +239,28 @@ class ExampleTest extends TestCase
         return $item;
     }
 
+    private function createStaffTypes($item, $supervisor)
+    {
+        $name = $item['title'];
+        $slug = $this->processTitleSlug($name);
+
+        $attributes = ['slug' => $slug];
+        $newAttributes = array_merge([
+            'name' => $name,
+            'supervisor_id' => $supervisor->id
+        ], $attributes);
+
+        $item = StaffType::firstOrCreate(
+            $attributes,
+            factory(StaffType::class)->raw($newAttributes)
+        );
+
+        $this->assertEquals($item->name, $name);
+        $this->assertEquals($item->slug, $slug);
+
+        return $item;
+    }
+
     /**
      * @dataProvider hierarchyProvider
      */
@@ -381,13 +403,24 @@ class ExampleTest extends TestCase
         foreach ($itemsData as $item)
         {
             $supervisorType = $this->beforeCreateSupervisorType($item);
+            $supervisor = $this->createSupervisors($item, $supervisorType, $manager, $outlet);
 
-            $this->createSupervisors($item, $supervisorType, $manager, $outlet);
+            $this->beforeCreateStaffTypes($item, $supervisor);
         }
     }
 
     private function beforeCreateSupervisorType($item)
     {
         return $this->createSupervisorTypes($item);
+    }
+
+    private function beforeCreateStaffTypes($items, $supervisor)
+    {
+        $itemsData = $items['types'];
+
+        foreach ($itemsData as $item)
+        {
+            $this->createStaffTypes($item, $supervisor);
+        }
     }
 }

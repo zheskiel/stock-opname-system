@@ -13,6 +13,7 @@ class StaffType extends Model
     protected $fillable = [
         'name',
         'slug',
+        'supervisor_id',
     ];
 
     protected $with = [];
