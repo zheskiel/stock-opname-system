@@ -478,17 +478,22 @@ class ExampleTest extends TestCase
             $staffs[$level] = $staff;
         }
 
+        $crStaff = $this->getRandomStaffFromCertainLevel($staffs, $level);
+
+        $crStaff->is_supervisor = true;
+        $crStaff->supervisor_id = NULL;
+        $crStaff->staff_type_id = NULL;
+
+        $crStaff->save();
+    }
+
+    private function getRandomStaffFromCertainLevel($staffs, $level)
+    {
         $currentStaffType = $staffs[$level];
         $totalStaff = count($currentStaffType);
         $randStaff = rand(0, $totalStaff - 1);
 
-        $choosenStaff = $currentStaffType[$randStaff];
-
-        $choosenStaff->is_supervisor = true;
-        $choosenStaff->supervisor_id = NULL;
-        $choosenStaff->staff_type_id = NULL;
-
-        $choosenStaff->save();
+        return $currentStaffType[$randStaff];
     }
 
     private function beforeCreateStaffs($params)
