@@ -162,7 +162,7 @@ class MasterDataTest extends TestCase
         $this->listArr = $listArr;
     }
 
-    public function testMasterDataCreation()
+    public function testMasterDataCreation() : void
     {
         $master = Master::first();
         $currentItem = $this->listArr[$master->product_id];
@@ -171,19 +171,10 @@ class MasterDataTest extends TestCase
         $this->assertEquals($currentItem['Category'], $master->category);
     }
 
-    public function IDProviders()
-    {
-        $ids = [];
-
-        for ($x = 2; $x <= 10; $x++) $ids[] = [ $x ];
-
-        return $ids;
-    }
-
     /**
-     * @dataProvider IDProviders
+     * @dataProvider IDsProviders
      */
-    public function testMasterDataCreationWithAnyRandomId($id)
+    public function testMasterDataCreationWithAnyRandomId($id) : void
     {
         $master = Master::where('id', $id)->first();
 
@@ -194,9 +185,9 @@ class MasterDataTest extends TestCase
     }
 
     /**
-     * @dataProvider IDProviders
+     * @dataProvider IDsProviders
      */
-    public function testMasterDataUnitsIsSortedByDescending($id)
+    public function testMasterDataUnitsIsSortedByDescending($id) : void
     {
         $master = Master::where('id', $id)->first();
         $units = json_decode($master['units'], true);
@@ -216,5 +207,14 @@ class MasterDataTest extends TestCase
                 $this->assertTrue($isGreater);
             }
         }
+    }
+
+    public function IDsProviders() : array
+    {
+        $ids = [];
+
+        for ($x = 2; $x <= 10; $x++) $ids[] = [ $x ];
+
+        return $ids;
     }
 }

@@ -40,6 +40,22 @@ class HierarchyCreationTest extends TestCase
         $items = $structure['brand'];
 
         $this->beforeCreateBrands($items, $lastKey);
+        $this->afterAllCreation();
+    }
+
+    public function afterAllCreation()
+    {
+        $supervisor = Supervisor::inRandomOrder()->first();
+
+        if (isset($supervisor->supervisor_pic)) {
+            $supervisorPic = $supervisor->supervisor_pic;
+
+            echo "$supervisorPic->is_supervisor\n";
+
+            $isSupervisor = 1;
+
+            $this->assertSame((int) $supervisorPic->is_supervisor, $isSupervisor);
+        }
     }
 
     public function hierarchyProvider()
@@ -319,7 +335,7 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function afterCreate($model, $target, $relation)
+    private function afterCreate($model, $target, $relation) : void
     {
         $items = $target->{$relation};
 
@@ -329,7 +345,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateBrands($items, $lastKey)
+    private function beforeCreateBrands($items, $lastKey) : void
     {
         foreach ($items as $item)
         {
@@ -346,7 +362,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateProvinces($items, $brand, $lastKey)
+    private function beforeCreateProvinces($items, $brand, $lastKey) : void
     {
         foreach($items as $item)
         {
@@ -363,7 +379,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateRegencies($items, $province, $lastKey)
+    private function beforeCreateRegencies($items, $province, $lastKey) : void
     {
         foreach ($items as $item)
         {
@@ -380,7 +396,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateDistrict($items, $regency, $lastKey)
+    private function beforeCreateDistrict($items, $regency, $lastKey) : void
     {
         foreach ($items as $item)
         {
@@ -397,7 +413,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateLocation($items, $district, $lastKey)
+    private function beforeCreateLocation($items, $district, $lastKey) : void
     {
         foreach ($items as $item)
         {
@@ -414,7 +430,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateOutlet($items, $location)
+    private function beforeCreateOutlet($items, $location) : void
     {
         foreach ($items as $item)
         {
@@ -431,7 +447,7 @@ class HierarchyCreationTest extends TestCase
         }
     }
 
-    private function beforeCreateSupervisor($items, $manager, $outlet)
+    private function beforeCreateSupervisor($items, $manager, $outlet) : void
     {
         $itemsData = $items['level'];
 
@@ -455,7 +471,7 @@ class HierarchyCreationTest extends TestCase
         return $this->createSupervisorTypes($item);
     }
 
-    private function beforeCreateStaffTypes($params)
+    private function beforeCreateStaffTypes($params) : void
     {
         list ($items, $supervisor, $supervisorType, $manager, $outlet) = $params;
 
@@ -475,9 +491,9 @@ class HierarchyCreationTest extends TestCase
             $staffs[$level] = $this->beforeCreateStaffs($newParams);
         }
 
-        $crStaff = $this->getRandomStaffFromCertainLevel($staffs, $level);
+        $crStaff = Staff::where('id', $supervisor->supervisor_pic->id)->first();
 
-        $crStaff->is_supervisor = true;
+        $crStaff->is_supervisor = 1;
         $crStaff->supervisor_id = NULL;
         $crStaff->staff_type_id = NULL;
 
@@ -507,15 +523,5 @@ class HierarchyCreationTest extends TestCase
         }
 
         return $staffs;
-    }
-
-    private function getRandomStaffFromCertainLevel($staffs, $level)
-    {
-        $crStaffType = $staffs[$level];
-
-        $totalStaff = count($crStaffType);
-        $randStaff = rand(0, $totalStaff - 1);
-
-        return $crStaffType[$randStaff];
     }
 }
