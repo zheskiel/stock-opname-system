@@ -50,10 +50,8 @@ class CreateManagerTable extends Migration
                         ->onDelete('cascade');
                 });
 
-                if (env('APP_ENV') != 'testing') {
-                    if (Schema::hasTable($item['name'])) {
-                        DB::statement("alter table ".$item['name']." add primary key (".$item['first']."_id, ".$item['second']."_id, ".$item['third']."_id)");
-                    }
+                if (env('APP_ENV') != 'testing' && Schema::hasTable($item['name'])) {
+                    DB::statement("alter table ".$item['name']." add primary key (".$item['first']."_id, ".$item['second']."_id, ".$item['third']."_id)");
                 }
             }
         }
