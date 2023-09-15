@@ -45,14 +45,12 @@ class HierarchyCreationTest extends TestCase
 
     public function afterAllCreation()
     {
+        $isSupervisor = 1;
+
         $supervisor = Supervisor::inRandomOrder()->first();
 
         if (isset($supervisor->supervisor_pic)) {
             $supervisorPic = $supervisor->supervisor_pic;
-
-            echo "$supervisorPic->is_supervisor\n";
-
-            $isSupervisor = 1;
 
             $this->assertSame((int) $supervisorPic->is_supervisor, $isSupervisor);
         }
