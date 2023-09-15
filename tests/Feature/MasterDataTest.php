@@ -19,7 +19,6 @@ class MasterDataTest extends TestCase
     use RefreshDatabase;
     use HelpersTrait;
 
-    private $master;
     private $unsetLists = [
         'Unit',
         'Qty',
@@ -134,9 +133,7 @@ class MasterDataTest extends TestCase
             Master::firstOrCreate([
                 'product_id' => $data["Product ID"]
             ], $params);
-        }
-
-        return Master::first();
+        };
     }
 
     private function initMasterData()
@@ -148,18 +145,76 @@ class MasterDataTest extends TestCase
         $listData = $this->getListData($collection, $titleArr, $startKey);
         $listArr  = $this->getUnitListData($listData);
 
-        $master = $this->createMasterData($listArr);
+        $this->createMasterData($listArr);
 
-        return [$listArr, $master];
+        return [$listArr];
+    }
+
+    private $listArr;
+    private $master;
+
+    public function setup() : void
+    {
+        parent::setUp();
+
+        list($listArr) = $this->initMasterData();
+
+        $this->listArr = $listArr;
     }
 
     public function testMasterDataCreation()
     {
-        list($listArr, $master) = $this->initMasterData();
-
-        $currentItem = $listArr[$master->product_id];
+        $master = Master::first();
+        $currentItem = $this->listArr[$master->product_id];
 
         $this->assertEquals($currentItem['Product ID'], $master->product_id);
         $this->assertEquals($currentItem['Category'], $master->category);
+    }
+
+    public function IDProviders()
+    {
+        $ids = [];
+
+        for ($x = 2; $x <= 10; $x++) $ids[] = [ $x ];
+
+        return $ids;
+    }
+
+    /**
+     * @dataProvider IDProviders
+     */
+    public function testMasterDataCreationWithAnyRandomId($id)
+    {
+        $master = Master::where('id', $id)->first();
+
+        $currentItem = $this->listArr[$master->product_id];
+
+        $this->assertEquals($currentItem['Product ID'], $master->product_id);
+        $this->assertEquals($currentItem['Category'], $master->category);
+    }
+
+    /**
+     * @dataProvider IDProviders
+     */
+    public function testMasterDataUnitsIsSortedByDescending($id)
+    {
+        $master = Master::where('id', $id)->first();
+        $units = json_decode($master['units'], true);
+
+        $totalUnits = count($units);
+        $unitKeys = array_keys($units);
+
+        if (!($totalUnits > 0)) return;
+
+        for ($x=0; $x < $totalUnits; $x++) {
+            if ($x > 0) {
+                $now = $units[$unitKeys[$x]]['value'];
+                $prev = $units[$unitKeys[$x - 1]]['value'];
+
+                $isGreater = $prev >= $now;
+
+                $this->assertTrue($isGreater);
+            }
+        }
     }
 }
