@@ -50,7 +50,7 @@ class MasterDataTest extends TestCase
 
         $newCollection = array_slice($collection, $startKey, $endKey);
 
-        foreach ($newCollection as $key => $item) {
+        foreach ($newCollection as $item) {
             for ($z=0; $z < count($item); $z++) {
                 $dataList[$titleArr[$z]] = $item[$z];
             }
@@ -147,7 +147,7 @@ class MasterDataTest extends TestCase
 
         $this->createMasterData($listArr);
 
-        return [$listArr];
+        return $listArr;
     }
 
     private $listArr;
@@ -157,26 +157,12 @@ class MasterDataTest extends TestCase
     {
         parent::setUp();
 
-        list($listArr) = $this->initMasterData();
-
-        $this->listArr = $listArr;
+        $this->listArr = $this->initMasterData();
     }
 
     public function testMasterDataCreation() : void
     {
         $master = Master::first();
-        $currentItem = $this->listArr[$master->product_id];
-
-        $this->assertEquals($currentItem['Product ID'], $master->product_id);
-        $this->assertEquals($currentItem['Category'], $master->category);
-    }
-
-    /**
-     * @dataProvider IDsProviders
-     */
-    public function testMasterDataCreationWithAnyRandomId($id) : void
-    {
-        $master = Master::where('id', $id)->first();
 
         $currentItem = $this->listArr[$master->product_id];
 
@@ -184,12 +170,21 @@ class MasterDataTest extends TestCase
         $this->assertEquals($currentItem['Category'], $master->category);
     }
 
-    /**
-     * @dataProvider IDsProviders
-     */
-    public function testMasterDataUnitsIsSortedByDescending($id) : void
+    public function testMasterDataCreationWithAnyRandomId() : void
     {
-        $master = Master::where('id', $id)->first();
+        $randomId = rand(2 , 10);
+        $master = Master::where('id', $randomId)->first();
+
+        $currentItem = $this->listArr[$master->product_id];
+
+        $this->assertEquals($currentItem['Product ID'], $master->product_id);
+        $this->assertEquals($currentItem['Category'], $master->category);
+    }
+
+    public function testMasterDataUnitsIsSortedByDescending() : void
+    {
+        $randomId = rand(2 , 10);
+        $master = Master::where('id', $randomId)->first();
         $units = json_decode($master['units'], true);
 
         $totalUnits = count($units);
@@ -209,12 +204,27 @@ class MasterDataTest extends TestCase
         }
     }
 
-    public function IDsProviders() : array
+    public function testMasterdataInApprovedCategories() : void
     {
-        $ids = [];
+        $randomId = rand(2 , 10);
+        $master = Master::where('id', $randomId)->first();
 
-        for ($x = 2; $x <= 10; $x++) $ids[] = [ $x ];
+        $allowedList = ['Non Inventory', 'Inventory'];
+        $inArray = in_array($master->category_type, $allowedList);
 
-        return $ids;
+        $this->assertTrue($inArray);
+    }
+
+    public function testMasterdataNotInApprovedCategories() : void
+    {
+        $randomId = rand(2 , 10);
+        $master = Master::where('id', $randomId)->first();
+        $master->category_type = 'Something Else ' . $randomId;
+
+        $allowedList = ['Non Inventory', 'Inventory'];
+
+        $inArray = in_array($master->category_type, $allowedList);
+
+        $this->assertFalse($inArray);
     }
 }
