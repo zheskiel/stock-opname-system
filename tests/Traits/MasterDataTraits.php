@@ -43,11 +43,13 @@ trait MasterDatatraits
                 $dataList[$titleArr[$z]] = $item[$z];
             }
 
+            // Include only items have Product Code
             // Include only items from Inventory & Non Inventory's Category Type
             // Exclude all other items
             if (
-                $dataList['Category Type'] == 'Inventory' ||
-                $dataList['Category Type'] == 'Non Inventory'
+                $dataList['Product Code'] != '' &&
+                ($dataList['Category Type'] == 'Inventory' ||
+                $dataList['Category Type'] == 'Non Inventory')
             ) {
                 $list[$item[0]][] = $dataList;
             }

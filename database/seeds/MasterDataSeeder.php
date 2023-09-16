@@ -51,11 +51,13 @@ class MasterDataSeeder extends BaseSeeder
                 $dataList[$titleArr[$z]] = $item[$z];
             }
 
+            // Include only items have Product Code
             // Include only items from Inventory & Non Inventory's Category Type
             // Exclude all other items
             if (
-                $dataList['Category Type'] == 'Inventory' ||
-                $dataList['Category Type'] == 'Non Inventory'
+                $dataList['Product Code'] != '' &&
+                ($dataList['Category Type'] == 'Inventory' ||
+                $dataList['Category Type'] == 'Non Inventory')
             ) {
                 $dataList['owned'] = rand(1, 3);
 
@@ -107,8 +109,13 @@ class MasterDataSeeder extends BaseSeeder
 
     private function createMasterData($listArr) : void
     {
+        $total = count($listArr);
+
+        $x = 0;
         foreach($listArr as $data) {
+            $this->progressBar($x, $total - 1);
             $this->masterDataService->createData($data);
+            $x++;
         }
     }
 
@@ -122,5 +129,7 @@ class MasterDataSeeder extends BaseSeeder
         $listArr  = $this->getUnitListData($listData);
 
         $this->createMasterData($listArr);
+
+        echo "\nDone\n\n";
     }
 }

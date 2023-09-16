@@ -9,6 +9,7 @@ class Template extends Model
     protected $table = "template";
 
     protected $fillable = [
+        'product_id',
         'product_code',
         'product_name',
         'unit_label',

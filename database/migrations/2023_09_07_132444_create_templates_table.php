@@ -18,6 +18,7 @@ class CreateTemplatesTable extends Migration
         if (!Schema::hasTable($this->tableName)) {
             Schema::create($this->tableName, function (Blueprint $table) {
                 $table->increments('id');
+                $table->integer('product_id');
                 $table->string('product_code');
                 $table->string('product_name');
                 $table->string('unit_label');
@@ -25,6 +26,7 @@ class CreateTemplatesTable extends Migration
                 $table->integer('receipt_tolerance')->default(0);
                 $table->integer('outlet_id')->nullable();
                 $table->integer('supervisor_id')->nullable();
+                $table->string('supervisor_duty')->nullable();
                 $table->integer('manager_id')->default(0);
                 $table->integer('owned')
                     ->default(0)

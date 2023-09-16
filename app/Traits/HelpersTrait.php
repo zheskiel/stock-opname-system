@@ -68,6 +68,33 @@ trait HelpersTrait
         return $ipaddress;
     }
 
+    public function progressBar($done, $total)
+    {
+        /*
+            Black 0;30
+            Blue 0;34
+            Green 0;32
+            Cyan 0;36
+            Red 0;31
+            Purple 0;35
+            Brown 0;33
+            Light Gray 0;37
+            Dark Gray 1;30
+            Light Blue 1;34
+            Light Green 1;32
+            Light Cyan 1;36
+            Light Red 1;31
+            Light Purple 1;35
+            Yellow 1;33
+            White 1;37
+        */
+        $perc = floor(($done / $total) * 100);
+        $left = 100 - $perc;
+        $write = sprintf("\033[0G\033[2K[%'={$perc}s>%-{$left}s] - $perc%% - $done/$total", "", "");
+
+        fwrite(STDERR, $write);
+    }
+
     static function thousandsCurrencyFormat($num)
     {
         if ($num > 1000) {

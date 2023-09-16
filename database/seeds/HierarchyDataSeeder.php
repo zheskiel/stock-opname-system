@@ -91,7 +91,7 @@ class HierarchyDataSeeder extends BaseSeeder
 
     public function buildBrand() :void
     {
-        echo "Build Brand Data\n\n";
+        // echo "Build Brand Data\n\n";
 
         $admin = $this->admin->first();
 
@@ -109,7 +109,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildProvince($brandBase) :void
     {
         if (isset($brandBase['province'])) {
-            echo "Build Province Data\n\n";
+            // echo "Build Province Data\n\n";
 
             $provinces = $brandBase['province'];
 
@@ -124,7 +124,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildRegency($provItem) :void
     {
         if (isset($provItem['regency'])) {
-            echo "Build Regency Data\n\n";
+            // echo "Build Regency Data\n\n";
 
             $regencies = $provItem['regency'];
 
@@ -139,7 +139,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildDistrict($regItem) :void
     {
         if (isset($regItem['district'])) {
-            echo "Build District Data\n\n";
+            // echo "Build District Data\n\n";
 
             $districts = $regItem['district'];
 
@@ -154,7 +154,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildLocation($disItem) :void
     {
         if (isset($disItem['location'])) {
-            echo "Build Location Data\n\n";
+            // echo "Build Location Data\n\n";
 
             $locations = $disItem['location'];
 
@@ -169,7 +169,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildOutlet($locItem) :void
     {
         if (isset($locItem['outlet'])) {
-            echo "Build Outlet Data\n\n";
+            // echo "Build Outlet Data\n\n";
 
             $outlets = $locItem['outlet'];
 
@@ -186,7 +186,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildManager($outItem, $outlet):void
     {
         if(isset($outItem['manager'])) {
-            echo "Build " . $outlet->name . "'s Manager Data\n\n";
+            // echo "Build " . $outlet->name . "'s Manager Data\n\n";
 
             $this->managerModel = $this->managerService
                 ->createSeederData([ $outItem ]);
@@ -202,7 +202,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildSupervisor($svItems, $manager, $outlet):void
     {
         if (isset($svItems['supervisor'])) {
-            echo "Build " . $outlet->name . "'s Supervisor Data\n\n";
+            // echo "Build " . $outlet->name . "'s Supervisor Data\n\n";
 
             $supervisor = $svItems['supervisor'];
             $svLevel = $supervisor['level'];
@@ -238,7 +238,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildStaffTypes($level, $supervisor, $choosenStaff = ''):string
     {
         if (isset($level['types'])) {
-            echo "Build " . $this->outletModel->name . "'s Staff Types Data\n\n";
+            // echo "Build " . $this->outletModel->name . "'s Staff Types Data\n\n";
 
             $types = $level['types'];
             
@@ -263,7 +263,7 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildStaff($level, $type, $staffType, $supervisor, $staffLists = []):array
     {
         if (isset($type['staff'])) {
-            echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
+            // echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
 
             $staffs = $type['staff'];
 
