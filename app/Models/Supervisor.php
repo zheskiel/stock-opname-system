@@ -4,8 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\Staffs;
-
 class Supervisor extends Model
 {
     protected $table = "supervisor";
@@ -13,6 +11,7 @@ class Supervisor extends Model
     protected $fillable = [
         'name',
         'slug',
+        'duty',
         'manager_id',
         'outlet_id',
         'is_supervisor',

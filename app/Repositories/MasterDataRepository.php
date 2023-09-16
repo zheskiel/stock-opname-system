@@ -30,7 +30,8 @@ class MasterDataRepository extends BaseRepository
             'vat'               => $data["VAT"],
             'status_uom'        => $data["Status UOM"],
             'formula'           => $data["Formula Of These Menu"],
-            'units'             => $data['units']
+            'units'             => $data['units'],
+            'owned'             => $data['owned']
         ];
 
         $this->master->firstOrCreate([

@@ -36,9 +36,9 @@ class CreateMasterTable extends Migration
 
                 $table->integer('owned')->default(0)
                     ->comment("
-                        0 = not both\n\n
-                        1 = own by Central Kitchen\n\n
-                        2 = Own by Outlet Kitchen\n\n
+                        0 = not both,\n\n
+                        1 = own by Leader Kitchen,\n\n
+                        2 = Own by Outlet Supervisor,\n\n
                         3 = Own by both
                     ");
 

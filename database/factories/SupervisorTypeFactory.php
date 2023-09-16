@@ -8,9 +8,11 @@ $factory->define(SupervisorType::class, function (
 ) {
     $title = $params['title'] ?? null;
     $slug = $params['slug'] ?? null;
+    $duty = $params['duty'] ?? null;
 
     return [
         'title' => $title,
-        'slug' => $slug
+        'slug' => $slug,
+        'duty' => $duty
     ];
 });

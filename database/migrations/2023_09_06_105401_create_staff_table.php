@@ -12,9 +12,7 @@ class CreateStaffTable extends Migration
     ];
 
     private $externalTableName = 'supervisor';
-    private $externalRelations = [
-        'staff'
-    ];
+    private $externalRelations = ['staff'];
 
 
     /**

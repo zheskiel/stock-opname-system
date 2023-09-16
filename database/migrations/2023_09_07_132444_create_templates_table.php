@@ -21,8 +21,24 @@ class CreateTemplatesTable extends Migration
                 $table->string('product_code');
                 $table->string('product_name');
                 $table->string('unit_label');
-                $table->integer('unit_value')->default(null);
-                $table->integer('receipt_tolerance');
+                $table->integer('unit_value');
+                $table->integer('receipt_tolerance')->default(0);
+                $table->integer('outlet_id')->nullable();
+                $table->integer('supervisor_id')->nullable();
+                $table->integer('manager_id')->default(0);
+                $table->integer('owned')
+                    ->default(0)
+                    ->comment("
+                        0 = not both,\n\n
+                        1 = own by Leader Kitchen,\n\n
+                        2 = Own by Outlet Supervisor,\n\n
+                    ");
+                $table->integer('status')
+                    ->default(0)
+                    ->comment("
+                        0 = Draft
+                        1 = Published
+                    ");
                 $table->timestamps();
             });
         };

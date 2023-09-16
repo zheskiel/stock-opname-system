@@ -12,5 +12,6 @@ class DatabaseSeeder extends BaseSeeder
         $this->call(AdminTableSeeder::class);
         $this->call(HierarchyDataSeeder::class);
         $this->call(MasterDataSeeder::class);
+        $this->call(TemplateDataSeeder::class);
     }
 }

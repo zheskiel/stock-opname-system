@@ -25,6 +25,7 @@ class SupervisorRepository extends BaseRepository
             'name'               => $supervisorType->name . ' - ' . $outlet->name,
             'slug'               => $supervisorType->slug . '-' . $outlet->slug,
             'supervisor_type_id' => $supervisorType->id,
+            'duty'               => $supervisorType->duty,
             'outlet_id'          => $outlet->id,
             'manager_id'         => $manager->id
         ];

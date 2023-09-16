@@ -238,6 +238,7 @@ class HierarchyCreationTest extends TestCase
         $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
             'name' => $name,
+            'duty' => $supervisorType->duty,
             'supervisor_type_id' => $supervisorType->id,
             'manager_id'  => $manager->id,
             'outlet_id'   => $outlet->id
@@ -258,14 +259,26 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
+    private function getDutyType($slug)
+    {
+        $kitchenArr = ['leader-kitchen', 'head-production'];
+        // $outletArr = ['outlet-supervisor', 'central-kitchen-supervisor'];
+
+        $dutyTypeArr = ['production', 'serve'];
+
+        return in_array($slug, $kitchenArr) ? $dutyTypeArr[0] : $dutyTypeArr[1];
+    }
+
     private function createSupervisorTypes($item)
     {
         $name = $item['title'];
         $slug = $this->processTitleSlug($name);
+        $duty = $this->getDutyType($slug);
 
         $attributes = ['slug' => $slug];
         $newAttributes = array_merge([
             'name' => $name,
+            'duty' => $duty
         ], $attributes);
 
         $item = SupervisorType::firstOrCreate(

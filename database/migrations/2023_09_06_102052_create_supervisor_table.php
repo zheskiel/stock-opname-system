@@ -24,6 +24,7 @@ class CreateSupervisorTable extends Migration
                 $table->increments('id');
                 $table->string('name');
                 $table->string('slug');
+                $table->string('duty');
                 $table->timestamps();
             });
 
@@ -31,6 +32,11 @@ class CreateSupervisorTable extends Migration
                 $table->increments('id');
                 $table->string('name');
                 $table->string('slug');
+                $table->string('duty')
+                    ->comment("
+                        production = 'Kitchen',
+                        serve = 'Outlet Supervisor'
+                    ");
                 $table->timestamps();
             });
 

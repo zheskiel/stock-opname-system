@@ -14,6 +14,11 @@ class Template extends Model
         'unit_label',
         'unit_value',
         'receipt_tolerance',
+        'supervisor_id',
+        'outlet_id',
+        'manager_id',
+        'owned',
+        'status'
     ];
 
     protected $hidden = [
@@ -23,4 +28,19 @@ class Template extends Model
     ];
 
     protected $casts = [];
+
+    public function manager()
+    {
+        return $this->belongsTo('App\Models\Manager');
+    }
+
+    public function supervisor()
+    {
+        return $this->belongsTo('App\Models\Supervisor');
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo('App\Models\Outlet');
+    }
 }

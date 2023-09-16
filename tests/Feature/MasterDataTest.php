@@ -25,6 +25,11 @@ class MasterDataTest extends TestCase
         $this->listArr = $this->initMasterData();
     }
 
+    public function tearDown() : void
+    {
+        parent::tearDown();
+    }
+
     public function testMasterDataCreation() : void
     {
         $master = Master::first();

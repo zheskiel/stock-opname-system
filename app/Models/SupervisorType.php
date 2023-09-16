@@ -10,7 +10,8 @@ class SupervisorType extends Model
 
     protected $fillable = [
         'name',
-        'slug'
+        'slug',
+        'duty'
     ];
 
     protected $with = [];

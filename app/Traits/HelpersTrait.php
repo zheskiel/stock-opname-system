@@ -9,6 +9,11 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 trait HelpersTrait
 {
+    public $NOT_OWNED_BOTH             = 0;
+    public $OWNED_BY_LEADER_KITCHEN    = 1;
+    public $OWNED_BY_OUTLET_SUPERVISOR = 2;
+    public $OWNED_BY_BOTH              = 3;
+
     public $limit = 10;
 
     static function processTitleSlug($string) : string

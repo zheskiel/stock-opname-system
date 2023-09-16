@@ -4,10 +4,6 @@ use App\Services\ {
     MasterDataService
 };
 
-use App\Models\ {
-    Master
-};
-
 use Importer as C;
 
 class MasterDataSeeder extends BaseSeeder
@@ -51,7 +47,7 @@ class MasterDataSeeder extends BaseSeeder
         $newCollection = array_slice($collection, $startKey, $endKey);
 
         foreach ($newCollection as $item) {
-            for ($z=0; $z < count($item); $z++) {
+            for ($z = 0; $z < count($item); $z++) {
                 $dataList[$titleArr[$z]] = $item[$z];
             }
 
@@ -61,6 +57,8 @@ class MasterDataSeeder extends BaseSeeder
                 $dataList['Category Type'] == 'Inventory' ||
                 $dataList['Category Type'] == 'Non Inventory'
             ) {
+                $dataList['owned'] = rand(1, 3);
+
                 $list[$item[0]][] = $dataList;
             }
         }

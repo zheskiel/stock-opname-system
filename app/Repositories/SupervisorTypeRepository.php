@@ -17,18 +17,9 @@ class SupervisorTypeRepository extends BaseRepository
         return $this->supervisorType->where($query, $param)->first();
     }
 
-    public function saveSeeder($parameters)
+    public function saveSeeder($params)
     {
-        list($param) = $parameters;
-
-        $name = $param;
-        $slug = $this->processTitleSlug($name);
-
-        $query = ['slug' => $slug];
-        $params = [
-            'name' => $name,
-            'slug' => $slug
-        ];
+        $query = ['slug' => $params['slug']];
 
         return $this->supervisorType->firstOrCreate($query, $params);
     }
