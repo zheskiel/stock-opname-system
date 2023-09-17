@@ -1,8 +1,6 @@
 <?php
 namespace App\Traits;
 
-use App\Support\Collection as CollectionSupport;
-
 use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -14,22 +12,72 @@ trait HelpersTrait
     public $OWNED_BY_OUTLET_SUPERVISOR = 2;
     public $OWNED_BY_BOTH              = 3;
 
+    public $SALT           = 'stock-opname:!@#$%^:SALTHASH';
+    public $SECRET_KEY     = '%39d15#13P0£df458asdc%/dfr_A!8792*dskjfzaesdfpopdfo45s4dqd8d4fsd+dfd4s"Z1';
+    public $SECRET_IV      = ';!@#adsf1213fwerw$%A^';
+    public $ENCRYPT_METHOD = 'AES-256-CBC';
+    public $HASH_TYPE      = 'sha256';
+
     public $limit = 10;
+
+    public function hashCommon()
+    {
+        $key = hash($this->HASH_TYPE, $this->SECRET_KEY); // hash
+
+        // iv - encrypt method AES-256-CBC expects 16 bytes - else you will get a warning
+        $iv = substr(hash($this->HASH_TYPE, $this->SECRET_IV), 0, 16);
+
+        return ['key' => $key, 'iv'  => $iv];
+    }
+
+    public function encrypt($string)
+    {
+        $output = false;
+        $hash = $this->hashCommon();
+
+        $output = openssl_encrypt($string, $this->ENCRYPT_METHOD, $hash['key'], 0, $hash['iv']);
+
+        return base64_encode($output);
+    }
+
+    public function decrypt($string)
+    {
+        $hash = $this->hashCommon();
+
+        return openssl_decrypt(base64_decode($string), $this->ENCRYPT_METHOD, $hash['key'], 0, $hash['iv']);
+    }
+
+    private function isMobile()
+    {
+        $isMobile = false;
+
+        if (preg_match('/pad|phon|android|opera mini|blackberry|nokia|motorola|sonyericsson|samsung|lg-|sie-/i', $_SERVER['HTTP_USER_AGENT']) === 1) {
+            $isMobile = true;
+        }
+
+        return $isMobile;
+    }
 
     static function processTitleSlug($string) : string
     {
         return strtolower(preg_replace('~[^\p{L}\p{N}\n]+~u', '-', $string));
     }
 
-    static function sortUnitsByValue($query, $param)
+    static function sortItemsByParams($items, $param = 'units', $target = 'value')
     {
-        $units = json_decode($query->units, true);
+        $items->each(function($query) use ($param, $target) {
+            $units = json_decode($query->{$param}, true);
 
-        uasort($units, function ($item1, $item2) use ($param) {
-            return $item2[$param] <=> $item1[$param];
+            uasort($units, function ($item1, $item2) use ($target) {
+                return $item2[$target] <=> $item1[$target];
+            });
+
+            $query->{$param} = $units;
+
+            return $query;
         });
 
-        return $units;
+        return $items;
     }
 
     static function getUserIpAddress($ipaddress = '') : string

@@ -16,8 +16,8 @@ class Outlet extends Model
     ];
 
     protected $with = [
-        'manager',
-        'supervisor',
+        // 'manager',
+        // 'supervisor',
     ];
 
     protected $hidden = [

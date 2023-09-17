@@ -19,8 +19,8 @@ class Supervisor extends Model
     ];
 
     protected $with = [
-        'supervisor_pic',
-        'type'
+        // 'supervisor_pic',
+        // 'type'
     ];
 
     protected $hidden = [

@@ -32,16 +32,16 @@ class Template extends Model
 
     public function manager()
     {
-        return $this->belongsTo('App\Models\Manager');
+        return $this->belongsTo('App\Models\Manager', 'manager_id');
     }
 
     public function supervisor()
     {
-        return $this->belongsTo('App\Models\Supervisor');
+        return $this->belongsTo('App\Models\Supervisor', 'supervisor_id');
     }
 
     public function outlet()
     {
-        return $this->belongsTo('App\Models\Outlet');
+        return $this->belongsTo('App\Models\Outlet', 'outlet_id');
     }
 }

@@ -25,6 +25,6 @@ class Brand extends Model
 
     public function province()
     {
-        return $this->hasMany('App\Models\Province')->with('regency');
+        return $this->hasMany('App\Models\Province');
     }
 }

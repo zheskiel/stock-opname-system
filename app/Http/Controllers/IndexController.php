@@ -6,9 +6,14 @@ use Importer as C;
 use Illuminate\Http\Request;
 
 use App\Models\Master;
+use App\Traits\HelpersTrait;
 
 class IndexController extends BaseController
 {
+    use HelpersTrait;
+
+    private $master;
+
     public function __construct(
         Master $master
     ) {
@@ -26,15 +31,13 @@ class IndexController extends BaseController
             ->offset($this->limit * ($page - 1))
             ->get();
 
-        $data = $query->map(function($query) {
-            $query->units = $this->sortUnitsByValue($query, 'value');
-
-            return $query;
-        });
+        $data = $this->sortItemsByParams($query, 'units', 'value');
 
         $result = $this->generatePagination($data, $total, $this->limit, $page);
 
-        return response()->json($result);
+        // return response()->json($result);
+
+        return View('home')->with([$result]);
     }
 
     public function Index()

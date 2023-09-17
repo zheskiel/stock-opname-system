@@ -36,8 +36,6 @@ class TemplateDataSeeder extends BaseSeeder
 
     private function getRandomUnit($item) : array
     {
-        $owned = $item['owned'];
-
         $units = json_decode($item->units, true);
 
         $totalUnits = count($units);
@@ -49,17 +47,15 @@ class TemplateDataSeeder extends BaseSeeder
         $selectedKey = $unitKeys[$unitKey];
         $selectedUnit = $units[$unitKeys[$unitKey]];
 
-        return [$owned, $selectedKey, $selectedUnit];
+        return [$selectedKey, $selectedUnit];
     }
 
-    private function getDefaultParams($item, $selectedKey, $selectedUnit, $outlet)
+    private function getDefaultParams($item, $outlet)
     {
         $defaultParams = [
             'product_id'   => $item->product_id,
             'product_code' => $item->product_code,
             'product_name' => $item->product_name,
-            'unit_label'   => $selectedKey,
-            'unit_value'   => $selectedUnit['value'],
             'outlet_id'    => $outlet->id,
             'manager_id'   => $outlet->manager->id
         ];
@@ -102,7 +98,7 @@ class TemplateDataSeeder extends BaseSeeder
         return $params;
     }
 
-    private function processTemplateCreation($params, $outlet)
+    private function processTemplateCreation($params, $item, $outlet)
     {
         foreach($params as $param) {
             $duty = ($param['owned'] == $this->OWNED_BY_LEADER_KITCHEN) ? 'production' : 'serve';
@@ -113,16 +109,21 @@ class TemplateDataSeeder extends BaseSeeder
                 ->where('duty', $duty)
                 ->first();
 
-            $newParams = [];
+            list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
+
+            $newParams = [
+                'unit_label' => $selectedKey,
+                'unit_value' => $selectedUnit['value'],
+            ];
 
             if ($supervisor) {
-                $newParams = [
+                $newParams = array_merge($newParams, [
                     'supervisor_id' => $supervisor->id,
                     'supervisor_duty' => $supervisor->duty
-                ];
-
-                $param = array_merge($param, $newParams);
+                ]);
             }
+
+            $param = array_merge($param, $newParams);
 
             $this->createTemplate($param);
         }
@@ -132,15 +133,10 @@ class TemplateDataSeeder extends BaseSeeder
     {
         foreach ($masterDatas as $item)
         {
-            list ($owned, $selectedKey, $selectedUnit) = $this->getRandomUnit($item);
+            $defaultParams = $this->getDefaultParams($item, $outlet);
+            $params = $this->getFinalParams($defaultParams, $item['owned']);
 
-            $defaultParams = $this->getDefaultParams(
-                $item, $selectedKey, $selectedUnit, $outlet
-            );
-
-            $params = $this->getFinalParams($defaultParams, $owned);
-
-            $this->processTemplateCreation($params, $outlet);
+            $this->processTemplateCreation($params, $item, $outlet);
         }
     }
 

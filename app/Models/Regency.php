@@ -25,6 +25,6 @@ class Regency extends Model
 
     public function district()
     {
-        return $this->hasMany('App\Models\District', 'regency_id', 'id')->with('location');
+        return $this->hasMany('App\Models\District', 'regency_id', 'id');
     }
 }
