@@ -3,25 +3,23 @@
 namespace Tests\Feature;
 
 use Tests\TestCase;
+use Tests\Traits\HierarchyDataTraits;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 use App\Traits\HelpersTrait;
 use App\Models\ {
-    Brand,
     District,
     Location,
-    Manager,
     Outlet,
     Province,
     Regency,
     Staff,
-    StaffType,
-    Supervisor,
-    SupervisorType
+    Supervisor
 };
 
 class HierarchyCreationTest extends TestCase
 {
+    use HierarchyDataTraits;
     use RefreshDatabase;
     use HelpersTrait;
 
@@ -68,20 +66,19 @@ class HierarchyCreationTest extends TestCase
         ];
     }
 
-    private function createBrands($item)
+    private function generateNameAndSlug($params, $target = 'name')
     {
-        $name = $item['name'];
+        $name = $params[$target];
         $slug = $this->processTitleSlug($name);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name
-        ], $attributes);
+        return [$name, $slug];
+    }
 
-        $item = Brand::firstOrCreate(
-            $attributes,
-            factory(Brand::class)->raw($newAttributes)
-        );
+    private function createBrands($params)
+    {
+        list($name, $slug) = $this->generateNameAndSlug($params);
+
+        $item = $this->createBrandsTrait($params);
         
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -89,21 +86,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createProvinces($item, $brand)
+    private function createProvinces($params, $brand)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'brand_id' => $brand->id
-        ], $attributes);
-
-        $item = Province::firstOrCreate(
-            $attributes,
-            factory(Province::class)->raw($newAttributes)
-        );
+        $item = $this->createProvincesTrait($params, $brand);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -112,21 +99,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createRegencies($item, $province)
+    private function createRegencies($params, $province)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'province_id' => $province->id
-        ], $attributes);
-
-        $item = Regency::firstOrCreate(
-            $attributes,
-            factory(Regency::class)->raw($newAttributes)
-        );
+        $item = $this->createRegenciesTrait($params, $province);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -135,21 +112,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createDistricts($item, $regency)
+    private function createDistricts($params, $regency)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'regency_id' => $regency->id
-        ], $attributes);
-
-        $item = District::firstOrCreate(
-            $attributes,
-            factory(District::class)->raw($newAttributes)
-        );
+        $item = $this->createDistrictsTrait($params, $regency);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -158,24 +125,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createLocations($item, $district)
+    private function createLocations($params, $district)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $alias = $item['alias'];
-
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'alias' => $alias,
-            'district_id' => $district->id
-        ], $attributes);
-
-        $item = Location::firstOrCreate(
-            $attributes,
-            factory(Location::class)->raw($newAttributes)
-        );
+        $item = $this->createLocationsTrait($params, $district);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -184,22 +138,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createOutlets($item, $manager, $location)
+    private function createOutlets($params, $manager, $location)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'manager_id' => $manager->id,
-            'location_id' => $location->id
-        ], $attributes);
-
-        $item = Outlet::firstOrCreate(
-            $attributes,
-            factory(Outlet::class)->raw($newAttributes)
-        );
+        $item = $this->createOutletsTrait($params, $manager, $location);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -209,20 +152,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createManagers($item)
+    private function createManagers($params)
     {
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-        ], $attributes);
-
-        $item = Manager::firstOrCreate(
-            $attributes,
-            factory(Manager::class)->raw($newAttributes)
-        );
+        $item = $this->createManagersTrait($params);
 
         $this->assertEquals(ucwords($item->name), ucwords($name));
         $this->assertEquals($item->slug, $slug);
@@ -230,23 +164,14 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createSupervisors($item, $supervisorType, $manager, $outlet)
+    private function createSupervisors($params, $supervisorType, $manager, $outlet)
     {
-        $name = $item['title'] . ' - ' . $outlet->name;
-        $slug = $this->processTitleSlug($name);
+        $params['name'] = $params['title'] . ' - ' . $outlet->name;
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'duty' => $supervisorType->duty,
-            'supervisor_type_id' => $supervisorType->id,
-            'manager_id'  => $manager->id,
-            'outlet_id'   => $outlet->id
-        ], $attributes);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $item = Supervisor::firstOrCreate(
-            $attributes,
-            factory(Supervisor::class)->raw($newAttributes)
+        $item = $this->createSupervisorsTrait(
+            $params, $supervisorType, $manager, $outlet
         );
 
         $this->assertEquals($item->name, $name);
@@ -269,22 +194,13 @@ class HierarchyCreationTest extends TestCase
         return in_array($slug, $kitchenArr) ? $dutyTypeArr[0] : $dutyTypeArr[1];
     }
 
-    private function createSupervisorTypes($item)
+    private function createSupervisorTypes($params)
     {
-        $name = $item['title'];
-        $slug = $this->processTitleSlug($name);
-        $duty = $this->getDutyType($slug);
+        $params['name'] = $params['title'];
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'duty' => $duty
-        ], $attributes);
+        list($name, $slug) = $this->generateNameAndSlug($params);
 
-        $item = SupervisorType::firstOrCreate(
-            $attributes,
-            factory(SupervisorType::class)->raw($newAttributes)
-        );
+        $item = $this->createSupervisorTypesTrait($params);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -292,21 +208,11 @@ class HierarchyCreationTest extends TestCase
         return $item;
     }
 
-    private function createStaffTypes($item, $supervisor)
+    private function createStaffTypes($params, $supervisor)
     {
-        $name = $item['title'];
-        $slug = $this->processTitleSlug($name);
+        list ($name, $slug) = $this->generateNameAndSlug($params, 'title');
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'supervisor_id' => $supervisor->id
-        ], $attributes);
-
-        $item = StaffType::firstOrCreate(
-            $attributes,
-            factory(StaffType::class)->raw($newAttributes)
-        );
+        $item = $this->createStaffTypesTrait($params, $supervisor);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);
@@ -318,23 +224,9 @@ class HierarchyCreationTest extends TestCase
     {
         list ($item, $staffType, $supervisor, $supervisorType, $manager, $outlet) = $params;
 
-        $name = $item['name'];
-        $slug = $this->processTitleSlug($name);
+        list ($name, $slug) = $this->generateNameAndSlug($item);
 
-        $attributes = ['slug' => $slug];
-        $newAttributes = array_merge([
-            'name' => $name,
-            'sv_type_label' => $supervisorType->name,
-            'supervisor_id' => $supervisor->id,
-            'staff_type_id' => $staffType->id,
-            'manager_id'    => $manager->id,
-            'outlet_id'     => $outlet->id,
-        ], $attributes);
-
-        $item = Staff::firstOrCreate(
-            $attributes,
-            factory(Staff::class)->raw($newAttributes)
-        );
+        $item = $this->createStaffsTrait($params);
 
         $this->assertEquals($item->name, $name);
         $this->assertEquals($item->slug, $slug);

@@ -32,4 +32,8 @@ Route::group(['prefix' => 'manager'], function() {
     })->middleware('auth:manager');
 });
 
-Auth::routes();
+Auth::routes([
+    'register' => false,
+    'reset' => false,
+    'verify' => false,
+]);
