@@ -4,10 +4,14 @@ namespace App\Models;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+use Spatie\Permission\Traits\HasRoles;
+
 class Staff extends Authenticatable
 {
     use Notifiable;
+    use HasRoles;
 
+    protected $guard_name = "web";
     protected $table = "staff";
 
     protected $fillable = [

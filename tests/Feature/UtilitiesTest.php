@@ -7,9 +7,6 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Traits\HelpersTrait;
 use Tests\Traits\HierarchyDataTraits;
 
-use App\Models\Manager;
-use App\Models\Outlet;
-use App\Models\Staff;
 use App\Models\Supervisor;
 
 class UtilitiesTest extends TestCase

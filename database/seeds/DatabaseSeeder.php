@@ -13,5 +13,8 @@ class DatabaseSeeder extends BaseSeeder
         $this->call(HierarchyDataSeeder::class);
         $this->call(MasterDataSeeder::class);
         $this->call(TemplateDataSeeder::class);
+
+        $this->call(PermissionSeeder::class);
+        $this->call(RoleSeederTable::class);
     }
 }
