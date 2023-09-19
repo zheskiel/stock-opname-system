@@ -16,5 +16,9 @@ class DatabaseSeeder extends BaseSeeder
 
         $this->call(PermissionSeeder::class);
         $this->call(RoleSeederTable::class);
+        $this->call(RouteSeederTableSeeder::class);
+
+        $this->call(MenuGeneralSeederTableSeeder::class);
+        $this->call(MenuSettingSeederTableSeeder::class);
     }
 }
