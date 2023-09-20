@@ -25,6 +25,6 @@ class District extends Model
 
     public function location()
     {
-        return $this->hasMany('App\Models\Location', 'district_id', 'id')->with('outlet');
+        return $this->hasMany('App\Models\Location', 'district_id', 'id');
     }
 }

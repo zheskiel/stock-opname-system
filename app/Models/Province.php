@@ -25,6 +25,6 @@ class Province extends Model
 
     public function regency()
     {
-        return $this->hasMany('App\Models\Regency', 'province_id', 'id')->with('district');
+        return $this->hasMany('App\Models\Regency', 'province_id', 'id');
     }
 }

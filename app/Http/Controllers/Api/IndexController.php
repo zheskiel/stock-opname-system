@@ -25,9 +25,36 @@ class IndexController extends BaseController
         $this->template = $template;
     }
 
+    private function loadRegency()
+    {
+        return [
+            'province' => function($query) {
+                $query->with($this->loadDistrict());
+            }
+        ];
+    }
+
+    private function loadDistrict()
+    {
+        return [
+            'regency' => function($query) {
+                $query->with($this->loadLocation());
+            }
+        ];
+    }
+
+    private function loadLocation()
+    {
+        return [
+            'district' => function($query) {
+                $query->with(['location']);
+            }
+        ];
+    }
+
     public function testHierarchy()
     {
-        $items = Brand::with(['province'])->first();
+        $items = Brand::with($this->loadRegency())->first();
 
         return $this->respondWithSuccess($items);
     }
