@@ -12,7 +12,7 @@ use App\Traits\HelpersTrait;
 
 class MasterDataTest extends TestCase
 {
-    use RefreshDatabase;
+    // use RefreshDatabase;
     use MasterDatatraits;
     use HelpersTrait;
 
@@ -37,8 +37,7 @@ class MasterDataTest extends TestCase
 
     public function testMasterDataCreationWithAnyRandomId() : void
     {
-        $randomId = rand(2 , 10);
-        $master = Master::where('id', $randomId)->first();
+        $master = Master::inRandomOrder()->first();
 
         $currentItem = $this->listArr[$master->product_id];
 
@@ -48,16 +47,17 @@ class MasterDataTest extends TestCase
 
     public function testMasterDataUnitsIsSortedByDescending() : void
     {
-        $randomId = rand(2 , 10);
-        $master = Master::where('id', $randomId)->first();
-        $units = json_decode($master['units'], true);
+        $master = Master::where('product_id', 1046)->first();
+
+        $jsonFile = json_decode($master['units'], true);
+        $units = $this->sortItems($jsonFile);
 
         $totalUnits = count($units);
         $unitKeys = array_keys($units);
 
         if (!($totalUnits > 0)) return;
 
-        for ($x=0; $x < $totalUnits; $x++) {
+        for ($x = 0; $x < $totalUnits; $x++) {
             if ($x > 0) {
                 $now = $units[$unitKeys[$x]]['value'];
                 $prev = $units[$unitKeys[$x - 1]]['value'];
@@ -71,8 +71,7 @@ class MasterDataTest extends TestCase
 
     public function testMasterdataInApprovedCategories() : void
     {
-        $randomId = rand(2 , 10);
-        $master = Master::where('id', $randomId)->first();
+        $master = Master::inRandomOrder()->first();
 
         $allowedList = ['Non Inventory', 'Inventory'];
         $inArray = in_array($master->category_type, $allowedList);
@@ -82,9 +81,8 @@ class MasterDataTest extends TestCase
 
     public function testMasterdataNotInApprovedCategories() : void
     {
-        $randomId = rand(2 , 10);
-        $master = Master::where('id', $randomId)->first();
-        $master->category_type = 'Something Else ' . $randomId;
+        $master = Master::inRandomOrder()->first();
+        $master->category_type = 'Something Else';
 
         $allowedList = ['Non Inventory', 'Inventory'];
 

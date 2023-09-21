@@ -21,4 +21,9 @@ class SupervisorType extends Model
         'created_at',
         'updated_at',
     ];
+
+    public function staffs()
+    {
+        return $this->hasMany('App\Models\Staffs');
+    }
 }

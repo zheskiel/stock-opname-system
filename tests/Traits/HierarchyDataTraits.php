@@ -2,6 +2,7 @@
 namespace Tests\Traits;
 
 use App\Traits\HelpersTrait;
+use App\Traits\HierarchyTrait;
 use App\Models\ {
     Brand,
     District,
@@ -19,6 +20,7 @@ use App\Models\ {
 trait HierarchyDataTraits
 {
     use HelpersTrait;
+    use HierarchyTrait;
 
     public function initCreation()
     {

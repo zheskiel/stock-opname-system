@@ -11,7 +11,7 @@ $factory->define(StaffType::class, function (
     $supervisor_id = $params['supervisor_id'] ?? null;
 
     return [
-        'title' => $title,
+        'name' => $title,
         'slug' => $slug,
         'supervisor_id' => $supervisor_id
     ];

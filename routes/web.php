@@ -1,6 +1,9 @@
 <?php
 Route::group(['prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
+        Route::get('/manager', 'Api\IndexController@testManager');
+        Route::get('/supervisor', 'Api\IndexController@testSupervisor');
+
         Route::get('/hierarchy', 'Api\IndexController@testHierarchy');
         Route::get('/master', 'Api\IndexController@testMaster');
         Route::get('/template', 'Api\IndexController@testTemplate');

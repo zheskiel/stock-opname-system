@@ -66,15 +66,21 @@ trait HelpersTrait
     static function sortItemsByParams($items, $param = 'units', $target = 'value')
     {
         $items->each(function($query) use ($param, $target) {
-            $units = json_decode($query->{$param}, true);
-
-            uasort($units, function ($item1, $item2) use ($target) {
-                return $item2[$target] <=> $item1[$target];
-            });
+            $items = json_decode($query->{$param}, true);
+            $units = $this->sortItems($items, $target);
 
             $query->{$param} = $units;
 
             return $query;
+        });
+
+        return $items;
+    }
+
+    public function sortItems($items, $target = 'value')
+    {
+        uasort($items, function ($item1, $item2) use ($target) {
+            return $item2[$target] <=> $item1[$target];
         });
 
         return $items;

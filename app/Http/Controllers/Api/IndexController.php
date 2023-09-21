@@ -7,54 +7,51 @@ use App\Http\Controllers\BaseController;
 
 use App\Models\Brand;
 use App\Models\Master;
+use App\Models\Manager;
 use App\Models\Template;
+use App\Models\Supervisor;
 use App\Traits\HelpersTrait;
+use App\Traits\HierarchyTrait;
 
 class IndexController extends BaseController
 {
     use HelpersTrait;
+    use HierarchyTrait;
 
     private $master;
+    private $manager;
     private $template;
+    private $supervisor;
 
     public function __construct(
         Master $master,
-        Template $template
+        Manager $manager,
+        Template $template,
+        Supervisor $supervisor
     ) {
         $this->master = $master;
+        $this->manager = $manager;
         $this->template = $template;
-    }
-
-    private function loadRegency()
-    {
-        return [
-            'province' => function($query) {
-                $query->with($this->loadDistrict());
-            }
-        ];
-    }
-
-    private function loadDistrict()
-    {
-        return [
-            'regency' => function($query) {
-                $query->with($this->loadLocation());
-            }
-        ];
-    }
-
-    private function loadLocation()
-    {
-        return [
-            'district' => function($query) {
-                $query->with(['location']);
-            }
-        ];
+        $this->supervisor = $supervisor;
     }
 
     public function testHierarchy()
     {
-        $items = Brand::with($this->loadRegency())->first();
+        $items = Brand::with($this->loadProvinceWithRegency())->first();
+
+        return $this->respondWithSuccess($items);
+    }
+
+    public function testManager()
+    {
+        $items = Manager::with($this->loadSupervisorWithSupervisorPicAndType())->first();
+
+        return $this->respondWithSuccess($items);
+    }
+
+    public function testSupervisor()
+    {
+        $items = Supervisor::with(['type'])->first();
 
         return $this->respondWithSuccess($items);
     }

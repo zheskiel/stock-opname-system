@@ -33,7 +33,7 @@ class Staff extends Authenticatable
     protected $with = [];
 
     protected $hidden = [
-        'id',
+        // 'id',
         'outlet_id',
         'manager_id',
         'staff_type_id',
