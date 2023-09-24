@@ -132,7 +132,7 @@ class HierarchyModificationTest extends TestCase
         $this->createStaffTypes($supervisor, $xLimit);
 
         $supervisor2 = Supervisor::withCount(['type'])->first();
-        $secondCount = $supervisor2->type_count;
+        $secondCount = (int) $supervisor2->type_count;
 
         $this->assertSame($firstCount + $xLimit, $secondCount);
     }
@@ -151,10 +151,94 @@ class HierarchyModificationTest extends TestCase
         $this->removeStaffType($staffTypes);
 
         $supervisor2 = Supervisor::withCount(['type'])->first();
-        $secondCount = $supervisor2->type_count;
+        $secondCount = (int) $supervisor2->type_count;
 
         $expected = $firstCount - $xLimit;
         $actual = $secondCount;
+
+        $this->assertSame($expected, $actual);
+    }
+
+    public function test_when_delete_supervisor_also_reduce_number_of_manager_owns_supervisor()
+    {
+        $firstSupervisor = Supervisor::first();
+
+        $model = Supervisor::with(['staffs']);
+        $query = $model
+            ->where('manager_id', $firstSupervisor->manager_id)
+            ->where('outlet_id', $firstSupervisor->outlet_id);
+
+        $firstAllSupervisors = $query->get();
+
+        $selectedFirstSupervisor = $firstAllSupervisors->first();
+        $selectedManager = $selectedFirstSupervisor->manager;
+
+        // Detach Relationship
+        $selectedManager->supervisor()->detach($selectedFirstSupervisor);
+        $selectedFirstSupervisor->delete();
+
+        $secondAllSupervisors = $query->get();
+
+        $this->assertSame(count($firstAllSupervisors) - 1, count($secondAllSupervisors));
+    }
+
+    public function test_when_delete_supervisor_move_all_other_staffs_to_another_supervisor()
+    {
+        $firstSupervisor = Supervisor::first();
+
+        $allSupervisors = Supervisor::with(['staffs'])
+            ->where('manager_id', $firstSupervisor->manager_id)
+            ->where('outlet_id', $firstSupervisor->outlet_id)
+            ->get();
+
+        $selectedFirstSupervisor = $allSupervisors->first();
+        $selectedManager = $selectedFirstSupervisor->manager;
+
+        $selectedFirstSupervisorStaffs = $selectedFirstSupervisor->staffs;
+
+        // echo "\nID : " . $selectedFirstSupervisor->id . "\n\n";
+        // echo "First Supervisor Staff Count : " . count($selectedFirstSupervisorStaffs) . "\n\n";
+
+        // Detach Relationship
+        $selectedManager->supervisor()->detach($selectedFirstSupervisor);
+        $selectedFirstSupervisor->delete();
+
+        // echo "\n===============================\n";
+        // echo "\nManager ID : $firstSupervisor->manager_id, Outlet ID : $firstSupervisor->outlet_id\n";
+        // echo "\n===============================\n";
+
+        $allSupervisors = Supervisor::with(['staffs'])
+            ->where('manager_id', $firstSupervisor->manager_id)
+            ->where('outlet_id', $firstSupervisor->outlet_id)
+            ->get();
+
+        $selectedSecondSupervisor = $allSupervisors->first();
+        $selectedSecondSupervisorStaffs = $selectedSecondSupervisor->staffs;
+        
+        foreach($selectedFirstSupervisorStaffs as $staff) {
+            $staffType = $staff->type;
+
+            $selectedSecondSupervisor
+                ->multiPivotType()
+                ->attach($staffType->id, ['staff_id' => $staff->id]);
+        }
+        
+        // echo "\nID : " . $selectedSecondSupervisor->id . "\n\n";
+        // echo "Second Supervisor Staff Count : " . count($selectedSecondSupervisorStaffs) . "\n\n";
+
+        $allSupervisors = Supervisor::with(['staffs'])
+            ->where('manager_id', $firstSupervisor->manager_id)
+            ->where('outlet_id', $firstSupervisor->outlet_id)
+            ->get();
+
+        $selectedThirdSupervisor = $allSupervisors->first();
+        $selectedThirdSupervisorStaffs = $selectedThirdSupervisor->staffs;
+
+        // echo "\nID : " . $selectedThirdSupervisor->id . "\n\n";
+        // echo "Third Supervisor Staff Count : " . count($selectedThirdSupervisorStaffs) . "\n\n";
+
+        $expected = count($selectedFirstSupervisorStaffs) + count($selectedSecondSupervisorStaffs);
+        $actual = count($selectedThirdSupervisorStaffs);
 
         $this->assertSame($expected, $actual);
     }

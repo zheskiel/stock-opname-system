@@ -228,8 +228,8 @@ class HierarchyDataSeeder extends BaseSeeder
                 $this->supervisorService->updateByParams($this->svModel, [$crStaff]);
                 $this->staffService->updateByParams($crStaff, [
                     'is_supervisor' => true,
-                    'supervisor_id' => NULL,
-                    'staff_type_id' => NULL
+                    // 'supervisor_id' => NULL,
+                    // 'staff_type_id' => NULL
                 ]);
             }
         }
@@ -263,8 +263,6 @@ class HierarchyDataSeeder extends BaseSeeder
     public function buildStaff($level, $type, $staffType, $supervisor, $staffLists = []):array
     {
         if (isset($type['staff'])) {
-            // echo "Build " . $this->staffTypesModel->name . "-" . $this->outletModel->name . "'s Staff Data\n\n";
-
             $staffs = $type['staff'];
 
             foreach($staffs as $staff)

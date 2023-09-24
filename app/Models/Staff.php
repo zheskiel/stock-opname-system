@@ -30,7 +30,9 @@ class Staff extends Authenticatable
         'updated_at',
     ];
 
-    protected $with = [];
+    protected $with = [
+        'type'
+    ];
 
     protected $hidden = [
         // 'id',

@@ -422,8 +422,8 @@ trait HierarchyDataTraits
         $crStaff = Staff::where('id', $supervisor->supervisor_pic->id)->first();
 
         $crStaff->is_supervisor = 1;
-        $crStaff->supervisor_id = NULL;
-        $crStaff->staff_type_id = NULL;
+        // $crStaff->supervisor_id = NULL;
+        // $crStaff->staff_type_id = NULL;
 
         $crStaff->save();
     }

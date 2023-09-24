@@ -12,7 +12,7 @@ use App\Traits\HelpersTrait;
 
 class MasterDataTest extends TestCase
 {
-    // use RefreshDatabase;
+    use RefreshDatabase;
     use MasterDatatraits;
     use HelpersTrait;
 
@@ -25,7 +25,7 @@ class MasterDataTest extends TestCase
         $this->listArr = $this->initMasterData();
     }
 
-    public function testMasterDataCreation() : void
+    public function test_master_data_creation() : void
     {
         $master = Master::first();
 
@@ -35,7 +35,7 @@ class MasterDataTest extends TestCase
         $this->assertEquals($currentItem['Category'], $master->category);
     }
 
-    public function testMasterDataCreationWithAnyRandomId() : void
+    public function test_master_data_creation_with_any_random_id() : void
     {
         $master = Master::inRandomOrder()->first();
 
@@ -45,7 +45,7 @@ class MasterDataTest extends TestCase
         $this->assertEquals($currentItem['Category'], $master->category);
     }
 
-    public function testMasterDataUnitsIsSortedByDescending() : void
+    public function test_master_data_units_is_sorted_by_descending() : void
     {
         $master = Master::where('product_id', 1046)->first();
 
@@ -69,7 +69,7 @@ class MasterDataTest extends TestCase
         }
     }
 
-    public function testMasterdataInApprovedCategories() : void
+    public function test_master_data_in_approved_categories() : void
     {
         $master = Master::inRandomOrder()->first();
 
@@ -79,7 +79,7 @@ class MasterDataTest extends TestCase
         $this->assertTrue($inArray);
     }
 
-    public function testMasterdataNotInApprovedCategories() : void
+    public function test_master_data_not_in_approved_categories() : void
     {
         $master = Master::inRandomOrder()->first();
         $master->category_type = 'Something Else';
