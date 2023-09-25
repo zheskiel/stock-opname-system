@@ -6,7 +6,6 @@ $svParams = [
     'Central Kitchen Supervisor'
 ];
 
-
 $locationDetails = [
     0 => [
         'name' => 'Greenlake',

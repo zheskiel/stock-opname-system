@@ -19,6 +19,7 @@ class IndexController extends BaseController
     use HelpersTrait;
     use HierarchyTrait;
 
+    private $brand;
     private $outlet;
     private $master;
     private $manager;
@@ -26,12 +27,14 @@ class IndexController extends BaseController
     private $supervisor;
 
     public function __construct(
+        Brand $brand,
         Outlet $outlet,
         Master $master,
         Manager $manager,
         Template $template,
         Supervisor $supervisor
     ) {
+        $this->brand = $brand;
         $this->outlet = $outlet;
         $this->master = $master;
         $this->manager = $manager;
@@ -41,14 +44,16 @@ class IndexController extends BaseController
 
     public function testHierarchy()
     {
-        $items = Brand::with($this->loadProvinceWithRegency())->first();
+        $items = $this->brand
+            ->with($this->loadProvinceWithRegency())
+            ->first();
 
         return $this->respondWithSuccess($items);
     }
 
     public function testManager()
     {
-        $outlet = $this->outlet->inRandomOrder()->first();
+        $outlet = $this->outlet->first();
         $items = $this->manager
             ->with($this->loadSupervisorWithSupervisorPicAndTypeByOutlet($outlet))
             ->first();
@@ -58,7 +63,7 @@ class IndexController extends BaseController
 
     public function testSupervisor()
     {
-        $items = Supervisor::with(['type'])->first();
+        $items = $this->supervisor->with(['type'])->first();
 
         return $this->respondWithSuccess($items);
     }
