@@ -1,6 +1,8 @@
 <?php
 namespace Tests\Feature;
 
+use App\Models\Manager;
+use App\Models\Outlet;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -41,6 +43,22 @@ class UtilitiesTest extends TestCase
             }
 
             $this->assertSame($expected, $actual);
+        }
+    }
+
+    public function test_when_manager_load_supervisor_need_to_be_in_certain_outlet()
+    {
+        $outlet = Outlet::first();
+        $items = Manager::with($this->loadSupervisorWithSupervisorPicAndTypeByOutlet($outlet))->first();
+
+        $supervisors = $items->supervisor;
+
+        if (count($supervisors) > 0)
+        {
+            foreach($supervisors as $supervisor)
+            {
+                $this->assertSame((int) $outlet->id, (int) $supervisor->outlet_id);
+            }
         }
     }
 }

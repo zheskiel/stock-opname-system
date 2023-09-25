@@ -24,9 +24,9 @@ class Supervisor extends Model
     ];
 
     protected $hidden = [
-        'id',
-        'outlet_id',
-        'manager_id',
+        // 'id',
+        // 'outlet_id',
+        // 'manager_id',
         'supervisor_type_id',
         'staff_id',
         'created_at',

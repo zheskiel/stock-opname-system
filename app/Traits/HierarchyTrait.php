@@ -105,10 +105,33 @@ trait HierarchyTrait
     {
         return [
             'supervisor' => function($query) {
-                $query->with([
-                    'supervisor_pic',
-                    $this->loadSupervisorTypeWithStaff()
-                ])->orderBy('name')->first();
+                $collection = $query
+                    ->with([
+                        'supervisor_pic',
+                        $this->loadSupervisorTypeWithStaff()
+                    ])
+                    ->orderBy('name')
+                    ->get();
+
+                return $collection;
+            }
+        ];
+    }
+
+    public function loadSupervisorWithSupervisorPicAndTypeByOutlet($outlet)
+    {
+        return [
+            'supervisor' => function($query) use ($outlet) {
+                $collection = $query
+                    ->with([
+                        'supervisor_pic',
+                        $this->loadSupervisorTypeWithStaff()
+                    ])
+                    ->wherePivot('outlet_id', $outlet->id)
+                    ->orderBy('name')
+                    ->get();
+
+                return $collection;
             }
         ];
     }

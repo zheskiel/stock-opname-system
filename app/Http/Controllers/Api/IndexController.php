@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 
 use App\Models\Brand;
+use App\Models\Outlet;
 use App\Models\Master;
 use App\Models\Manager;
 use App\Models\Template;
@@ -18,17 +19,20 @@ class IndexController extends BaseController
     use HelpersTrait;
     use HierarchyTrait;
 
+    private $outlet;
     private $master;
     private $manager;
     private $template;
     private $supervisor;
 
     public function __construct(
+        Outlet $outlet,
         Master $master,
         Manager $manager,
         Template $template,
         Supervisor $supervisor
     ) {
+        $this->outlet = $outlet;
         $this->master = $master;
         $this->manager = $manager;
         $this->template = $template;
@@ -44,7 +48,10 @@ class IndexController extends BaseController
 
     public function testManager()
     {
-        $items = Manager::with($this->loadSupervisorWithSupervisorPicAndType())->first();
+        $outlet = $this->outlet->inRandomOrder()->first();
+        $items = $this->manager
+            ->with($this->loadSupervisorWithSupervisorPicAndTypeByOutlet($outlet))
+            ->first();
 
         return $this->respondWithSuccess($items);
     }

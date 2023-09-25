@@ -40,7 +40,7 @@ class Manager extends Authenticatable
 
     public function supervisor()
     {
-        return $this->belongsToMany('App\Models\Supervisor', 'manager_outlet_supervisor');
+        return $this->belongsToMany('App\Models\Supervisor', 'manager_outlet_supervisor')->withPivot('outlet_id');
     }
 
     public function staff()
