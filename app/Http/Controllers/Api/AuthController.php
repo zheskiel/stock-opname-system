@@ -10,39 +10,28 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends BaseController
 {
-    private $guardType;
-
     public function StaffLogin(Request $request)
     {
-        config(['jwt.user', 'App\Models\Staff']);
-        config(['auth.providers.users.model', Staff::class]);
+        $guardType = "staff-api";
 
-        $this->guardType = "staff-api";
-
-        return $this->proceedLogin($request);
+        return $this->proceedLogin($request, $guardType);
     }
 
     public function ManagerLogin(Request $request)
     {
-        config(['jwt.user', 'App\Models\Manager']);
-        config(['auth.providers.users.model', Manager::class]);
+        $guardType = "manager-api";
 
-        $this->guardType = "manager-api";
-
-        return $this->proceedLogin($request);
+        return $this->proceedLogin($request, $guardType);
     }
 
     public function AdminLogin(Request $request)
     {
-        config(['jwt.user', 'App\Models\Admin']);
-        config(['auth.providers.users.model', Admin::class]);
+        $guardType = "admin-api";
 
-        $this->guardType = "admin-api";
-
-        return $this->proceedLogin($request);
+        return $this->proceedLogin($request, $guardType);
     }
 
-    private function proceedLogin($request)
+    private function proceedLogin($request, $guardType)
     {
         $credentials = $request->only('email', 'password');
         
@@ -60,7 +49,7 @@ class AuthController extends BaseController
          try {
             // attempt to verify the credentials and create a token for the user
             // $token = JWTAuth::attempt($credentials);
-            $token = Auth::guard($this->guardType)->attempt($credentials);
+            $token = Auth::guard($guardType)->attempt($credentials);
 
             if (!$token) {
                 return $this->respondUnAuthenticated('We cant find an account with this credentials.');
