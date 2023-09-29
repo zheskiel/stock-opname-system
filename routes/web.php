@@ -43,7 +43,6 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
 Route::get('/', function() {
     return View('welcome');
 });
-Route::get('/home', 'IndexController@Test');
 
 Route::get('/test', 'IndexController@Test')->middleware('auth');
 
