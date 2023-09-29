@@ -2,11 +2,16 @@
 
 namespace App\Http\Middleware;
 
+use App\Traits\ApiResponsesTrait;
 use Closure;
+use Exception;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
+    use ApiResponsesTrait;
+
     /**
      * Handle an incoming request.
      *
@@ -20,19 +25,12 @@ class RedirectIfAuthenticated
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
-            if ($guard == "admin" && Auth::guard($guard)->check()) {
-                return redirect('/admin/dashboard');
-            }
-
-            if ($guard == "manager" && Auth::guard($guard)->check()) {
-                return redirect('/manager/dashboard');
-            }
-
-            if (Auth::guard($guard)->check()) {
-                return redirect('/home');
+            if (($guard == "admin" || $guard == "manager" || $guard == "staff") && 
+                Auth::guard($guard . "-api")->check()) {
+                return $next($request);
             }
         }
 
-        return $next($request);
+        return $this->respondUnAuthenticated("Not Authorized");
     }
 }

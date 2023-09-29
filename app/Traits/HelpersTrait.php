@@ -77,7 +77,7 @@ trait HelpersTrait
         return $items;
     }
 
-    public static function sortItems($items, $target = 'value')
+    static function sortItems($items, $target = 'value')
     {
         uasort($items, function ($item1, $item2) use ($target) {
             return $item2[$target] <=> $item1[$target];

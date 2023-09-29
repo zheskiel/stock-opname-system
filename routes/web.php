@@ -1,6 +1,36 @@
 <?php
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
+
+        // Staffs
+        Route::group(['prefix' => 'staff'], function() {
+            Route::post('/login', 'Api\AuthController@StaffLogin');
+
+            Route::group(['middleware' => 'guest:staff'], function() {
+                Route::get('/test', 'Api\TestController@testStaffPage');
+            });
+        });
+
+        // Managers
+        Route::group(['prefix' => 'manager'], function() {
+            Route::post('/login', 'Api\AuthController@ManagerLogin');
+
+            Route::group(['middleware' => 'guest:manager'], function() {
+                Route::get('/test', 'Api\TestController@testManagerPage');
+            });
+        });
+
+        // Admins
+        Route::group(['prefix' => 'admin'], function() {
+            Route::post('/login', 'Api\AuthController@AdminLogin');
+
+            Route::group(['middleware' => 'guest:admin'], function() {
+                Route::get('/test', 'Api\TestController@testAdminPage');
+            });
+        });
+
+        Route::post('/logout', 'Api\AuthController@Logout');
+
         Route::get('/manager', 'Api\IndexController@testManager');
         Route::get('/supervisor', 'Api\IndexController@testSupervisor');
 
@@ -17,6 +47,7 @@ Route::get('/home', 'IndexController@Test');
 
 Route::get('/test', 'IndexController@Test')->middleware('auth');
 
+/*
 Route::group(['prefix' => 'admin'], function() {
     Route::get('/', 'Auth\LoginController@showAdminLoginForm')->name('admin.login-view');
     Route::post('/', 'Auth\LoginController@adminLogin')->name('admin.login');
@@ -34,9 +65,10 @@ Route::group(['prefix' => 'manager'], function() {
         return view('manager')->with(['title' => 'manager']);
     })->middleware('auth:manager');
 });
+*/
 
-Auth::routes([
-    'register' => false,
-    'reset' => false,
-    'verify' => false,
-]);
+// Auth::routes([
+//     'register' => false,
+//     'reset' => false,
+//     'verify' => false,
+// ]);

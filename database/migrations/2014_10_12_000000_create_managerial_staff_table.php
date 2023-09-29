@@ -21,6 +21,7 @@ class CreateManagerialStaffTable extends Migration
                 $table->string('email')->unique();
                 $table->string('password');
                 $table->integer('brand_id')->nullable();
+                $table->text('api_token')->nullable();
                 $table->rememberToken();
                 $table->timestamps();
             });
@@ -33,6 +34,7 @@ class CreateManagerialStaffTable extends Migration
                 $table->string('slug');
                 $table->string('email')->unique();
                 $table->string('password');
+                $table->text('api_token')->nullable();
                 $table->rememberToken();
                 $table->timestamps();
             });
@@ -47,6 +49,7 @@ class CreateManagerialStaffTable extends Migration
                 $table->boolean('is_supervisor')->default(false);
                 $table->string('sv_type_label')->nullable();
                 $table->string('password');
+                $table->text('api_token')->nullable();
                 $table->rememberToken();
                 $table->timestamps();
             });
