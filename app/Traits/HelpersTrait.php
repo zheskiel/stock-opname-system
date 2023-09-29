@@ -67,7 +67,7 @@ trait HelpersTrait
     {
         $items->each(function($query) use ($param, $target) {
             $items = json_decode($query->{$param}, true);
-            $units = $this->sortItems($items, $target);
+            $units = SELF::sortItems($items, $target);
 
             $query->{$param} = $units;
 
@@ -77,7 +77,7 @@ trait HelpersTrait
         return $items;
     }
 
-    public function sortItems($items, $target = 'value')
+    public static function sortItems($items, $target = 'value')
     {
         uasort($items, function ($item1, $item2) use ($target) {
             return $item2[$target] <=> $item1[$target];

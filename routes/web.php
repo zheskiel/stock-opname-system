@@ -1,5 +1,5 @@
 <?php
-Route::group(['prefix' => 'api'], function() {
+Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
         Route::get('/manager', 'Api\IndexController@testManager');
         Route::get('/supervisor', 'Api\IndexController@testSupervisor');
