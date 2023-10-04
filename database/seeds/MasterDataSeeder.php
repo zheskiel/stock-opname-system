@@ -73,9 +73,15 @@ class MasterDataSeeder extends BaseSeeder
         foreach($listArr as $l => $items) {
             $unitList = [];
 
-            foreach($items as $item) {
+            $newItems = $this->usortItems($items, "Qty");
+
+            $cKey = count($newItems) - 1;
+            $sku = $newItems[$cKey]['Unit'];
+
+            foreach($newItems as $item) {
                 $unitList[ $item['Unit'] ] = [
                     'value'                 => $item['Qty'],
+                    'sku'                   => $sku,
                     'barcode_number'        => $item['Barcode Number'],
                     'flag_base_unit'        => $item['Flag Base Unit'],
                     'flag_default'          => $item['Flag Default'],

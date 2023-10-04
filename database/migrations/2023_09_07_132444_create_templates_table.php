@@ -6,7 +6,10 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateTemplatesTable extends Migration
 {
-    private $tableName = 'template';
+    private $tableNames = [
+        'templates',
+        'details'
+    ];
 
     /**
      * Run the migrations.
@@ -15,15 +18,11 @@ class CreateTemplatesTable extends Migration
      */
     public function up()
     {
-        if (!Schema::hasTable($this->tableName)) {
-            Schema::create($this->tableName, function (Blueprint $table) {
+        if (!Schema::hasTable($this->tableNames[0])) {
+            Schema::create($this->tableNames[0], function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('product_id');
-                $table->string('product_code');
-                $table->string('product_name');
-                $table->string('unit_label');
-                $table->integer('unit_value');
-                $table->integer('receipt_tolerance')->default(0);
+                $table->string('title');
+                $table->string('slug');
                 $table->integer('outlet_id')->nullable();
                 $table->integer('supervisor_id')->nullable();
                 $table->string('supervisor_duty')->nullable();
@@ -43,6 +42,20 @@ class CreateTemplatesTable extends Migration
                     ");
                 $table->timestamps();
             });
+        }
+
+        if (!Schema::hasTable($this->tableNames[1])) {
+            Schema::create($this->tableNames[1], function (Blueprint $table) {
+                $table->increments('id');
+                $table->integer('templates_id');
+                $table->integer('product_id');
+                $table->string('product_code');
+                $table->string('product_name');
+                $table->string('unit_label');
+                $table->integer('unit_value');
+                $table->integer('receipt_tolerance')->default(0);
+                $table->timestamps();
+            });
         };
     }
 
@@ -54,7 +67,8 @@ class CreateTemplatesTable extends Migration
     public function down()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
-        Schema::dropIfExists($this->tableName);
+        Schema::dropIfExists($this->tableNames[0]);
+        Schema::dropIfExists($this->tableNames[1]);
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 }

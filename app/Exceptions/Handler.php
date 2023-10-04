@@ -58,8 +58,10 @@ class Handler extends ExceptionHandler
             return response()->json(['error' => 'Token Expired'], 401);
         } catch (TokenInvalidException $e) {
             return response()->json(['error' => 'Token Invalid'], 401);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Token not Provided'], 401);
+        // } catch (JWTException $e) {
+        //     return response()->json(['error' => 'Token not Provided'], 401);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()]);
         }
 
         return parent::render($request, $exception);

@@ -4,17 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Template extends Model
+class Templates extends Model
 {
-    protected $table = "template";
+    protected $table = "templates";
 
     protected $fillable = [
-        'product_id',
-        'product_code',
-        'product_name',
-        'unit_label',
-        'unit_value',
-        'receipt_tolerance',
+        'title',
+        'slug',
         'supervisor_id',
         'outlet_id',
         'manager_id',
@@ -23,7 +19,6 @@ class Template extends Model
     ];
 
     protected $hidden = [
-        'id',
         'created_at',
         'updated_at'
     ];
@@ -43,5 +38,10 @@ class Template extends Model
     public function outlet()
     {
         return $this->belongsTo('App\Models\Outlet', 'outlet_id');
+    }
+
+    public function details()
+    {
+        return $this->belongsToMany('App\Models\Details', 'details_templates');
     }
 }

@@ -18,7 +18,7 @@ trait HelpersTrait
     public $ENCRYPT_METHOD = 'AES-256-CBC';
     public $HASH_TYPE      = 'sha256';
 
-    public $limit = 10;
+    public $limit = 50;
 
     public function hashCommon()
     {
@@ -80,6 +80,15 @@ trait HelpersTrait
     static function sortItems($items, $target = 'value')
     {
         uasort($items, function ($item1, $item2) use ($target) {
+            return $item2[$target] <=> $item1[$target];
+        });
+
+        return $items;
+    }
+
+    static function usortItems($items, $target = 'value')
+    {
+        usort($items, function ($item1, $item2) use ($target) {
             return $item2[$target] <=> $item1[$target];
         });
 

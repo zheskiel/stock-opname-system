@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
@@ -9,7 +8,7 @@ use App\Models\Brand;
 use App\Models\Outlet;
 use App\Models\Master;
 use App\Models\Manager;
-use App\Models\Template;
+use App\Models\Templates;
 use App\Models\Supervisor;
 use App\Traits\HelpersTrait;
 use App\Traits\HierarchyTrait;
@@ -31,7 +30,7 @@ class IndexController extends BaseController
         Outlet $outlet,
         Master $master,
         Manager $manager,
-        Template $template,
+        Templates $template,
         Supervisor $supervisor
     ) {
         $this->brand = $brand;
@@ -75,7 +74,12 @@ class IndexController extends BaseController
         $model = $this->template;
         $total = $model->count();
         $items = $model
-            ->with(['manager', 'supervisor', 'outlet'])
+            ->with([
+                // 'manager',
+                // 'supervisor',
+                // 'outlet',
+                'details'
+            ])
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
             ->get();

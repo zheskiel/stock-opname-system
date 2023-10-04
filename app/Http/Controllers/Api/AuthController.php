@@ -10,23 +10,9 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends BaseController
 {
-    public function StaffLogin(Request $request)
+    public function login(Request $request, $userType)
     {
-        $guardType = "staff-api";
-
-        return $this->proceedLogin($request, $guardType);
-    }
-
-    public function ManagerLogin(Request $request)
-    {
-        $guardType = "manager-api";
-
-        return $this->proceedLogin($request, $guardType);
-    }
-
-    public function AdminLogin(Request $request)
-    {
-        $guardType = "admin-api";
+        $guardType = "$userType-api";
 
         return $this->proceedLogin($request, $guardType);
     }
@@ -59,7 +45,11 @@ class AuthController extends BaseController
             return $this->respondError("Failed to login, please try again.");
         }
 
-        $params = [ 'token' => $token ];
+        $authUser = Auth::guard($guardType)->user();
+        $params = [
+            'token' => $token,
+            'user' => $authUser
+        ];
 
         return $this->respondWithSuccess($params);
     }
@@ -79,17 +69,20 @@ class AuthController extends BaseController
 
     public function refresh()
     {
-        return response()->json([
-            'status' => 'success',
-            'user' => Auth::user(),
-            'authorisation' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer',
-            ]
-        ]);
+        $items = ['admin', 'manager', 'staff'];
+
+        foreach ($items as $item) {
+            if (Auth::guard($item . '-api')->check()) {
+                $token = Auth::guard($item . '-api')->refresh();
+            }
+        }
+
+        $params = [ 'token' => $token ];
+
+        return $this->respondWithSuccess($params);
     }
 
-    public function TestToken(Request $request)
+    public function TestToken()
     {
         $user = JWTAuth::parseToken()->authenticate();
 

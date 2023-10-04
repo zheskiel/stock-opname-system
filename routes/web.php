@@ -2,10 +2,18 @@
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
 
-        // Staffs
-        Route::group(['prefix' => 'staff'], function() {
-            Route::post('/login', 'Api\AuthController@StaffLogin');
+        Route::get('/templates', 'Api\TemplatesController@Index');
+        Route::get('/template/{templateId}/view', 'Api\TemplateController@View');
 
+        // Staffs
+        Route::group([
+            'prefix' => '{userType}',
+            'where' => ['userType' => 'staff|manager|admin']
+        ], function() {
+            Route::post('/login', 'Api\AuthController@login');
+        });
+
+        Route::group(['prefix' => 'staff'], function() {
             Route::group(['middleware' => 'guest:staff'], function() {
                 Route::get('/test', 'Api\TestController@testStaffPage');
             });
@@ -13,8 +21,6 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
 
         // Managers
         Route::group(['prefix' => 'manager'], function() {
-            Route::post('/login', 'Api\AuthController@ManagerLogin');
-
             Route::group(['middleware' => 'guest:manager'], function() {
                 Route::get('/test', 'Api\TestController@testManagerPage');
             });
@@ -22,8 +28,6 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
 
         // Admins
         Route::group(['prefix' => 'admin'], function() {
-            Route::post('/login', 'Api\AuthController@AdminLogin');
-
             Route::group(['middleware' => 'guest:admin'], function() {
                 Route::get('/test', 'Api\TestController@testAdminPage');
             });
@@ -44,7 +48,9 @@ Route::get('/', function() {
     return View('welcome');
 });
 
-Route::get('/test', 'IndexController@Test')->middleware('auth');
+Route::get('{any?}', function () {
+    return redirect('/');
+})->where('any', '.*');
 
 /*
 Route::group(['prefix' => 'admin'], function() {

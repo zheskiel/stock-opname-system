@@ -4,7 +4,8 @@ use App\Models\ {
     Master,
     Outlet,
     Supervisor,
-    Template
+    Details,
+    Templates
 };
 use App\Traits\HelpersTrait;
 
@@ -16,22 +17,41 @@ class TemplateDataSeeder extends BaseSeeder
     private $master;
     private $template;
     private $supervisor;
+    private $templateDetails;
 
     public function __construct(
         Outlet $outlet,
         Master $master,
-        Template $template,
-        Supervisor $supervisor
+        Templates $template,
+        Supervisor $supervisor,
+        Details $templateDetails
     ) {
         $this->outlet = $outlet;
         $this->master = $master;
         $this->template = $template;
         $this->supervisor = $supervisor;
+        $this->templateDetails = $templateDetails;
     }
 
-    private function createTemplate($params)
+    private function createTemplateForSupervisors($outlet)
     {
-        return $this->template->create($params);
+        $supervisors = $outlet->supervisor;
+
+        foreach($supervisors as $supervisor) {
+            $title = "Template $outlet->name";
+            $slug = $this->processTitleSlug($title);
+
+            $this->template->create([
+                'title'           => $title,
+                'slug'            => $slug,
+                'supervisor_id'   => $supervisor->id,
+                'supervisor_duty' => $supervisor->duty,
+                'outlet_id'       => $outlet->id,
+                'manager_id'      => $outlet->manager->id,
+                'owned'           => 0,
+                'status'          => 0
+            ]);
+        }
     }
 
     private function getRandomUnit($item) : array
@@ -50,93 +70,28 @@ class TemplateDataSeeder extends BaseSeeder
         return [$selectedKey, $selectedUnit];
     }
 
-    private function getDefaultParams($item, $outlet)
+    private function createTemplateDetails()
     {
-        $defaultParams = [
-            'product_id'   => $item->product_id,
-            'product_code' => $item->product_code,
-            'product_name' => $item->product_name,
-            'outlet_id'    => $outlet->id,
-            'manager_id'   => $outlet->manager->id
-        ];
+        $templates = $this->template->get();
 
-        return $defaultParams;
-    }
+        foreach($templates as $template) {
+            for ($x = 0; $x < rand(30, 250); $x++) {
+                $item = $this->master->inRandomOrder()->first();
 
-    private function getFinalParams($defaultParams, $owned)
-    {
-        switch($owned) {
-            case $owned == $this->OWNED_BY_BOTH:
+                list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
 
-                $params = [
-                    0 => array_merge($defaultParams, [
-                        'owned' => $this->OWNED_BY_LEADER_KITCHEN
-                    ]),
-                    1 => array_merge($defaultParams, [
-                        'owned' => $this->OWNED_BY_OUTLET_SUPERVISOR
-                    ])
-                ];
-                break;
-
-            case $owned == $this->OWNED_BY_LEADER_KITCHEN:
-                $params = [
-                    0 => array_merge($defaultParams, [
-                        'owned' => $this->OWNED_BY_LEADER_KITCHEN
-                    ])
-                ];
-                break;
-
-            case $owned == $this->OWNED_BY_OUTLET_SUPERVISOR:
-                $params = [
-                    0 => array_merge($defaultParams, [
-                        'owned' => $this->OWNED_BY_OUTLET_SUPERVISOR
-                    ])
-                ];
-                break;
-        }
-
-        return $params;
-    }
-
-    private function processTemplateCreation($params, $item, $outlet)
-    {
-        foreach($params as $param) {
-            $duty = ($param['owned'] == $this->OWNED_BY_LEADER_KITCHEN) ? 'production' : 'serve';
-
-            $supervisor = $this->supervisor
-                ->where('manager_id', $outlet->manager->id)
-                ->where('outlet_id', $outlet->id)
-                ->where('duty', $duty)
-                ->first();
-
-            list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
-
-            $newParams = [
-                'unit_label' => $selectedKey,
-                'unit_value' => $selectedUnit['value'],
-            ];
-
-            if ($supervisor) {
-                $newParams = array_merge($newParams, [
-                    'supervisor_id' => $supervisor->id,
-                    'supervisor_duty' => $supervisor->duty
+                $detail = $this->templateDetails->create([
+                    'templates_id' => $template->id,
+                    'product_id'   => $item->product_id,
+                    'product_code' => $item->product_code,
+                    'product_name' => $item->product_name,
+                    'unit_label' => $selectedKey,
+                    'unit_value' => $selectedUnit['value'],
+                    'receipt_tolerance' => rand(0, 15),
                 ]);
+
+                $template->details()->attach($detail);
             }
-
-            $param = array_merge($param, $newParams);
-
-            $this->createTemplate($param);
-        }
-    }
-
-    private function createTemplateData($outlet, $masterDatas)
-    {
-        foreach ($masterDatas as $item)
-        {
-            $defaultParams = $this->getDefaultParams($item, $outlet);
-            $params = $this->getFinalParams($defaultParams, $item['owned']);
-
-            $this->processTemplateCreation($params, $item, $outlet);
         }
     }
 
@@ -145,13 +100,13 @@ class TemplateDataSeeder extends BaseSeeder
         $query   = $this->outlet->with(['manager', 'supervisor']);
         $total   = $query->count();
         $outlets = $query->get();
-
-        $masterDatas = $this->master->get();
         
         foreach($outlets as $key => $outlet) {
             $this->progressBar($key, $total - 1) .  "\n";
-            $this->createTemplateData($outlet, $masterDatas);
+            $this->createTemplateForSupervisors($outlet);
         }
+
+        $this->createTemplateDetails();
 
         echo "\nDone\n\n";
     }

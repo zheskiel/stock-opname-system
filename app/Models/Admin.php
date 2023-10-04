@@ -29,7 +29,9 @@ class Admin extends Model implements JWTSubject, AuthenticatableContract, Author
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password',
+        'remember_token',
+        'api_token',
     ];
 
     protected $casts = [];

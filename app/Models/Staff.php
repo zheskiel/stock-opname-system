@@ -42,7 +42,7 @@ class Staff extends Model implements JWTSubject, AuthenticatableContract, Author
     ];
 
     protected $hidden = [
-        // 'id',
+        'id',
         'outlet_id',
         'manager_id',
         'staff_type_id',
@@ -52,6 +52,7 @@ class Staff extends Model implements JWTSubject, AuthenticatableContract, Author
         'remember_token',
         'created_at',
         'updated_at',
+        'api_token',
         'pivot'
     ];
 

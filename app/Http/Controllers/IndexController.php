@@ -1,12 +1,9 @@
 <?php
-
 namespace App\Http\Controllers;
-
-use Importer as C;
-use Illuminate\Http\Request;
 
 use App\Models\Master;
 use App\Traits\HelpersTrait;
+use Illuminate\Http\Request;
 
 class IndexController extends BaseController
 {
@@ -32,7 +29,6 @@ class IndexController extends BaseController
             ->get();
 
         $data = $this->sortItemsByParams($query, 'units', 'value');
-
         $result = $this->generatePagination($data, $total, $this->limit, $page);
 
         // return response()->json($result);

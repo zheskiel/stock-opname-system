@@ -38,6 +38,7 @@ class Manager extends Model implements JWTSubject, AuthenticatableContract, Auth
         'remember_token',
         'created_at',
         'updated_at',
+        'api_token',
     ];
 
     public function outlets()
