@@ -38,7 +38,7 @@ class TemplateDataSeeder extends BaseSeeder
         $supervisors = $outlet->supervisor;
 
         foreach($supervisors as $supervisor) {
-            $title = "Template $outlet->name";
+            $title = "Template $outlet->name $supervisor->name";
             $slug = $this->processTitleSlug($title);
 
             $this->template->create([
@@ -78,15 +78,14 @@ class TemplateDataSeeder extends BaseSeeder
             for ($x = 0; $x < rand(30, 250); $x++) {
                 $item = $this->master->inRandomOrder()->first();
 
-                list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
+                // list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
 
                 $detail = $this->templateDetails->create([
                     'templates_id' => $template->id,
                     'product_id'   => $item->product_id,
                     'product_code' => $item->product_code,
                     'product_name' => $item->product_name,
-                    'unit_label' => $selectedKey,
-                    'unit_value' => $selectedUnit['value'],
+                    'units'        => $item->units,
                     'receipt_tolerance' => rand(0, 15),
                 ]);
 

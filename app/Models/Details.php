@@ -9,12 +9,12 @@ class Details extends Model
     protected $table = "details";
 
     protected $fillable = [
+        "templates_id",
         'product_id',
         'product_code',
         'product_name',
-        'unit_label',
-        'unit_value',
         'receipt_tolerance',
+        'units',
     ];
 
     protected $hidden = [
@@ -24,4 +24,9 @@ class Details extends Model
     ];
 
     protected $casts = [];
+
+    public function template()
+    {
+        return $this->belongsTo('App\Models\Templates', 'templates_id');
+    }
 }

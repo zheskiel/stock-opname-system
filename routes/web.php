@@ -3,7 +3,16 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
 
         Route::get('/templates', 'Api\TemplatesController@Index');
-        Route::get('/template/{templateId}/view', 'Api\TemplateController@View');
+
+        Route::group(['prefix' => '/template'], function() {
+            Route::group(['prefix' => '/{templateId}'], function() {
+                Route::get('/view', 'Api\TemplateController@View')->name('template.view');
+                Route::get('/all', 'Api\TemplateController@FetchAllSelected');
+
+                Route::post('/create-detail', 'Api\TemplateController@createTemplateDetail');
+                Route::post('/remove-detail', 'Api\TemplateController@removeTemplateDetail');
+            });
+        });
 
         // Staffs
         Route::group([

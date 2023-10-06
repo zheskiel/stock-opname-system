@@ -39,6 +39,8 @@ class IndexController extends BaseController
         $this->manager = $manager;
         $this->template = $template;
         $this->supervisor = $supervisor;
+
+        $this->limit = 15;
     }
 
     public function testHierarchy()

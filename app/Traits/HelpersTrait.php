@@ -177,14 +177,18 @@ trait HelpersTrait
         return $num;
     }
 
-    static function generatePagination($itemData, $itemCount, $perPage, $page)
+    static function generatePagination($itemData, $itemCount, $perPage, $page, $path = "")
     {
+        if ($path == "") {
+            $path = '/' . request()->path();
+        }
+
         return self::customPaginate(
             $itemData,
             $itemCount,
             $perPage,
             $page,
-            [ 'path' => '/' . request()->path() ]
+            [ 'path' => $path ]
         );
     }
 

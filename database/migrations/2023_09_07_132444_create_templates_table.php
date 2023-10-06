@@ -51,8 +51,7 @@ class CreateTemplatesTable extends Migration
                 $table->integer('product_id');
                 $table->string('product_code');
                 $table->string('product_name');
-                $table->string('unit_label');
-                $table->integer('unit_value');
+                $table->json('units');
                 $table->integer('receipt_tolerance')->default(0);
                 $table->timestamps();
             });
