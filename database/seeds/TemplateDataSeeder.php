@@ -75,7 +75,7 @@ class TemplateDataSeeder extends BaseSeeder
         $templates = $this->template->get();
 
         foreach($templates as $template) {
-            for ($x = 0; $x < rand(30, 250); $x++) {
+            for ($x = 0; $x < rand(50, 250); $x++) {
                 $item = $this->master->inRandomOrder()->first();
 
                 // list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
@@ -86,7 +86,7 @@ class TemplateDataSeeder extends BaseSeeder
                     'product_code' => $item->product_code,
                     'product_name' => $item->product_name,
                     'units'        => $item->units,
-                    'receipt_tolerance' => rand(0, 15),
+                    'receipt_tolerance' => $item->receipt_tolerance,
                 ]);
 
                 $template->details()->attach($detail);
@@ -96,13 +96,15 @@ class TemplateDataSeeder extends BaseSeeder
 
     public function run()
     {
-        $query   = $this->outlet->with(['manager', 'supervisor']);
-        $total   = $query->count();
-        $outlets = $query->get();
+        $model = $this->outlet;
+        $query = $model->with(['manager', 'supervisor']);
+
+        $total = $query->count();
+        $items = $query->get();
         
-        foreach($outlets as $key => $outlet) {
+        foreach($items as $key => $item) {
             $this->progressBar($key, $total - 1) .  "\n";
-            $this->createTemplateForSupervisors($outlet);
+            $this->createTemplateForSupervisors($item);
         }
 
         $this->createTemplateDetails();

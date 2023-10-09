@@ -80,7 +80,7 @@ class IndexController extends BaseController
                 // 'manager',
                 // 'supervisor',
                 // 'outlet',
-                'details'
+                // 'details'
             ])
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))

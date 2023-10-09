@@ -91,7 +91,14 @@ class MasterDataSeeder extends BaseSeeder
                 ];
             }
 
-            $newData = array_merge($listArr[$l][0], [ 'units' => $unitList ]);
+            $isPiece = array_key_exists('PCS', $unitList);
+
+            $tolerance = $isPiece ? 0 : rand(10, 30);
+
+            $newData = array_merge($listArr[$l][0], [
+                'Receipt Tolerance (%)' => $tolerance,
+                'units' => $unitList
+            ]);
             $newData['units'] = json_encode($newData['units']);
 
             // Remove arrays of data

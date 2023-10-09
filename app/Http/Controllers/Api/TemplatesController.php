@@ -8,6 +8,8 @@ use App\Models\Templates;
 use App\Traits\HelpersTrait;
 use App\Traits\HierarchyTrait;
 
+use JWTAuth;
+
 class TemplatesController extends BaseController
 {
     use HelpersTrait;
@@ -24,9 +26,14 @@ class TemplatesController extends BaseController
 
     public function Index(Request $request)
     {
+        $currentUser = JWTAuth::parseToken()->authenticate();
+
         $page = (int) $request->get('page', 1);
 
-        $model = $this->templates;
+        $model = $this->templates
+            ->withCount('details')
+            ->where('manager_id', $currentUser->id);
+
         $total = $model->count();
         $items = $model
             ->limit($this->limit)

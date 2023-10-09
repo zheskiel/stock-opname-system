@@ -32,7 +32,9 @@ class TemplateController extends BaseController
         $template = $this->templates->where('id', $templateId)->first();
 
         $model = $this->details;
-        $query = $model->where('templates_id', $template->id)->orderBy('id', 'desc');
+        $query = $model
+            ->where('templates_id', $template->id)
+            ->orderBy('id', 'desc');
 
         $total = $query->count();
         $query = $query

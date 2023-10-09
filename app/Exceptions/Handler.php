@@ -52,6 +52,8 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        dd( $exception->getMessage() );
+
         try {
             JWTAuth::parseToken()->authenticate();
         } catch (TokenExpiredException $e) {

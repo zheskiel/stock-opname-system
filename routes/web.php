@@ -2,6 +2,20 @@
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
 
+        Route::get('/forms', 'Api\FormsController@Index');
+
+        Route::group(['prefix' => '/form'], function() {
+            Route::group(['prefix' => '/{managerId}'], function() {
+                Route::group(['prefix' => '/{staffId}'], function() {
+                    Route::get('/details', 'Api\FormsController@FetchFormByStaffId');
+                    Route::get('/all', 'Api\FormsController@FetchAllSelected');
+
+                    Route::post('/create-detail', 'Api\FormsController@createFormDetail');
+                    Route::post('/remove-detail', 'Api\FormsController@removeFormDetail');
+                });
+            });
+        });
+
         Route::get('/templates', 'Api\TemplatesController@Index');
 
         Route::group(['prefix' => '/template'], function() {
