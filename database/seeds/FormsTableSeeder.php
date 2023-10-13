@@ -39,11 +39,19 @@ class FormsTableSeeder extends BaseSeeder
     public function run()
     {
         $manager = Manager::with($this->loadSupervisorWithSupervisorPicAndType())->first();
+
+        $manager->load(['outlets' => function($query) {
+            return $query->groupBy('outlet_id');
+        }]);
+
+        $outlets = $manager->outlets;
+
         $supervisors = $manager->supervisor;
 
         $model = $this->forms;
 
         foreach ($supervisors as $supervisor) {
+
             $template = $this->templates
                 ->with(['details'])
                 ->where('supervisor_id', $supervisor->id)    
@@ -57,10 +65,13 @@ class FormsTableSeeder extends BaseSeeder
                 $staffs = $type->staffs;
 
                 foreach ($staffs as $staff) {
+
+                    $randOutlet = $outlets[rand(0, count($outlets) - 1)];
                     
                     $model->create([
                         'template_id'   => $template->id,
                         'manager_id'    => $manager->id,
+                        'outlet_id'     => $randOutlet->id,
                         'supervisor_id' => $supervisor->id,
                         'staff_id'      => $staff->id
                     ]);

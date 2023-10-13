@@ -46,7 +46,56 @@ class FormsController extends BaseController
         return $this->respondWithSuccess($manager);
     }
 
-    private function handleFetchData($managerId, $staffId, $page = 1)
+    private function processMap($items)
+    {
+        return $items->map(function($items) {
+            $result = [];
+            $units = [];
+
+            $value = 0;
+            foreach ($items as $item) {
+                $value += $item->value * $item->unit_value;
+                $units[] = $item->value ." ". $item->unit . " = " . $item->value * $item->unit_value ." ". $item->unit_sku;
+                $original[] = $item->value;
+
+                $result = [
+                    "forms_id"      => $item->forms_id,
+                    'product_id'    => $item->product_id,
+                    'product_code'  => $item->product_code,
+                    'product_name'  => $item->product_name,
+                    'unit'          => $units,
+                    'original'      => $original,
+                    'unit_value'    => $item->unit_value,
+                    'unit_sku'      => $item->unit_sku,
+                    'value'         => $value,
+                ];
+            }
+
+            return $result;
+        });
+    }
+
+    public function fetchCombinedForm($managerId, $outletId)
+    {
+        $items = $this->forms
+            ->with(['items'])
+            // ->where('manager_id', $managerId)
+            // ->where('outlet_id', $outletId)
+            ->orderBy('id')
+            ->get()
+            ->pluck('items');
+
+        $items = collect($items)->flatten();
+        $items = $items->groupBy('product_id');
+        $items = $this->processMap($items)->toArray();
+        $items = array_slice($items, 0, count($items));
+
+        $result = $items;
+
+        return $this->respondWithSuccess($result);
+    }
+
+    private function handleFetchData2($managerId, $staffId, $page = 1)
     {
         $form = $this->forms
             ->with(['staff'])
@@ -55,15 +104,67 @@ class FormsController extends BaseController
             ->first();
 
         $model = $this->items;
-        $query = $model
-            ->where('forms_id', $form->id)
-            ->orderBy('id', 'desc');
+        $query = $model->where('forms_id', $form->id);
 
         $total = $query->count();
         $items = $query
+            ->orderBy('id', 'desc')
+            ->groupBy('product_id')
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
             ->get();
+
+        $newItems = $form;
+        $newItems['items'] = $items;
+
+        $result = $this->generatePagination($newItems, $total, $this->limit, $page);
+
+        return $result;
+    }
+
+    private function handleFetchData($managerId, $staffId, $page = 1)
+    {
+        $form = $this->forms
+            ->with(['staff'])
+            ->where('manager_id', $managerId)
+            ->where('staff_id', $staffId)
+            ->first();
+
+        $start = $this->limit * ($page - 1);
+        $end = $this->limit;
+
+        $model = $this->items;
+        $items = $model
+            ->where('forms_id', $form->id)
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $group = $items->mapToGroups(function ($item) {
+            return [$item['product_id'] => [
+                "unit"       => $item['unit'],
+                "unit_value" => $item['unit_value'],
+                "unit_sku"   => $item['unit_sku']
+            ]];
+        });
+
+        $items = $items->groupBy('product_id')->toArray();
+
+        foreach ($items as $item) {
+            $item = array_merge(...$item);
+
+            unset( $item['unit_value'] );
+            unset( $item['unit_sku'] );
+
+            $unit = $group[$item['product_id']];
+            $unitArr = $unit->toArray();
+
+            $item['units'] = $this->usortItems($unitArr, 'unit_value');
+
+            $items[$item['product_id']] = $item;
+        }
+
+        $total = count($items);
+        $items = array_slice($items, $start, $end);
 
         $newItems = $form;
         $newItems['items'] = $items;
@@ -90,37 +191,47 @@ class FormsController extends BaseController
         $productCode = $request->get('product_code');
         $productName = $request->get('product_name');
         $unit        = $request->get('selected_unit');
+        $units       = $request->get('units');
 
-        $form = $this->forms
-            ->where('manager_id', $managerId)
-            ->where('staff_id', $staffId)
-            ->first();
-        
-        $params = [
-            'forms_id'     => $form->id,
-            'product_id'   => $productId,
-            'product_code' => $productCode,
-            'product_name' => $productName,
-            'unit'         => $unit,
-            'value'        => 0
-        ];
+        try {
+            $currentUnit = $units[$unit];
 
-        $item = $this->items
-            ->create($params);
+            $form = $this->forms
+                ->where('manager_id', $managerId)
+                ->where('staff_id', $staffId)
+                ->first();
 
-        $form->items()->attach($item);
+            $params = [
+                'forms_id'     => $form->id,
+                'product_id'   => $productId,
+                'product_code' => $productCode,
+                'product_name' => $productName,
+                'unit'         => $unit,
+                'unit_value'   => $currentUnit['value'],
+                'unit_sku'     => $currentUnit['sku'],
+                'value'        => 0
+            ];
 
-        $result = $this->handleFetchData($managerId, $staffId);
+            $item = $this->items
+                ->create($params);
 
-        return $this->respondWithSuccess($result);
+            $form->items()->attach($item);
+
+            $result = $this->handleFetchData($managerId, $staffId);
+
+            return $this->respondWithSuccess($result);
+        } catch(\Exception $e) {
+            return $this->respondError($e->getMessage());
+        }
     }
 
     public function removeFormDetail(Request $request)
     {
-        $managerId = $request->get('manager_id');
-        $staffId   = $request->get('staff_id');
-        $productId = $request->get('product_id');
-        $itemId    = $request->get('item_id');
+        $currentPage = $request->get('current_page');
+        $managerId   = $request->get('manager_id');
+        $staffId     = $request->get('staff_id');
+        $productId   = $request->get('product_id');
+        $itemId      = $request->get('item_id');
 
         $form = $this->forms
             ->where('manager_id', $managerId)
@@ -138,7 +249,7 @@ class FormsController extends BaseController
             $item->delete();
         }
 
-        $result = $this->handleFetchData($managerId, $staffId);
+        $result = $this->handleFetchData($managerId, $staffId, $currentPage);
 
         return $this->respondWithSuccess($result);
     }

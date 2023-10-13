@@ -55,23 +55,31 @@ class FormItemsTableSeeder extends BaseSeeder
 
             $details = $template->details;
             
-            for ($x = 0; $x < rand(50, 250); $x++) {
+            for ($x = 0; $x < rand(5, 10); $x++) {
                 $detail =  $details[rand(0, count($details) - 1)];
 
                 $units = $this->getRandomUnit($detail);
 
                 list ($selectedKey, $selectedUnit) = $units;
 
-                $item = $this->items->create([
-                    'forms_id'      => $form->id,
-                    'product_id'    => $detail->product_id,
-                    'product_code'  => $detail->product_code,
-                    'product_name'  => $detail->product_name,
-                    'unit'          => $selectedKey,
-                    'value'         => $selectedUnit['value'],
-                ]);
+                $exist = $this->items
+                    ->where('product_id', $detail->product_id)
+                    ->first();
 
-                $form->items()->attach($item);
+                if (!$exist) {
+                    $item = $this->items->create([
+                        'forms_id'      => $form->id,
+                        'product_id'    => $detail->product_id,
+                        'product_code'  => $detail->product_code,
+                        'product_name'  => $detail->product_name,
+                        'unit'          => str_replace(" ", "", $selectedKey),
+                        'unit_value'    => $selectedUnit['value'],
+                        'unit_sku'      => $selectedUnit['sku'],
+                        'value'         => rand(10, 50),
+                    ]);
+
+                    $form->items()->attach($item);
+                }
             }
         }
     }

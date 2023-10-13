@@ -75,21 +75,27 @@ class TemplateDataSeeder extends BaseSeeder
         $templates = $this->template->get();
 
         foreach($templates as $template) {
-            for ($x = 0; $x < rand(50, 250); $x++) {
+            for ($x = 0; $x < rand(250, 500); $x++) {
                 $item = $this->master->inRandomOrder()->first();
 
                 // list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
 
-                $detail = $this->templateDetails->create([
-                    'templates_id' => $template->id,
-                    'product_id'   => $item->product_id,
-                    'product_code' => $item->product_code,
-                    'product_name' => $item->product_name,
-                    'units'        => $item->units,
-                    'receipt_tolerance' => $item->receipt_tolerance,
-                ]);
+                $exist = $this->templateDetails
+                    ->where('product_id', $item->product_id)
+                    ->first();
 
-                $template->details()->attach($detail);
+                if (!$exist) {
+                    $detail = $this->templateDetails->create([
+                        'templates_id' => $template->id,
+                        'product_id'   => $item->product_id,
+                        'product_code' => $item->product_code,
+                        'product_name' => $item->product_name,
+                        'units'        => $item->units,
+                        'receipt_tolerance' => $item->receipt_tolerance,
+                    ]);
+
+                    $template->details()->attach($detail);
+                }
             }
         }
     }

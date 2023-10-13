@@ -26,18 +26,16 @@ class TemplateController extends BaseController
         $this->limit = 15;
     }
 
-
     private function handleFetchData($templateId, $page = 1)
     {
         $template = $this->templates->where('id', $templateId)->first();
 
         $model = $this->details;
-        $query = $model
-            ->where('templates_id', $template->id)
-            ->orderBy('id', 'desc');
+        $query = $model->where('templates_id', $template->id);
 
         $total = $query->count();
         $query = $query
+            ->orderBy('id', 'desc')
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
             ->get();
@@ -76,12 +74,12 @@ class TemplateController extends BaseController
         $template = $this->templates->where('id', $templateId)->first();
 
         $params = [
-            'templates_id' => $templateId,
-            'product_id' => $productId,
-            'product_code' => $productCode,
-            'product_name' => $productName,
+            'templates_id'      => $templateId,
+            'product_id'        => $productId,
+            'product_code'      => $productCode,
+            'product_name'      => $productName,
             "receipt_tolerance" => $tolerance,
-            "units" => $units
+            "units"             => $units
         ];
 
         $detail = $this->details->create($params);
@@ -98,6 +96,7 @@ class TemplateController extends BaseController
 
     public function removeTemplateDetail(Request $request)
     {
+        $currentPage = $request->get('current_page');
         $templateId  = $request->get('template_id');
         $productId   = $request->get('product_id');
 
@@ -110,6 +109,26 @@ class TemplateController extends BaseController
         if ($detail) {
             $template->details()->detach($detail);
             $detail->delete();
+        }
+
+        $result = $this->handleFetchData($templateId, $currentPage);
+
+        return $this->respondWithSuccess($result);
+    }
+
+    public function removeAllTemplateDetail(Request $request)
+    {
+        $templateId = $request->get('template_id');
+        $template = $this->templates->where('id', $templateId)->first();
+        $details = $this->details
+            ->where('templates_id', $template->id)
+            ->get();
+
+        if ($details) {
+            foreach($details as $detail) {
+                $template->details()->detach($detail);
+                $detail->delete();
+            }
         }
 
         $result = $this->handleFetchData($templateId);

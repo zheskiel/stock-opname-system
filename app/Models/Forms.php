@@ -11,6 +11,7 @@ class Forms extends Model
     protected $fillable = [
         'template_id',
         'manager_id',
+        'outlet_id',
         'supervisor_id',
         'staff_id',
     ];
@@ -35,6 +36,11 @@ class Forms extends Model
     public function manager()
     {
         return $this->belongsTo('App\Models\Manager');
+    }
+
+    public function outlet()
+    {
+        return $this->belongsTo('App\Models\Outlet');
     }
 
     public function supervisor()

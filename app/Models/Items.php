@@ -14,6 +14,8 @@ class Items extends Model
         'product_code',
         'product_name',
         'unit',
+        'unit_value',
+        'unit_sku',
         'value'
     ];
 
@@ -22,6 +24,7 @@ class Items extends Model
     protected $hidden = [
         'created_at',
         'updated_at',
+        'pivot'
     ];
 
     public function form()

@@ -22,6 +22,7 @@ class CreateFormsTable extends Migration
                 $table->increments('id');
                 $table->integer('template_id');
                 $table->integer('manager_id');
+                $table->integer('outlet_id');
                 $table->integer('supervisor_id');
                 $table->integer('staff_id');
                 $table->timestamps();
@@ -36,6 +37,8 @@ class CreateFormsTable extends Migration
                 $table->string('product_code');
                 $table->string('product_name');
                 $table->string('unit');
+                $table->string('unit_value');
+                $table->string('unit_sku');
                 $table->string('value');
                 $table->timestamps();
             });

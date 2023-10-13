@@ -1,0 +1,43 @@
+{
+    "id": 213,
+    "manager_id": 1,
+    "product_code": "BCK137",
+    "product_id": 1015,
+    "product_name": "OREO BLACKPINK",
+    "receipt_tolerance": 0,
+    "selected_unit": "PACK ",
+    "staff_id": "1",
+    "templates_id": 1,
+    "units": {
+        "GR": {
+            "barcode_number": "BCK137GR",
+            "flag_base_unit": "YES",
+            "flag_default": "NO",
+            "flag_default_purchase": "NO",
+            "flag_sales_unit": "NO",
+            "flag_transfer_unit": "NO",
+            "sku": "GR",
+            "value": 1
+        },
+        "PACK": {
+            "barcode_number": "BCK137PACK@123.5GR",
+            "flag_base_unit": "NO",
+            "flag_default": "NO",
+            "flag_default_purchase": "YES",
+            "flag_sales_unit": "YES",
+            "flag_transfer_unit": "YES",
+            "sku": "GR",
+            "value": 123.5
+        },
+        "PCS": {
+            "barcode_number": "BCK137PCS",
+            "flag_base_unit": "NO",
+            "flag_default": "YES",
+            "flag_default_purchase": "NO",
+            "flag_sales_unit": "NO",
+            "flag_transfer_unit": "NO",
+            "sku": "GR",
+            "value": 10.2917
+        }
+    }
+}

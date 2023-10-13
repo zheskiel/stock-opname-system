@@ -79,7 +79,9 @@ class MasterDataSeeder extends BaseSeeder
             $sku = $newItems[$cKey]['Unit'];
 
             foreach($newItems as $item) {
-                $unitList[ $item['Unit'] ] = [
+                $keyItem = str_replace(" ", "", $item['Unit']);
+
+                $unitList[ $keyItem ] = [
                     'value'                 => $item['Qty'],
                     'sku'                   => $sku,
                     'barcode_number'        => $item['Barcode Number'],

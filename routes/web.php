@@ -1,11 +1,19 @@
 <?php
+
 Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
     Route::group(['prefix' => 'v1'], function() {
-
         Route::get('/forms', 'Api\FormsController@Index');
+
+        Route::group(['prefix' => '/hierarchy'], function() {
+            Route::get('/', 'Api\HierarchyController@fetchHierarchy');
+        });
 
         Route::group(['prefix' => '/form'], function() {
             Route::group(['prefix' => '/{managerId}'], function() {
+                Route::group(['prefix' => '/outlet/{outletId}'], function() {
+                    Route::get('/combined', 'Api\FormsController@fetchCombinedForm');
+                });
+
                 Route::group(['prefix' => '/{staffId}'], function() {
                     Route::get('/details', 'Api\FormsController@FetchFormByStaffId');
                     Route::get('/all', 'Api\FormsController@FetchAllSelected');
@@ -25,6 +33,7 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
 
                 Route::post('/create-detail', 'Api\TemplateController@createTemplateDetail');
                 Route::post('/remove-detail', 'Api\TemplateController@removeTemplateDetail');
+                Route::post('/remove-all-detail', 'Api\TemplateController@removeAllTemplateDetail');
             });
         });
 
@@ -61,7 +70,7 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
         Route::get('/manager', 'Api\IndexController@testManager');
         Route::get('/supervisor', 'Api\IndexController@testSupervisor');
 
-        Route::get('/hierarchy', 'Api\IndexController@testHierarchy');
+        // Route::get('/hierarchy', 'Api\IndexController@testHierarchy');
         Route::get('/master', 'Api\IndexController@testMaster');
         Route::get('/template', 'Api\IndexController@testTemplate');
     });

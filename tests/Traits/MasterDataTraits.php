@@ -64,7 +64,9 @@ trait MasterDatatraits
             $unitList = [];
 
             foreach($items as $item) {
-                $unitList[ $item['Unit'] ] = [
+                $keyItem = str_replace(" ", "", $item['Unit']);
+
+                $unitList[ $keyItem ] = [
                     'value'                 => $item['Qty'],
                     'barcode_number'        => $item['Barcode Number'],
                     'flag_base_unit'        => $item['Flag Base Unit'],

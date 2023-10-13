@@ -43,7 +43,7 @@ class Manager extends Model implements JWTSubject, AuthenticatableContract, Auth
 
     public function outlets()
     {
-        return $this->belongsToMany('App\Models\Outlet');
+        return $this->belongsToMany('App\Models\Outlet', 'manager_outlet_supervisor')->withPivot('supervisor_id');
     }
 
     public function supervisor()
