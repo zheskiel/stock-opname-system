@@ -1,11 +1,57 @@
 <?php
 
-Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
+use Spatie\Permission\Models\Permission;
+
+use App\Models\{
+    Admin,
+    Manager
+};
+
+Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
     Route::group(['prefix' => 'v1'], function() {
+
+        Route::get('/test_supervisor', function() {
+            return response()->json('supervisor success');
+        })
+        ->name('test_supervisor')
+        ->middleware(['route.permission']);
+
+        Route::get('/test',  function() {
+            // $superAdminCount = Admin::with('roles')->get()->filter(
+            //     fn ($user) => $user->roles->where('name', 'superadmin')->toArray()
+            // )->count();
+            // $permissions = Permission::all();
+
+            // return response()->json($permissions);
+
+            $model = new Admin();
+            $user = $model->where('email', 'superadmin@gmail.com')->first();
+
+            // $model = new Manager();
+            // $user = $model->where('email', 'manager-1@gmail.com')->first();
+
+            $user->role = $user->getRoleNames()[0];
+            $user->permission_list = $user->getPermissionsViaRoles()->pluck('name');
+
+            unset($user->roles);
+
+            return response()->json($user);
+        })
+        ->name('test')
+        ->middleware(['route.permission']);
+
         Route::get('/forms', 'Api\FormsController@Index');
 
-        Route::group(['prefix' => '/hierarchy'], function() {
-            Route::get('/', 'Api\HierarchyController@fetchHierarchy');
+        // Superadmin or Admin only
+        Route::group(['middleware' => [
+            // 'auth:admin-api',
+            // 'role:admin,admin-api'
+            ]], function() {
+            Route::get('/master', 'Api\MasterDataController@Index');
+
+            Route::group(['prefix' => '/hierarchy'], function() {
+                Route::get('/', 'Api\HierarchyController@fetchHierarchy');
+            });
         });
 
         Route::group(['prefix' => '/form'], function() {
@@ -40,7 +86,7 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
         // Staffs
         Route::group([
             'prefix' => '{userType}',
-            'where' => ['userType' => 'staff|manager|admin']
+            'where' => ['userType' => 'staff|manager|admin|superadmin']
         ], function() {
             Route::post('/login', 'Api\AuthController@login');
         });
@@ -71,8 +117,7 @@ Route::group(['middleware' => 'cors', 'prefix' => 'api'], function() {
         Route::get('/supervisor', 'Api\IndexController@testSupervisor');
 
         // Route::get('/hierarchy', 'Api\IndexController@testHierarchy');
-        Route::get('/master', 'Api\IndexController@testMaster');
-        Route::get('/template', 'Api\IndexController@testTemplate');
+        Route::get('/template', 'Api\IndexController@testTemplate')->name('template');
     });
 });
 

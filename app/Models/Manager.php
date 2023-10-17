@@ -18,7 +18,7 @@ class Manager extends Model implements JWTSubject, AuthenticatableContract, Auth
     use Notifiable;
     use HasRoles;
 
-    protected $guard_name = "api";
+    protected $guard_name = "manager-api";
     protected $table = "manager";
 
     protected $fillable = [

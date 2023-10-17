@@ -1,11 +1,14 @@
 <?php
 
+use App\Traits\HelpersTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 
 class PermissionSeeder extends Seeder
 {
+    use HelpersTrait;
+
     /**
      * Run the database seeds.
      *
@@ -15,65 +18,68 @@ class PermissionSeeder extends Seeder
     {
         Model::unguard();
 
-        // $this->call("OthersTableSeeder");
-
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'general',
-            'setting',
+            // brands
+            'brands_create',
+            'brands_view',
+            'brands_edit',
 
-            // dashboard
-            'dashboard_index',
+            // master products
+            'master_products_create',
+            'master_products_view',
+            'master_products_edit',
+            'master_products_delete',
 
-            // General Setting
-            'setting_index',
-            'setting_update',
+            // templates
+            'templates_view',
 
-            // User Management
-            'user_index',
-            'user_store',
-            'user_update',
-            'user_destroy',
+            // template
+            'template_create',
+            'template_view',
+            'template_edit',
+            'template_delete',
 
-            // User Profile
-            'profile_index',
+            // forms
+            'forms_view',
 
-            // Menu Management Group
-            'menu_index',
-            'menu_store',
-            'menu_update',
-            'menu_destroy',
+            // form
+            'form_create',
+            'form_view',
+            'form_edit',
+            'form_delete',
 
-            // Menu Management Items
-            'menu_item_index',
-            'menu_item_store',
-            'menu_item_update',
-            'menu_item_destroy',
-
-            // Route Management
-            'route_index',
-            'route_store',
-            'route_update',
-            'route_destroy',
-
-            // Role Management
-            'role_index',
-            'role_store',
-            'role_update',
-            'role_destroy',
-
-            // Permission Management
-            'permission_index',
-            'permission_store',
-            'permission_update',
-            'permission_destroy'
+            'form_submit_form',
+            'form_review_form'
         ];
 
-        foreach ($permissions as $permission)
-        {
-            Permission::create(['name' => $permission]);
+        $userLists = $this->getUserLists();
+
+        Permission::create([
+            'guard_name' => "admin-api",
+            'name' => "test"
+        ]);
+
+        Permission::create([
+            'guard_name' => "staff-api",
+            'name' => "test_supervisor"
+        ]);
+
+        Permission::create([
+            'guard_name' => "manager-api",
+            'name' => "test_supervisor"
+        ]);
+
+        foreach ($userLists as $user) {
+            foreach ($permissions as $permission)
+            {
+                Permission::create([
+                    'guard_name' => "$user-api",
+                    'name' => $permission
+                ]);
+            }
         }
     }
 }

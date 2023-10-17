@@ -1,42 +1,156 @@
 <?php
 
-use App\Models\Admin;
-use App\Models\Manager;
-use App\Models\Staff;
+use App\Models\{
+    Admin,
+    Manager,
+    Staff
+};
+
+use Spatie\Permission\Models\{
+    Permission, Role
+};
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
-use Spatie\Permission\Models\Role;
 
 class RoleSeederTable extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
+    private $permission;
+    private $role;
+    private $admin;
+    private $manager;
+    private $staff;
+
+    public function __construct(
+        Permission $permission,
+        Manager $manager,
+        Admin $admin,
+        Staff $staff,
+        Role $role
+    ) {
+        $this->permission = $permission;
+        $this->manager = $manager;
+        $this->admin = $admin;
+        $this->staff = $staff;
+        $this->role = $role;
+    }
+
+    private function fetchAllGuards()
+    {
+        return [
+            'admin'      => 'admin-api',
+            'manager'    => 'manager-api',
+            'staff'      => 'staff-api'
+        ];
+    }
+
+    private function fetchAllModels()
+    {
+        return [
+            'admin'      => new $this->admin,
+            'manager'    => new $this->manager,
+            'staff'      => new $this->staff,
+        ];
+    }
+
+    private function fetchAllItems($guards, $models)
+    {
+        $allPermissions = $this->permission
+            ->where('name', '!=', 'test_supervisor')->get();
+
+        return [
+            [
+                'guard_name' => $guards['admin'],
+                'name' => 'superadmin',
+                'permissions' => $allPermissions,
+                'model' => $models['admin'],
+                'email' => "superadmin@gmail.com"
+            ],
+            [
+                'guard_name' => $guards['admin'],
+                'name' => 'admin',
+                'permissions' => [
+                    ['name' => 'template_view']
+                ],
+                'model' => $models['admin'],
+                'email' => "admin1@gmail.com"
+            ],
+            [
+                'guard_name' => $guards['manager'],
+                'name' => 'manager',
+                'permissions' => [
+                    ['name' => 'template_view']
+                ],
+                'model' => $models['manager'],
+                'email' => "manager-1@gmail.com"
+            ],
+            [
+                'guard_name' => $guards['staff'],
+                'name' => 'staff',
+                'permissions' => [
+                    ['name' => 'template_view']
+                ],
+                'model' => $models['staff'],
+                'email' => "head-production-cook-staff-1@gmail.com"
+            ]
+            ];
+    }
+
     public function run() : void
     {
         Model::unguard();
 
-        // Create Roles
-        $superadmin = Role::create(['name' => 'superadmin']);
-        $manager = Role::create(['name' => 'manager']);
-        $staff = Role::create(['name' => 'staff']);
+        $items = $this->fetchAllItems(
+            $this->fetchAllGuards(),
+            $this->fetchAllModels()
+        );
+
+        foreach ($items as $item) {
+            $permissions = $item['permissions'];
+            $guard       = $item['guard_name'];
+            $model       = $item['model'];
+            $email       = $item['email'];
+            $name        = $item['name'];
+
+            // Create Roles
+            $role = $this->role->create([
+                'guard_name' => $guard,
+                'name' => $name
+            ]);
+
+            // Assign Permissions To Roles
+            foreach ($permissions as $permission) {
+                $target = $this->permission->findByName($permission['name'], $guard);
+
+                $role->givePermissionTo($target);
+            }
+
+            // Assign Permissions To Roles
+            $user = $model->where('email', $email)->first();
+            $user->assignRole($name);
+        }
+
+        // Manager
+        $guard = "manager-api";
+        $role = $this->role->where('name', 'manager')->first();
+
+        $target = $this->permission->findByName("test_supervisor", $guard);
+        $role->givePermissionTo($target);
+
+        // Supervisor
+        $guard = "staff-api";
+        $role = $this->role->create([
+            'guard_name' => $guard,
+            'name' => "supervisor"
+        ]);
+
+        $target = $this->permission->findByName("test_supervisor", $guard);
+        $role->givePermissionTo($target);
 
         // Assign Permissions To Roles
-        $superadmin->givePermissionTo(Permission::all());
-        $manager->givePermissionTo(['general', 'dashboard_index', 'profile_index']);
-        $staff->givePermissionTo(['general', 'dashboard_index']);
+        $email = "head-production-cook-staff-1@gmail.com";
 
-        // Assign Roles To Users
-        $admin = Admin::where('email', 'admin1@gmail.com')->first();
-        $admin->assignRole('superadmin');
-
-        $manager = Manager::where('email', 'manager-1@gmail.com')->first();
-        $manager->assignRole('manager');
-
-        $staff = Staff::where('email', 'staff-1@gmail.com')->first();
-        $staff->assignRole('staff');
+        $user = $model->where('email', $email)->first();
+        $user->assignRole($name);
     }
 }

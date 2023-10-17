@@ -20,6 +20,11 @@ trait HelpersTrait
 
     public $limit = 50;
 
+    public function getUserLists()
+    {
+        return ["admin", "manager", "staff"];
+    }
+
     public function hashCommon()
     {
         $key = hash($this->HASH_TYPE, $this->SECRET_KEY); // hash

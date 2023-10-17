@@ -1,17 +1,33 @@
 <?php
 
-use App\Models\Admin;
+use App\Models\{
+    Admin
+};
 
 class AdminTableSeeder extends BaseSeeder
 {
     private $admin;
 
-    public function __construct(Admin $admin)
-    {
+    public function __construct(
+        Admin $admin
+    ) {
         $this->admin = $admin;
     }
 
-    public function run()
+    private function createSuperAdmin()
+    {
+        $name = "superadmin";
+        $params = [
+            'name'      => $name,
+            'slug'      => $this->processTitleSlug($name),
+            'email'     => "$name@gmail.com",
+            'password'  => bcrypt('test123')
+        ];
+
+        $this->admin->create($params);
+    }
+
+    private function createAdmins()
     {
         $adminLimit = 1;
 
@@ -27,5 +43,11 @@ class AdminTableSeeder extends BaseSeeder
 
             $this->admin->create($params);
         }
+    }
+
+    public function run()
+    {
+        $this->createSuperAdmin();
+        $this->createAdmins();
     }
 }

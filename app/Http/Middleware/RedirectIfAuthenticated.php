@@ -1,12 +1,9 @@
 <?php
-
 namespace App\Http\Middleware;
 
-use App\Traits\ApiResponsesTrait;
 use Closure;
-use Exception;
+use App\Traits\ApiResponsesTrait;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\HttpFoundation\Response;
 
 class RedirectIfAuthenticated
 {
@@ -25,8 +22,10 @@ class RedirectIfAuthenticated
         $guards = empty($guards) ? [null] : $guards;
 
         foreach ($guards as $guard) {
-            if (($guard == "admin" || $guard == "manager" || $guard == "staff") && 
-                Auth::guard($guard . "-api")->check()) {
+            if (
+                ($guard == "admin" || $guard == "manager" || $guard == "staff") && 
+                Auth::guard($guard . "-api")->check()
+            ) {
                 return $next($request);
             }
         }

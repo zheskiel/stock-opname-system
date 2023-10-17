@@ -41,15 +41,26 @@ return [
             'provider' => 'staff',
         ],
 
+        'staff' => [
+            'driver' => 'session',
+            'provider' => 'staff',
+        ],
+
+        'manager' => [
+            'driver' => 'session',
+            'provider' => 'manager',
+        ],
+
+        'admin' => [
+            'driver' => 'session',
+            'provider' => 'admin',
+        ],
+
+        // APIs
         'api' => [
             'driver' => 'jwt',
             'provider' => 'staff',
             'hash' => false,
-        ],
-
-        'staff' => [
-            'driver' => 'session',
-            'provider' => 'staff',
         ],
 
         'staff-api' => [
@@ -58,28 +69,17 @@ return [
             'hash' => false,
         ],
 
-        'manager' => [
-            'driver' => 'session',
-            'provider' => 'manager',
-        ],
-
         'manager-api' => [
             'driver' => 'jwt',
             'provider' => 'manager',
             'hash' => false,
         ],
 
-        'admin' => [
-            'driver' => 'session',
-            'provider' => 'admin',
-        ],
-
         'admin-api' => [
             'driver' => 'jwt',
             'provider' => 'admin',
             'hash' => false,
-        ],
-    ],
+        ],    ],
 
     /*
     |--------------------------------------------------------------------------

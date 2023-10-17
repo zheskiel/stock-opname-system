@@ -18,7 +18,7 @@ class Staff extends Model implements JWTSubject, AuthenticatableContract, Author
     use Notifiable;
     use HasRoles;
 
-    protected $guard_name = "api";
+    protected $guard_name = "staff-api";
     protected $table = "staff";
 
     protected $fillable = [

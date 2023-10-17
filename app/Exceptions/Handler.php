@@ -1,11 +1,10 @@
 <?php
-
 namespace App\Exceptions;
 
-use Exception;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-
 use JWTAuth;
+use Exception;
+use App\Traits\ApiResponsesTrait;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\TokenInvalidException;
@@ -13,6 +12,8 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponsesTrait;
+
     /**
      * A list of the exception types that are not reported.
      *
@@ -52,18 +53,26 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        dd( $exception->getMessage() );
-
         try {
+
             JWTAuth::parseToken()->authenticate();
+
         } catch (TokenExpiredException $e) {
-            return response()->json(['error' => 'Token Expired'], 401);
+            return $this
+                ->respondUnAuthenticated('Token Expired');
+
         } catch (TokenInvalidException $e) {
-            return response()->json(['error' => 'Token Invalid'], 401);
+            return $this
+                ->respondUnAuthenticated('Token Invalid');
+
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Token not Provided'], 401);
+            return $this
+                ->respondUnAuthenticated('Token not provided');
+
         } catch (Exception $e) {
-            return response()->json(['error' => $e->getMessage()]);
+            return $this
+                ->respondError($e->getMessage());
+
         }
 
         return parent::render($request, $exception);

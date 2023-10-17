@@ -18,7 +18,7 @@ class Admin extends Model implements JWTSubject, AuthenticatableContract, Author
     use Notifiable;
     use HasRoles;
 
-    protected $guard_name = "api";
+    protected $guard_name = "admin-api";
     protected $table = "admin";
 
     protected $fillable = [

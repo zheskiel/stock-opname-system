@@ -26,7 +26,7 @@ class TemplateController extends BaseController
         $this->limit = 15;
     }
 
-    private function handleFetchData($templateId, $page = 1)
+    private function handleFetchData($templateId, $page = 1, $sort = 'id', $order = 'desc')
     {
         $template = $this->templates->where('id', $templateId)->first();
 
@@ -35,7 +35,7 @@ class TemplateController extends BaseController
 
         $total = $query->count();
         $query = $query
-            ->orderBy('id', 'desc')
+            ->orderBy($sort, $order)
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
             ->get();
@@ -56,8 +56,10 @@ class TemplateController extends BaseController
     public function View(Request $request, $templateId)
     {
         $page = (int) $request->get('page', 1);
+        $sort = $request->get("sort", "id");
+        $order = $request->get("order", "desc");
 
-        $result = $this->handleFetchData($templateId, $page);
+        $result = $this->handleFetchData($templateId, $page, $sort, $order);
 
         return $this->respondWithSuccess($result);
     }

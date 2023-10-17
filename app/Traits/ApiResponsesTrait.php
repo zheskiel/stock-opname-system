@@ -24,7 +24,10 @@ trait ApiResponsesTrait
         ?string $key = 'error'
     ): JsonResponse {
         return $this->apiResponse(
-            [$key => $this->morphMessage($message)],
+            [
+                'status_code' => Response::HTTP_NOT_FOUND,
+                $key => $this->morphMessage($message)
+            ],
             Response::HTTP_NOT_FOUND
         );
     }
@@ -54,13 +57,19 @@ trait ApiResponsesTrait
 
     public function respondOk(string $message): JsonResponse
     {
-        return $this->respondWithSuccess(['success' => $message]);
+        return $this->respondWithSuccess([
+            'status_code' => Response::HTTP_OK,
+            'success' => $message
+        ]);
     }
 
     public function respondUnAuthenticated(?string $message = null): JsonResponse
     {
         return $this->apiResponse(
-            ['error' => $message ?? 'Unauthenticated'],
+            [
+                'status_code' => Response::HTTP_UNAUTHORIZED,
+                'error' => $message ?? 'Unauthenticated'
+            ],
             Response::HTTP_UNAUTHORIZED
         );
     }
@@ -68,7 +77,10 @@ trait ApiResponsesTrait
     public function respondForbidden(?string $message = null): JsonResponse
     {
         return $this->apiResponse(
-            ['error' => $message ?? 'Forbidden'],
+            [
+                'status_code' => Response::HTTP_FORBIDDEN,
+                'error' => $message ?? 'Forbidden'
+            ],
             Response::HTTP_FORBIDDEN
         );
     }
@@ -76,7 +88,10 @@ trait ApiResponsesTrait
     public function respondError(?string $message = null): JsonResponse
     {
         return $this->apiResponse(
-            ['error' => $message ?? 'Error'],
+            [
+                'status_code' => Response::HTTP_BAD_REQUEST,
+                'error' => $message ?? 'Error'
+            ],
             Response::HTTP_BAD_REQUEST
         );
     }
