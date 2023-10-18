@@ -66,6 +66,7 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
 
                     Route::post('/create-detail', 'Api\FormsController@createFormDetail');
                     Route::post('/remove-detail', 'Api\FormsController@removeFormDetail');
+                    Route::post('/remove-all-detail', 'Api\FormsController@removeAllFormDetail');
                 });
             });
         });

@@ -95,7 +95,7 @@ class FormsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
-    private function handleFetchData2($managerId, $staffId, $page = 1)
+    private function handleFetchData2($managerId, $staffId, $page = 1, $sort = 'id', $order = 'desc')
     {
         $form = $this->forms
             ->with(['staff'])
@@ -108,7 +108,7 @@ class FormsController extends BaseController
 
         $total = $query->count();
         $items = $query
-            ->orderBy('id', 'desc')
+            ->orderBy($sort, $order)
             ->groupBy('product_id')
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
@@ -122,7 +122,7 @@ class FormsController extends BaseController
         return $result;
     }
 
-    private function handleFetchData($managerId, $staffId, $page = 1)
+    private function handleFetchData($managerId, $staffId, $page = 1, $sort = 'id', $order = 'desc')
     {
         $form = $this->forms
             ->with(['staff'])
@@ -136,7 +136,7 @@ class FormsController extends BaseController
         $model = $this->items;
         $items = $model
             ->where('forms_id', $form->id)
-            ->orderBy('id', 'desc')
+            ->orderBy($sort, $order)
             ->get();
 
         $group = $items->mapToGroups(function ($item) {
@@ -176,9 +176,11 @@ class FormsController extends BaseController
 
     public function FetchFormByStaffId(Request $request, $managerId, $staffId)
     {
-        $page = (int) $request->get('page', 1);
+        $page  = (int) $request->get('page', 1);
+        $sort  = $request->get("sort", "id");
+        $order = $request->get("order", "desc");
 
-        $result = $this->handleFetchData($managerId, $staffId, $page);
+        $result = $this->handleFetchData($managerId, $staffId, $page, $sort, $order);
 
         return $this->respondWithSuccess($result);
     }
@@ -249,6 +251,33 @@ class FormsController extends BaseController
             $item->delete();
         }
 
+        $result = $this->handleFetchData($managerId, $staffId, $currentPage);
+
+        return $this->respondWithSuccess($result);
+    }
+
+    public function removeAllFormDetail(Request $request)
+    {
+        $managerId   = $request->get('manager_id');
+        $staffId     = $request->get('staff_id');
+
+        $form = $this->forms
+            ->where('manager_id', $managerId)
+            ->where('staff_id', $staffId)
+            ->first();
+
+        $items = $this->items
+            ->where('forms_id', $form->id)
+            ->get();
+
+        if ($items) {
+            foreach($items as $item) {
+                $form->items()->detach($item);
+                $item->delete();
+            }
+        }
+
+        $currentPage = 1;
         $result = $this->handleFetchData($managerId, $staffId, $currentPage);
 
         return $this->respondWithSuccess($result);
