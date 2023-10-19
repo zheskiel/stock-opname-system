@@ -19,7 +19,7 @@ class CreateAdminTable extends Migration
     {
         foreach($this->tableNames as $tableName) {
             if (!Schema::hasTable($tableName)) {
-                Schema::create($tableName, function (Blueprint $table) use ($tableName) {
+                Schema::create($tableName, function (Blueprint $table) {
                     $table->increments('id');
                     $table->string('name');
                     $table->string('slug');

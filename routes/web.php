@@ -46,8 +46,9 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
         Route::group(['middleware' => [
             // 'auth:admin-api',
             // 'role:admin,admin-api'
+            "route.permission"
             ]], function() {
-            Route::get('/master', 'Api\MasterDataController@Index');
+            Route::get('/master', 'Api\MasterDataController@Index')->name('master.index');
 
             Route::group(['prefix' => '/hierarchy'], function() {
                 Route::get('/', 'Api\HierarchyController@fetchHierarchy');

@@ -18,7 +18,7 @@ class RouteSeederTableSeeder extends Seeder
         Route::insert([
             [
                 'route' => 'master.index',
-                'permission_name' => 'master_products_view'
+                'permission_name' => 'master'
             ]
         ]);
 

@@ -58,8 +58,9 @@ trait ApiResponsesTrait
     public function respondOk(string $message): JsonResponse
     {
         return $this->respondWithSuccess([
-            'status_code' => Response::HTTP_OK,
-            'success' => $message
+            'success' => true,
+            'message' => $message,
+            'status_code' => Response::HTTP_OK
         ]);
     }
 
@@ -67,8 +68,9 @@ trait ApiResponsesTrait
     {
         return $this->apiResponse(
             [
-                'status_code' => Response::HTTP_UNAUTHORIZED,
-                'error' => $message ?? 'Unauthenticated'
+                'sucess' => false,
+                'message' => $message ?? 'Unauthenticated',
+                'status_code' => Response::HTTP_UNAUTHORIZED
             ],
             Response::HTTP_UNAUTHORIZED
         );
@@ -78,8 +80,10 @@ trait ApiResponsesTrait
     {
         return $this->apiResponse(
             [
-                'status_code' => Response::HTTP_FORBIDDEN,
-                'error' => $message ?? 'Forbidden'
+
+                'sucess' => false,
+                'message' => $message ?? 'Forbidden',
+                'status_code' => Response::HTTP_FORBIDDEN
             ],
             Response::HTTP_FORBIDDEN
         );
@@ -89,8 +93,10 @@ trait ApiResponsesTrait
     {
         return $this->apiResponse(
             [
-                'status_code' => Response::HTTP_BAD_REQUEST,
-                'error' => $message ?? 'Error'
+
+                'sucess' => false,
+                'message' => $message ?? 'Error',
+                'status_code' => Response::HTTP_BAD_REQUEST
             ],
             Response::HTTP_BAD_REQUEST
         );

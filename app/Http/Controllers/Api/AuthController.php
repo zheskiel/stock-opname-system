@@ -46,9 +46,15 @@ class AuthController extends BaseController
         }
 
         $authUser = Auth::guard($guardType)->user();
+        $authUser->role = $authUser->getRoleNames()[0];
+        $permissions = $authUser->getPermissionsViaRoles()->pluck('name');
+
+        unset($authUser->roles);
+
         $params = [
             'token' => $token,
-            'user' => $authUser
+            'user'  => $authUser,
+            'permissions' => $permissions
         ];
 
         return $this->respondWithSuccess($params);

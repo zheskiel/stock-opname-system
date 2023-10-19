@@ -56,13 +56,19 @@ class RoleSeederTable extends Seeder
     private function fetchAllItems($guards, $models)
     {
         $allPermissions = $this->permission
-            ->where('name', '!=', 'test_supervisor')->get();
+            ->whereNotIn('name', [
+                'test_supervisor',
+                'master_products_view'
+            ])->get();
 
         return [
             [
                 'guard_name' => $guards['admin'],
                 'name' => 'superadmin',
-                'permissions' => $allPermissions,
+                'permissions' => [
+                    ['name' => 'master'],
+                    ['name' => 'dashboard']
+                ],
                 'model' => $models['admin'],
                 'email' => "superadmin@gmail.com"
             ],
@@ -70,7 +76,8 @@ class RoleSeederTable extends Seeder
                 'guard_name' => $guards['admin'],
                 'name' => 'admin',
                 'permissions' => [
-                    ['name' => 'template_view']
+                    ['name' => 'master'],
+                    ['name' => 'dashboard']
                 ],
                 'model' => $models['admin'],
                 'email' => "admin1@gmail.com"
@@ -79,7 +86,8 @@ class RoleSeederTable extends Seeder
                 'guard_name' => $guards['manager'],
                 'name' => 'manager',
                 'permissions' => [
-                    ['name' => 'template_view']
+                    ['name' => 'master'],
+                    ['name' => 'dashboard']
                 ],
                 'model' => $models['manager'],
                 'email' => "manager-1@gmail.com"
@@ -131,26 +139,43 @@ class RoleSeederTable extends Seeder
         }
 
         // Manager
-        $guard = "manager-api";
-        $role = $this->role->where('name', 'manager')->first();
+        // $guard = "manager-api";
+        // $role = $this->role->where('name', 'manager')->first();
 
-        $target = $this->permission->findByName("test_supervisor", $guard);
-        $role->givePermissionTo($target);
+        // $target = $this->permission->findByName("test_supervisor", $guard);
+        // $role->givePermissionTo($target);
+
+        // $target = $this->permission->findByName("master_products_view", $guard);
+        // $role->givePermissionTo($target);
+
+
 
         // Supervisor
-        $guard = "staff-api";
-        $role = $this->role->create([
-            'guard_name' => $guard,
-            'name' => "supervisor"
-        ]);
+        // $guard = "staff-api";
+        // $role = $this->role->create([
+        //     'guard_name' => $guard,
+        //     'name' => "supervisor"
+        // ]);
 
-        $target = $this->permission->findByName("test_supervisor", $guard);
-        $role->givePermissionTo($target);
+        // $target = $this->permission->findByName("test_supervisor", $guard);
+        // $role->givePermissionTo($target);
+
+        // $target = $this->permission->findByName("master_products_view", $guard);
+        // $role->givePermissionTo($target);
 
         // Assign Permissions To Roles
-        $email = "head-production-cook-staff-1@gmail.com";
+        // $email = "head-production-cook-staff-1@gmail.com";
 
-        $user = $model->where('email', $email)->first();
-        $user->assignRole($name);
+        // $user = $model->where('email', $email)->first();
+        // $user->assignRole($name);
+
+        // $query =  \App\Models\Supervisor::with(['supervisor_pic'])->first();
+        // $email = $query->supervisor_pic->email;
+
+        // $model = new $this->staff();
+        // $name = "supervisor";
+
+        // $user = $model->where('email', $email)->first();
+        // $user->assignRole($name);
     }
 }

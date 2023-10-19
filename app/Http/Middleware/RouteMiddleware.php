@@ -31,7 +31,7 @@ class RouteMiddleware
             foreach($userLists as $user) {
                 $target = $request->user("$user-api");
 
-                if ($target !== null) {
+                if ($target !== null  && $routes !== null) {
                     return ($target->can($routes->permission_name))
                         ? $next($request)
                         : $this->respondUnAuthenticated("You do not have access to this route!");

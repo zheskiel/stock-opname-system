@@ -22,6 +22,10 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
+            'master',
+            'dashboard',
+
+
             // brands
             'brands_create',
             'brands_view',
@@ -55,22 +59,35 @@ class PermissionSeeder extends Seeder
             'form_review_form'
         ];
 
+        // Permission::create([
+        //     'guard_name' => "admin-api",
+        //     'name' => "master_products_view"
+        // ]);
+        // Permission::create([
+        //     'guard_name' => "manager-api",
+        //     'name' => "master_products_view"
+        // ]);
+        // Permission::create([
+        //     'guard_name' => "staff-api",
+        //     'name' => "master_products_view"
+        // ]);
+
+        // Permission::create([
+        //     'guard_name' => "admin-api",
+        //     'name' => "test"
+        // ]);
+
+        // Permission::create([
+        //     'guard_name' => "staff-api",
+        //     'name' => "test_supervisor"
+        // ]);
+
+        // Permission::create([
+        //     'guard_name' => "manager-api",
+        //     'name' => "test_supervisor"
+        // ]);
+
         $userLists = $this->getUserLists();
-
-        Permission::create([
-            'guard_name' => "admin-api",
-            'name' => "test"
-        ]);
-
-        Permission::create([
-            'guard_name' => "staff-api",
-            'name' => "test_supervisor"
-        ]);
-
-        Permission::create([
-            'guard_name' => "manager-api",
-            'name' => "test_supervisor"
-        ]);
 
         foreach ($userLists as $user) {
             foreach ($permissions as $permission)

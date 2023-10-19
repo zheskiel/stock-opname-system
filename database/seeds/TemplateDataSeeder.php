@@ -75,7 +75,7 @@ class TemplateDataSeeder extends BaseSeeder
         $templates = $this->template->get();
 
         foreach($templates as $template) {
-            for ($x = 0; $x < rand(250, 500); $x++) {
+            for ($x = 0; $x < rand(2, 5); $x++) {
                 $item = $this->master->inRandomOrder()->first();
 
                 // list ($selectedKey, $selectedUnit) = $this->getRandomUnit($item);
