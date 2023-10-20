@@ -25,17 +25,20 @@ class PermissionSeeder extends Seeder
             'dashboard',
             'master',
 
+            // Forms
+            'forms',
+            'form.create',
+            'form.details',
+            'form.edit',
+
             // Templates
             'templates',
             'template.create',
             'template.view',
             'template.edit',
 
-            // Forms
-            'forms',
-            'form.create',
-            'form.details',
-            'form.edit',
+            // Reports
+            'report'
         ];
 
         $userLists = $this->getUserLists();

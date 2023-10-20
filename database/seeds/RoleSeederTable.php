@@ -74,18 +74,7 @@ class RoleSeederTable extends Seeder
             [
                 'guard_name' => $guards['admin'],
                 'name' => 'admin',
-                'permissions' => [
-                    ['name' => 'dashboard'],
-                    ['name' => 'master'],
-                    ['name' => 'templates'],
-                    ['name' => 'template.create'],
-                    ['name' => 'template.view'],
-                    ['name' => 'template.edit'],
-                    ['name' => 'forms'],
-                    ['name' => 'form.create'],
-                    ['name' => 'form.details'],
-                    ['name' => 'form.edit'],
-                ],
+                'permissions' => $permissionList,
                 'model' => $models['admin'],
                 'email' => "admin1@gmail.com"
             ],
