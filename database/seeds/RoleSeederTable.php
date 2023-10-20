@@ -55,20 +55,19 @@ class RoleSeederTable extends Seeder
 
     private function fetchAllItems($guards, $models)
     {
-        $allPermissions = $this->permission
-            ->whereNotIn('name', [
-                'test_supervisor',
-                'master_products_view'
-            ])->get();
+        $permissionList = [];
+        $allPermissions = $this->permission->get()->pluck('name');
+        foreach ($allPermissions as $permission) {
+            $permissionList[] = [
+                'name' => $permission
+            ];
+        }
 
         return [
             [
                 'guard_name' => $guards['admin'],
                 'name' => 'superadmin',
-                'permissions' => [
-                    ['name' => 'master'],
-                    ['name' => 'dashboard']
-                ],
+                'permissions' => $permissionList,
                 'model' => $models['admin'],
                 'email' => "superadmin@gmail.com"
             ],
@@ -76,8 +75,16 @@ class RoleSeederTable extends Seeder
                 'guard_name' => $guards['admin'],
                 'name' => 'admin',
                 'permissions' => [
+                    ['name' => 'dashboard'],
                     ['name' => 'master'],
-                    ['name' => 'dashboard']
+                    ['name' => 'templates'],
+                    ['name' => 'template.create'],
+                    ['name' => 'template.view'],
+                    ['name' => 'template.edit'],
+                    ['name' => 'forms'],
+                    ['name' => 'form.create'],
+                    ['name' => 'form.details'],
+                    ['name' => 'form.edit'],
                 ],
                 'model' => $models['admin'],
                 'email' => "admin1@gmail.com"
@@ -86,22 +93,47 @@ class RoleSeederTable extends Seeder
                 'guard_name' => $guards['manager'],
                 'name' => 'manager',
                 'permissions' => [
+                    ['name' => 'dashboard'],
                     ['name' => 'master'],
-                    ['name' => 'dashboard']
+                    ['name' => 'templates'],
+                    ['name' => 'template.create'],
+                    ['name' => 'template.view'],
+                    ['name' => 'template.edit'],
+                    ['name' => 'forms'],
+                    ['name' => 'form.create'],
+                    ['name' => 'form.details'],
+                    ['name' => 'form.edit'],
                 ],
                 'model' => $models['manager'],
                 'email' => "manager-1@gmail.com"
             ],
             [
                 'guard_name' => $guards['staff'],
+                'name' => 'supervisor',
+                'permissions' => [
+                    ['name' => 'dashboard'],
+                    ['name' => 'templates'],
+                    ['name' => 'template.view'],
+                    ['name' => 'forms'],
+                    ['name' => 'form.create'],
+                    ['name' => 'form.details'],
+                    ['name' => 'form.edit'],
+                ],
+                'model' => $models['staff'],
+                'email' => "head-production-cook-staff-2@gmail.com"
+            ],
+            [
+                'guard_name' => $guards['staff'],
                 'name' => 'staff',
                 'permissions' => [
-                    ['name' => 'template_view']
+                    ['name' => 'dashboard'],
+                    ['name' => 'templates'],
+                    ['name' => 'forms'],
                 ],
                 'model' => $models['staff'],
                 'email' => "head-production-cook-staff-1@gmail.com"
             ]
-            ];
+        ];
     }
 
     public function run() : void

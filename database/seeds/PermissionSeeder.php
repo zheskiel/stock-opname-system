@@ -22,70 +22,21 @@ class PermissionSeeder extends Seeder
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
         $permissions = [
-            'master',
             'dashboard',
+            'master',
 
+            // Templates
+            'templates',
+            'template.create',
+            'template.view',
+            'template.edit',
 
-            // brands
-            'brands_create',
-            'brands_view',
-            'brands_edit',
-
-            // master products
-            'master_products_create',
-            'master_products_view',
-            'master_products_edit',
-            'master_products_delete',
-
-            // templates
-            'templates_view',
-
-            // template
-            'template_create',
-            'template_view',
-            'template_edit',
-            'template_delete',
-
-            // forms
-            'forms_view',
-
-            // form
-            'form_create',
-            'form_view',
-            'form_edit',
-            'form_delete',
-
-            'form_submit_form',
-            'form_review_form'
+            // Forms
+            'forms',
+            'form.create',
+            'form.details',
+            'form.edit',
         ];
-
-        // Permission::create([
-        //     'guard_name' => "admin-api",
-        //     'name' => "master_products_view"
-        // ]);
-        // Permission::create([
-        //     'guard_name' => "manager-api",
-        //     'name' => "master_products_view"
-        // ]);
-        // Permission::create([
-        //     'guard_name' => "staff-api",
-        //     'name' => "master_products_view"
-        // ]);
-
-        // Permission::create([
-        //     'guard_name' => "admin-api",
-        //     'name' => "test"
-        // ]);
-
-        // Permission::create([
-        //     'guard_name' => "staff-api",
-        //     'name' => "test_supervisor"
-        // ]);
-
-        // Permission::create([
-        //     'guard_name' => "manager-api",
-        //     'name' => "test_supervisor"
-        // ]);
 
         $userLists = $this->getUserLists();
 

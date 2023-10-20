@@ -88,7 +88,7 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
         // Staffs
         Route::group([
             'prefix' => '{userType}',
-            'where' => ['userType' => 'staff|manager|admin|superadmin']
+            'where' => ['userType' => 'staff|manager|admin']
         ], function() {
             Route::post('/login', 'Api\AuthController@login');
         });

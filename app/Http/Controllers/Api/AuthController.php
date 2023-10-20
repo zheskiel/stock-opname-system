@@ -60,7 +60,7 @@ class AuthController extends BaseController
         return $this->respondWithSuccess($params);
     }
 
-    public function Logout(Request $request)
+    public function Logout()
     {
         $items = ['admin', 'manager', 'staff'];
 
