@@ -4,7 +4,8 @@ use Spatie\Permission\Models\Permission;
 
 use App\Models\{
     Admin,
-    Manager
+    Manager,
+    Reports
 };
 
 Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
@@ -17,29 +18,22 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
         ->middleware(['route.permission']);
 
         Route::get('/test',  function() {
-            // $superAdminCount = Admin::with('roles')->get()->filter(
-            //     fn ($user) => $user->roles->where('name', 'superadmin')->toArray()
-            // )->count();
-            // $permissions = Permission::all();
+            $model = new Reports();
+            $data = $model->first();
 
-            // return response()->json($permissions);
+            $result = [
+                'items' => [
+                    'additional' => json_decode($data->additional),
+                    'waste' => json_decode($data->waste),
+                    'damage' => json_decode($data->damage),
+                ],
+                'notes' =>  $data->notes
+            ];
 
-            $model = new Admin();
-            $user = $model->where('email', 'superadmin@gmail.com')->first();
+            return response()->json($result);
+        });
 
-            // $model = new Manager();
-            // $user = $model->where('email', 'manager-1@gmail.com')->first();
-
-            $user->role = $user->getRoleNames()[0];
-            $user->permission_list = $user->getPermissionsViaRoles()->pluck('name');
-
-            unset($user->roles);
-
-            return response()->json($user);
-        })
-        ->name('test')
-        ->middleware(['route.permission']);
-
+        Route::get('/reports', 'Api\ReportsController@Index');
         Route::get('/forms', 'Api\FormsController@Index');
 
         // Superadmin or Admin only

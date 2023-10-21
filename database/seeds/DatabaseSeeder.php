@@ -22,5 +22,7 @@ class DatabaseSeeder extends BaseSeeder
 
         $this->call(MenuGeneralSeederTableSeeder::class);
         $this->call(MenuSettingSeederTableSeeder::class);
+
+        $this->call(ReportTableSeeder::class);
     }
 }
