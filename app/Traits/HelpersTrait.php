@@ -100,6 +100,15 @@ trait HelpersTrait
         return $items;
     }
 
+    static function usortItemsAsc($items, $target = 'value')
+    {
+        usort($items, function ($item1, $item2) use ($target) {
+            return $item1[$target] <=> $item2[$target];
+        });
+
+        return $items;
+    }
+
     static function getUserIpAddress($ipaddress = '') : string
     {
         switch ($ipaddress)

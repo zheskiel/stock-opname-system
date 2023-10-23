@@ -5,8 +5,14 @@ use Spatie\Permission\Models\Permission;
 use App\Models\{
     Admin,
     Manager,
-    Reports
+    Reports,
+    Templates
 };
+
+use App\Traits\HelpersTrait;
+use App\Traits\ApiResponsesTrait;
+
+use Illuminate\Http\Request;
 
 Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
     Route::group(['prefix' => 'v1'], function() {
@@ -17,31 +23,40 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
         ->name('test_supervisor')
         ->middleware(['route.permission']);
 
-        Route::get('/test',  function() {
-            $model = new Reports();
-            $data = $model->first();
+        Route::get('/fetch/{templateId}/wastex',  function(Request $request, $templateId) {
+            $query = $request->get('query');
 
-            $result = [
-                'items' => [
-                    'additional' => json_decode($data->additional),
-                    'waste' => json_decode($data->waste),
-                    'damage' => json_decode($data->damage),
-                ],
-                'notes' =>  $data->notes
-            ];
+            $model = new Templates();
+            $data = $model->with([
+                'details' => function($q) use ($query) {
+                    return $q->where('product_name', 'LIKE', '%' . $query . '%');
+                }
+            ])->where('id', $templateId)->first();
+
+            $names = [];
+            $data->details->each(function($query) use (&$names) {
+                $units = json_decode($query->units, true);
+                $firstKey = array_key_first($units);
+
+                $names[] = [
+                    'product_id'   => $query->product_id,
+                    'product_name' => $query->product_name,
+                    'product_code' => $query->product_code,
+                    'product_sku'  => $units[$firstKey]['sku']
+                ];
+            });
+
+            $result = HelpersTrait::usortItemsAsc($names, 'product_name');
 
             return response()->json($result);
         });
 
+        Route::get('/fetch/{templateId}/waste', 'Api\ReportsController@fetchWasteByTemplate');
         Route::get('/reports', 'Api\ReportsController@Index');
         Route::get('/forms', 'Api\FormsController@Index');
 
         // Superadmin or Admin only
-        Route::group(['middleware' => [
-            // 'auth:admin-api',
-            // 'role:admin,admin-api'
-            "route.permission"
-            ]], function() {
+        Route::group(['middleware' => ["route.permission"]], function() {
             Route::get('/master', 'Api\MasterDataController@Index')->name('master.index');
 
             Route::group(['prefix' => '/hierarchy'], function() {
