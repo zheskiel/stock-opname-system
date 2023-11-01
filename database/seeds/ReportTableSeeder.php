@@ -21,49 +21,55 @@ class ReportTableSeeder extends BaseSeeder
 
     public function  run()
     {
+        $additionalFile = [
+            [
+                "name"  => "Tutup Botol",
+                "unit"  => "pieces",
+                "value" => "100",
+                "file"  => "",
+            ]
+        ];
+
+        $wasteFile = [
+            [
+                "name"  => "Telur Ayam",
+                "code"  => "kode",
+                "unit"  => "gram",
+                "value" => "100",
+                "file"  => "",
+            ],
+            [
+                "name"  => "Telur Bebek",
+                "code"  => "kode",
+                "unit"  => "gram",
+                "value" => "100",
+                "file"  => "",
+            ]
+        ];
+
+        $damageFile = [
+            [
+                "name"  => "Teflon",
+                "code"  => "kode",
+                "unit"  => "pieces",
+                "value" => "1",
+                "file"  => "",
+            ]
+        ];
+
         $additionalArr = [
             'name' => "Penambahan Barang",
-            'items' => [
-                [
-                    "name"  => "Tutup Botol",
-                    "unit"  => "pieces",
-                    "value" => "100",
-                    "file"  => "",
-                ]
-            ]
+            'items' => []
         ];
 
         $wasteArr = [
             'name' => "Waste",
-            'items' => [
-                [
-                    "name"  => "Telur Ayam",
-                    "code"  => "kode",
-                    "unit"  => "gram",
-                    "value" => "100",
-                    "file"  => "",
-                ],
-                [
-                    "name"  => "Telur Bebek",
-                    "code"  => "kode",
-                    "unit"  => "gram",
-                    "value" => "100",
-                    "file"  => "",
-                ]
-            ]
+            'items' => $wasteFile
         ];
 
         $damage = [
             'name' => "Kerusakan Barang",
-            'items' => [
-                [
-                    "name"  => "Teflon",
-                    "code"  => "kode",
-                    "unit"  => "pieces",
-                    "value" => "1",
-                    "file"  => "",
-                ]
-            ]
+            'items' => []
         ];
 
         $listItems = [

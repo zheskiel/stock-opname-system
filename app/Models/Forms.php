@@ -33,6 +33,16 @@ class Forms extends Model
         return $this->belongsToMany('App\Models\Items');
     }
 
+    public function daily()
+    {
+        return $this->belongsToMany('App\Models\Daily');
+    }
+
+    public function notes()
+    {
+        return $this->belongsToMany('App\Models\Notes');
+    }
+
     public function manager()
     {
         return $this->belongsTo('App\Models\Manager');

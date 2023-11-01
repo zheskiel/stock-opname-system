@@ -4,18 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Items extends Model
+class Notes extends Model
 {
-    protected $table = "items";
+    protected $table = "notes";
 
     protected $fillable = [
         'forms_id',
-        'product_id',
-        'product_code',
-        'product_name',
-        'unit',
-        'unit_value',
-        'unit_sku'
+        'staff_id',
+        'date',
+        'notes',
     ];
 
     protected $with = [];
@@ -28,6 +25,11 @@ class Items extends Model
 
     public function form()
     {
-        return $this->belongsTo('App\Models\Forms');
+        return $this->belongsTo('App\Models\Forms', 'forms_id');
+    }
+
+    public function staff()
+    {
+        return $this->belongsTo('App\Models\Staff', 'staff_id');
     }
 }

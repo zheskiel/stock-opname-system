@@ -5,55 +5,58 @@ use Spatie\Permission\Models\Permission;
 use App\Models\{
     Admin,
     Manager,
+    Forms,
+    Notes,
     Reports,
     Templates
 };
 
 use App\Traits\HelpersTrait;
 use App\Traits\ApiResponsesTrait;
-
-use Illuminate\Http\Request;
+use Faker\Factory as Faker;
+use Carbon\Carbon;
 
 Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
     Route::group(['prefix' => 'v1'], function() {
+        Route::get('/test_create_notes', function() {
+            $managerId = 1;
+            $outletId = 1;
+            $format = 'Y-m-d';
+            $date = '2023-10-25';
 
-        Route::get('/test_supervisor', function() {
-            return response()->json('supervisor success');
-        })
-        ->name('test_supervisor')
-        ->middleware(['route.permission']);
+            $forms = Forms::where('manager_id', $managerId)
+                ->where('outlet_id', $outletId)
+                ->orderBy('id')
+                ->get();
 
-        Route::get('/fetch/{templateId}/wastex',  function(Request $request, $templateId) {
-            $query = $request->get('query');
+            $faker = Faker::create();
+            $dateTime = Carbon::parse($date)->format($format);
 
-            $model = new Templates();
-            $data = $model->with([
-                'details' => function($q) use ($query) {
-                    return $q->where('product_name', 'LIKE', '%' . $query . '%');
-                }
-            ])->where('id', $templateId)->first();
+            foreach($forms as $form) {
+                $notes = new Notes();
+                $note = $notes->firstOrCreate([
+                    'forms_id' => $form->id,
+                    'staff_id' => $form->staff_id,
+                    'date'     => $dateTime,
+                ],  [
+                    'forms_id' => $form->id,
+                    'staff_id' => $form->staff_id,
+                    'date'     => $dateTime,
+                    'notes'    => $faker->paragraph(10)
+                ]);
 
-            $names = [];
-            $data->details->each(function($query) use (&$names) {
-                $units = json_decode($query->units, true);
-                $firstKey = array_key_first($units);
-
-                $names[] = [
-                    'product_id'   => $query->product_id,
-                    'product_name' => $query->product_name,
-                    'product_code' => $query->product_code,
-                    'product_sku'  => $units[$firstKey]['sku']
-                ];
-            });
-
-            $result = HelpersTrait::usortItemsAsc($names, 'product_name');
-
-            return response()->json($result);
+                $form->notes()->syncWithoutDetaching($note);
+            }
         });
 
+        // Waste
         Route::get('/fetch/{templateId}/waste', 'Api\ReportsController@fetchWasteByTemplate');
-        Route::get('/reports', 'Api\ReportsController@Index');
         Route::get('/forms', 'Api\FormsController@Index');
+
+        Route::group(['prefix' => '/reports'], function() {
+            Route::get('/', 'Api\ReportsController@Index');
+            Route::post('/create', 'Api\ReportsController@Store');
+        });
 
         // Superadmin or Admin only
         Route::group(['middleware' => ["route.permission"]], function() {
@@ -65,6 +68,13 @@ Route::group(['prefix' => 'api', 'middleware' => ['cors']], function() {
         });
 
         Route::group(['prefix' => '/form'], function() {
+            Route::post('/position/report', 'Api\StockPositionController@CreateStockPosition');
+            Route::get('/position/report', 'Api\StockPositionController@FetchStockPosition');
+
+            Route::get('/compare/{templateId}/waste', 'Api\ReportsController@FetchWaste');
+            Route::get('/final', 'Api\FinalFormController@Index');
+            Route::post('/final', 'Api\FinalFormController@Create');
+
             Route::group(['prefix' => '/{managerId}'], function() {
                 Route::group(['prefix' => '/outlet/{outletId}'], function() {
                     Route::get('/combined', 'Api\FormsController@fetchCombinedForm');

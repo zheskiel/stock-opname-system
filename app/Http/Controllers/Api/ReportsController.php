@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers\Api;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use App\Models\ {
@@ -63,10 +64,25 @@ class ReportsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
+    public function fetchWaste($page = 1)
+    {
+        $now = Carbon::now()->format('Y-m-d');
+
+        $model = $this->reports->where('date', $now);
+        $query = $model->first();
+
+        $result = json_decode($query->waste, true);
+
+        return $this->respondWithSuccess($result);
+    }
+
     public function Index()
     {
-        $model = $this->reports;
-        $query = $model->first();
+        $now = Carbon::now()->format('Y-m-d');
+
+        $query = $this->reports
+            ->where('date', $now)
+            ->first();
 
         foreach ($this->listItems as $item) {
             $target = json_decode($query->{$item}, true);
@@ -88,6 +104,30 @@ class ReportsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
+    public function Store(Request $request)
+    {
+        $now = Carbon::now()->format('Y-m-d');
+        $items = $request->get('items');
+        $notes = $request->get('notes');
+
+        $keyList = ['additional', 'waste', 'damage'];
+
+        $newItems = $this->buildItems($items);
+        $result = $this->reports
+            ->updateOrCreate([
+                'date' => $now 
+            ], [
+                $keyList[0] => json_encode($newItems[$keyList[0]]),
+                $keyList[1] => json_encode($newItems[$keyList[1]]),
+                $keyList[2] => json_encode($newItems[$keyList[2]]),
+                'notes' => $notes,
+                'date' => $now
+            ]
+        );
+
+        return $this->respondWithSuccess($result);
+    }
+
     private function processDisabled($target)
     {
         foreach($target['items'] as  $key => $item) {
@@ -97,5 +137,39 @@ class ReportsController extends BaseController
         }
 
         return $target;
+    }
+
+    private function buildItems($items)
+    {
+        $newItems = [];
+
+        foreach($items as $z => $entity) {
+            $newItems[$z]['name'] = $entity['name'];
+            $newItems[$z]['items'] = [];
+
+            if (count($entity['items']) > 0) {
+                foreach($entity['items'] as $k => $item) {
+                    $defaultParams = [
+                        'name' => $item['name'],
+                        'unit' => $item['unit'],
+                        'value' => $item['value'],
+                        'file' => $item['file'],
+                    ];
+                    $additionalParams = [];
+
+                    if ($z !== "additional") {
+                        $additionalParams = [
+                            'code' => $item['code'],
+                        ];
+                    }
+
+                    $params = array_merge($defaultParams, $additionalParams);
+
+                    $newItems[$z]['items'][$k] = $params;
+                }
+            }
+        }
+
+        return $newItems;
     }
 }

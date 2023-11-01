@@ -6,12 +6,14 @@ use App\Http\Controllers\BaseController;
 
 use App\Models\Forms;
 use App\Models\Items;
+use App\Models\Notes;
 use App\Models\Manager;
 use App\Models\Templates;
 use App\Traits\HelpersTrait;
 use App\Traits\HierarchyTrait;
 
 use JWTAuth;
+use Carbon\Carbon;
 
 class FormsController extends BaseController
 {
@@ -20,17 +22,20 @@ class FormsController extends BaseController
 
     private $forms;
     private $items;
+    private $notes;
     private $manager;
     private $templates;
 
     public function __construct(
         Templates $templates,
         Manager $manager,
+        Notes $notes,
         Items $items,
         Forms $forms
     ) {
         $this->templates = $templates;
         $this->manager = $manager;
+        $this->notes = $notes;
         $this->items = $items;
         $this->forms = $forms;
         $this->limit = 15;
@@ -46,19 +51,24 @@ class FormsController extends BaseController
         return $this->respondWithSuccess($manager);
     }
 
-    private function processMap($items)
+    private function processMap($items, $dailyItems, $result = [], $units = [])
     {
-        return $items->map(function($items) {
-            $result = [];
-            $units = [];
-
+        return $items->map(function($items) use ($dailyItems, $result, $units) {
             $value = 0;
             foreach ($items as $item) {
-                $value += $item->value * $item->unit_value;
-                $units[] = $item->value ." ". $item->unit . " = " . $item->value * $item->unit_value ." ". $item->unit_sku;
-                $original[] = $item->value;
+                $dailyArrs = $dailyItems[$item->id];
+
+                $dailyArr = $item;
+                foreach ($dailyArrs as $arr) {
+                    $dailyArr['value'] += $arr->value;
+                }
+
+                $value += $dailyArr['value'] * $item->unit_value;
+                $units[] = $dailyArr['value'] ." ". $item->unit . " = " . $dailyArr['value'] * $item->unit_value ." ". $item->unit_sku;
+                $original[] = $dailyArr['value'];
 
                 $result = [
+                    "id"            => $item->id,
                     "forms_id"      => $item->forms_id,
                     'product_id'    => $item->product_id,
                     'product_code'  => $item->product_code,
@@ -75,51 +85,59 @@ class FormsController extends BaseController
         });
     }
 
-    public function fetchCombinedForm($managerId, $outletId)
+    private function fetchCombinedItems($managerId, $outletId, $today, $page, $totalItems = 0)
     {
         $items = $this->forms
-            ->with(['items'])
-            // ->where('manager_id', $managerId)
-            // ->where('outlet_id', $outletId)
-            ->orderBy('id')
-            ->get()
-            ->pluck('items');
+            ->with([
+                'items' => function($query) use ($page,  &$totalItems) {
+                    $totalItems = $query->count();
 
-        $items = collect($items)->flatten();
-        $items = $items->groupBy('product_id');
-        $items = $this->processMap($items)->toArray();
-        $items = array_slice($items, 0, count($items));
-
-        $result = $items;
-
-        return $this->respondWithSuccess($result);
-    }
-
-    private function handleFetchData2($managerId, $staffId, $page = 1, $sort = 'id', $order = 'desc')
-    {
-        $form = $this->forms
-            ->with(['staff'])
+                    return $query
+                        ->take($this->limit)
+                        ->offset($this->limit * ($page - 1))
+                        ->orderBy('product_name', 'asc')
+                        ->get();
+                },
+                'daily' => function ($query) use ($today) {
+                    return $query->where('date', $today);
+                },
+                'notes' => function ($query) use ($today) {
+                    return $query->with(['staff'])->where('date', $today);
+                }
+            ])
             ->where('manager_id', $managerId)
-            ->where('staff_id', $staffId)
-            ->first();
-
-        $model = $this->items;
-        $query = $model->where('forms_id', $form->id);
-
-        $total = $query->count();
-        $items = $query
-            ->orderBy($sort, $order)
-            ->groupBy('product_id')
-            ->limit($this->limit)
-            ->offset($this->limit * ($page - 1))
+            ->where('outlet_id', $outletId)
+            ->orderBy('id')
             ->get();
 
-        $newItems = $form;
-        $newItems['items'] = $items;
+        $dailyItems = $items->pluck('daily')->flatten()->groupBy('items_id');
+        $dataItems  = $items->pluck('items')->flatten()->groupBy('product_id');
+        $noteItems  = $items->pluck('notes')->flatten();
 
-        $result = $this->generatePagination($newItems, $total, $this->limit, $page);
+        $items = $this->processMap($dataItems, $dailyItems)->toArray();
+        $items = array_slice($items, 0, count($items));
 
-        return $result;
+        return [$totalItems, $items, $noteItems];
+    }
+
+    public function fetchCombinedForm(Request $request, $managerId, $outletId)
+    {
+        $page = $request->get('page', 1);
+        $today = Carbon::now()->isoFormat('YYYY-MM-DD');
+
+        list($totalItems, $items, $noteItems) = $this
+            ->fetchCombinedItems($managerId, $outletId, $today, $page);
+
+        $items = $this->usortItemsAsc($items, 'product_name');
+
+        $data = [
+            'items' => $items,
+            'notes' => $noteItems
+        ];
+
+        $result = $this->generatePagination($data, $totalItems, $this->limit, $page);
+
+        return $this->respondWithSuccess($result);
     }
 
     private function handleFetchData($managerId, $staffId, $page = 1, $sort = 'id', $order = 'desc')

@@ -18,7 +18,7 @@ class MasterDataController extends BaseController
         Master $master
     ) {
         $this->master = $master;
-        $this->limit = 15;        
+        $this->limit = 10;
     }
 
     public function Index(Request $request)
