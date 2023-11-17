@@ -217,7 +217,8 @@ class FinalFormController extends BaseController
         $items = $model
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
-                ->get()->each(function($query) {
+            ->get()
+            ->each(function($query) {
                 $query->items = json_decode($query->items, true);
 
                 return $query;
@@ -233,7 +234,7 @@ class FinalFormController extends BaseController
         $items = $this->processFetching();
         $calculatedItems = $this->processCalculate($items);
 
-        return $this->respondWithSuccess($items);
+        return $this->respondWithSuccess($calculatedItems);
     }
 
     public function Create()

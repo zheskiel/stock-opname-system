@@ -13,7 +13,7 @@ use Spatie\Permission\Models\{
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 
-class RoleSeederTable extends Seeder
+class AfterHierarchySeederTable extends Seeder
 {
     private $permission;
     private $role;
@@ -100,17 +100,17 @@ class RoleSeederTable extends Seeder
                 'model' => $models['manager'],
                 'email' => "manager-1@gmail.com"
             ],
-            [
-                'guard_name' => $guards['staff'],
-                'name' => 'staff',
-                'permissions' => [
-                    ['name' => 'dashboard'],
-                    ['name' => 'templates'],
-                    ['name' => 'forms'],
-                ],
-                'model' => $models['staff'],
-                'email' => "head-production-cook-staff-1@gmail.com"
-            ]
+            // [
+            //     'guard_name' => $guards['staff'],
+            //     'name' => 'staff',
+            //     'permissions' => [
+            //         ['name' => 'dashboard'],
+            //         ['name' => 'templates'],
+            //         ['name' => 'forms'],
+            //     ],
+            //     'model' => $models['staff'],
+            //     'email' => "head-production-cook-staff-1@gmail.com"
+            // ]
         ];
     }
 
@@ -124,54 +124,29 @@ class RoleSeederTable extends Seeder
         );
 
         foreach ($items as $item) {
-            $guard = $item['guard_name'];
-            $name  = $item['name'];
+            $permissions = $item['permissions'];
+            $guard       = $item['guard_name'];
+            $model       = $item['model'];
+            $email       = $item['email'];
+            $name        = $item['name'];
 
-            // Create Roles
-            $this->role->create([
-                'guard_name' => $guard,
-                'name' => $name
-            ]);
+            // Find Roles
+            $role = $this->role
+                ->where('guard_name', $guard)
+                ->where('name', $name)
+                ->first();
+
+            // Assign Permissions To Roles
+            foreach ($permissions as $permission) {
+                $target = $this->permission->findByName($permission['name'], $guard);
+
+                $role->givePermissionTo($target);
+            }
+
+            // Assign Permissions To Roles
+            $user = $model->where('email', $email)->first();
+
+            $user->assignRole($name);
         }
-
-        // Manager
-        // $guard = "manager-api";
-        // $role = $this->role->where('name', 'manager')->first();
-
-        // $target = $this->permission->findByName("test_supervisor", $guard);
-        // $role->givePermissionTo($target);
-
-        // $target = $this->permission->findByName("master_products_view", $guard);
-        // $role->givePermissionTo($target);
-
-
-
-        // Supervisor
-        // $guard = "staff-api";
-        // $role = $this->role->create([
-        //     'guard_name' => $guard,
-        //     'name' => "supervisor"
-        // ]);
-
-        // $target = $this->permission->findByName("test_supervisor", $guard);
-        // $role->givePermissionTo($target);
-
-        // $target = $this->permission->findByName("master_products_view", $guard);
-        // $role->givePermissionTo($target);
-
-        // Assign Permissions To Roles
-        // $email = "head-production-cook-staff-1@gmail.com";
-
-        // $user = $model->where('email', $email)->first();
-        // $user->assignRole($name);
-
-        // $query =  \App\Models\Supervisor::with(['supervisor_pic'])->first();
-        // $email = $query->supervisor_pic->email;
-
-        // $model = new $this->staff();
-        // $name = "supervisor";
-
-        // $user = $model->where('email', $email)->first();
-        // $user->assignRole($name);
     }
 }

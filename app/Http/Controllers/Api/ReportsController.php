@@ -64,7 +64,7 @@ class ReportsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
-    public function fetchWaste($page = 1)
+    public function fetchWaste()
     {
         $now = Carbon::now()->format('Y-m-d');
 
@@ -76,20 +76,27 @@ class ReportsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
-    public function Index()
+    public function Index($items = [])
     {
         $now = Carbon::now()->format('Y-m-d');
+        $query = $this->reports->where('date', $now)->first();
 
-        $query = $this->reports
-            ->where('date', $now)
-            ->first();
+        if (!$query) {
+            foreach ($this->listItems as $item) {
+                $dList[$item] = [
+                    'name'  => $item,
+                    'items' => []
+                ];
+            }
+        } else {
+            foreach ($this->listItems as $item) {
+                $target = isset($query->{$item})
+                    ? $this->processDisabled(json_decode($query->{$item}, true)) : [];
 
-        foreach ($this->listItems as $item) {
-            $target = json_decode($query->{$item}, true);
-
-            $dList[$item] = $this->processDisabled($target);
+                $dList[$item] = $target;
+            }
         }
-        
+
         $items = [
             'additional' => $dList['additional'],
             'waste'      => $dList['waste'],
@@ -98,7 +105,7 @@ class ReportsController extends BaseController
 
         $result = [
             'items' => $items,
-            'notes' =>  $query->notes
+            'notes' => $query->notes ?? ""
         ];
 
         return $this->respondWithSuccess($result);
@@ -107,6 +114,7 @@ class ReportsController extends BaseController
     public function Store(Request $request)
     {
         $now = Carbon::now()->format('Y-m-d');
+
         $items = $request->get('items');
         $notes = $request->get('notes');
 
@@ -130,7 +138,7 @@ class ReportsController extends BaseController
 
     private function processDisabled($target)
     {
-        foreach($target['items'] as  $key => $item) {
+        foreach($target['items'] as $key => $item) {
             $newItem = array_merge($item, $this->defaultDisabled);
 
             $target['items'][$key] = $newItem;

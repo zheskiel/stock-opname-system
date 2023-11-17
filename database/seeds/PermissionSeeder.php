@@ -38,7 +38,10 @@ class PermissionSeeder extends Seeder
             'template.edit',
 
             // Reports
-            'report'
+            'report',
+            'combined',
+            'compare',
+            'final'
         ];
 
         $userLists = $this->getUserLists();

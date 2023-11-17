@@ -22,7 +22,7 @@ class CreateReportsTable extends Migration
                 $table->json('additional');
                 $table->json('waste');
                 $table->json('damage');
-                $table->longText('notes');
+                $table->longText('notes')->nullable();
                 $table->timestamps();
             });
         }

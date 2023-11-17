@@ -12,6 +12,7 @@ class Templates extends Model
         'title',
         'slug',
         'supervisor_id',
+        'supervisor_duty',
         'outlet_id',
         'manager_id',
         'owned',

@@ -24,7 +24,7 @@ class ReportTableSeeder extends BaseSeeder
         $additionalFile = [
             [
                 "name"  => "Tutup Botol",
-                "unit"  => "pieces",
+                "unit"  => "PCS",
                 "value" => "100",
                 "file"  => "",
             ]
@@ -32,16 +32,23 @@ class ReportTableSeeder extends BaseSeeder
 
         $wasteFile = [
             [
-                "name"  => "Telur Ayam",
-                "code"  => "kode",
-                "unit"  => "gram",
+                "name"  => "Telur Omega",
+                "code"  => "BCK164",
+                "unit"  => "GR",
                 "value" => "100",
                 "file"  => "",
             ],
             [
-                "name"  => "Telur Bebek",
-                "code"  => "kode",
-                "unit"  => "gram",
+                "name"  => "HAITAI PEACH JUICE",
+                "code"  => "BCK124",
+                "unit"  => "KALENG",
+                "value" => "1",
+                "file"  => "",
+            ],
+            [
+                "name"  => "TUSUKAN TELUR EGG HOLE PUNCHER",
+                "code"  => "POT172",
+                "unit"  => "PCS",
                 "value" => "100",
                 "file"  => "",
             ]
@@ -49,9 +56,9 @@ class ReportTableSeeder extends BaseSeeder
 
         $damageFile = [
             [
-                "name"  => "Teflon",
-                "code"  => "kode",
-                "unit"  => "pieces",
+                "name"  => "HAITAI PEACH JUICE",
+                "code"  => "BCK124",
+                "unit"  => "KALENG",
                 "value" => "1",
                 "file"  => "",
             ]

@@ -21,7 +21,7 @@ class Outlet extends Model
     ];
 
     protected $hidden = [
-        'id',
+        // 'id',
         'manager_id',
         'location_id',
         'created_at',

@@ -33,7 +33,7 @@ class Manager extends Model implements JWTSubject, AuthenticatableContract, Auth
     ];
 
     protected $hidden = [
-        'id',
+        // 'id',
         'password',
         'remember_token',
         'created_at',

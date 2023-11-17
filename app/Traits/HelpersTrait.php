@@ -63,6 +63,27 @@ trait HelpersTrait
         return $isMobile;
     }
 
+    public function getGuardType($role)
+    {
+        switch ($role) {
+            case "superadmin":
+            case "admin":
+                $guardType = "admin-api";
+                break;
+
+            case "manager":
+                $guardType = "manager-api";
+                break;
+
+            case "supervisor":
+            case "staff":
+                $guardType = "staff-api";
+                break;
+        }
+
+        return  $guardType;
+    }
+
     static function processTitleSlug($string) : string
     {
         return strtolower(preg_replace('~[^\p{L}\p{N}\n]+~u', '-', $string));
@@ -85,6 +106,10 @@ trait HelpersTrait
     static function sortItems($items, $target = 'value')
     {
         uasort($items, function ($item1, $item2) use ($target) {
+            if (!isset($item1[$target]) || !isset($item2[$target])) {
+                return;
+            }
+
             return $item2[$target] <=> $item1[$target];
         });
 
@@ -94,6 +119,10 @@ trait HelpersTrait
     static function usortItems($items, $target = 'value')
     {
         usort($items, function ($item1, $item2) use ($target) {
+            if (!isset($item1[$target]) || !isset($item2[$target])) {
+                return;
+            }
+
             return $item2[$target] <=> $item1[$target];
         });
 
@@ -103,6 +132,10 @@ trait HelpersTrait
     static function usortItemsAsc($items, $target = 'value')
     {
         usort($items, function ($item1, $item2) use ($target) {
+            if (!isset($item1[$target]) || !isset($item2[$target])) {
+                return;
+            }
+
             return $item1[$target] <=> $item2[$target];
         });
 

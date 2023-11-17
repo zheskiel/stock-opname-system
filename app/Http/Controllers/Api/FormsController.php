@@ -43,10 +43,7 @@ class FormsController extends BaseController
 
     public function Index()
     {
-        // $manager = JWTAuth::parseToken()->authenticate();
-        $manager = $this->manager
-            ->with(['staff'])
-            ->first();
+        $manager = $this->manager->with(['staff'])->first();
 
         return $this->respondWithSuccess($manager);
     }
@@ -56,29 +53,31 @@ class FormsController extends BaseController
         return $items->map(function($items) use ($dailyItems, $result, $units) {
             $value = 0;
             foreach ($items as $item) {
-                $dailyArrs = $dailyItems[$item->id];
+                if (isset($dailyItems[$item->id])) {
+                    $dailyArrs = $dailyItems[$item->id];
 
-                $dailyArr = $item;
-                foreach ($dailyArrs as $arr) {
-                    $dailyArr['value'] += $arr->value;
+                    $dailyArr = $item;
+                    foreach ($dailyArrs as $arr) {
+                        $dailyArr['value'] += $arr->value;
+                    }
+
+                    $value += $dailyArr['value'] * $item->unit_value;
+                    $units[] = $dailyArr['value'] ." ". $item->unit . " = " . $dailyArr['value'] * $item->unit_value ." ". $item->unit_sku;
+                    $original[] = $dailyArr['value'];
+
+                    $result = [
+                        "id"            => $item->id,
+                        "forms_id"      => $item->forms_id,
+                        'product_id'    => $item->product_id,
+                        'product_code'  => $item->product_code,
+                        'product_name'  => $item->product_name,
+                        'unit'          => $units,
+                        'original'      => $original,
+                        'unit_value'    => $item->unit_value,
+                        'unit_sku'      => $item->unit_sku,
+                        'value'         => $value,
+                    ];
                 }
-
-                $value += $dailyArr['value'] * $item->unit_value;
-                $units[] = $dailyArr['value'] ." ". $item->unit . " = " . $dailyArr['value'] * $item->unit_value ." ". $item->unit_sku;
-                $original[] = $dailyArr['value'];
-
-                $result = [
-                    "id"            => $item->id,
-                    "forms_id"      => $item->forms_id,
-                    'product_id'    => $item->product_id,
-                    'product_code'  => $item->product_code,
-                    'product_name'  => $item->product_name,
-                    'unit'          => $units,
-                    'original'      => $original,
-                    'unit_value'    => $item->unit_value,
-                    'unit_sku'      => $item->unit_sku,
-                    'value'         => $value,
-                ];
             }
 
             return $result;
@@ -89,7 +88,7 @@ class FormsController extends BaseController
     {
         $items = $this->forms
             ->with([
-                'items' => function($query) use ($page,  &$totalItems) {
+                'items' => function($query) use ($page, &$totalItems) {
                     $totalItems = $query->count();
 
                     return $query

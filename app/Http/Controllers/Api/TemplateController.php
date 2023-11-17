@@ -14,13 +14,16 @@ class TemplateController extends BaseController
     use HelpersTrait;
     use HierarchyTrait;
 
+    private $templateDetails;
     private $templates;
     private $details;
 
     public function __construct(
+        Details $templateDetails,
         Templates $templates,
         Details $details
     ) {
+        $this->templateDetails = $templateDetails;
         $this->templates = $templates;
         $this->details = $details;
         $this->limit = 15;
@@ -62,6 +65,53 @@ class TemplateController extends BaseController
         $result = $this->handleFetchData($templateId, $page, $sort, $order);
 
         return $this->respondWithSuccess($result);
+    }
+
+    public function createTemplateForOutlet(Request $request)
+    {
+        $title          = $request->get('title');
+        $outletId       = $request->get('outletId');
+        $supervisorId   = $request->get('supervisorId');
+        $supervisorDuty = $request->get('supervisorDuty');
+        $managerId      = $request->get('managerId');
+        $items          = $request->get('items');
+
+        $items = json_decode($items, true);
+
+        $slug = $this->processTitleSlug($title);
+        $template = $this->templates->firstOrCreate([
+            'slug' => $slug,
+        ], [
+            'title'           => $title,
+            'slug'            => $slug,
+            'outlet_id'       => $outletId,
+            'supervisor_id'   => $supervisorId,
+            'supervisor_duty' => $supervisorDuty,
+            'manager_id'      => $managerId,
+            'owned'           => 0,
+            'status'          => 1
+        ]);
+
+        foreach($items as $item) {
+            $detail = $this->templateDetails
+                ->firstOrCreate([
+                    'templates_id' => $template->id,
+                    'product_id'   => $item['product_id'],
+                    'product_code' => $item['product_code'],
+                ],
+                [
+                    'templates_id' => $template->id,
+                    'product_id'   => $item['product_id'],
+                    'product_code' => $item['product_code'],
+                    'product_name' => $item['product_name'],
+                    'units'        => json_encode($item['units']),
+                    'receipt_tolerance' => $item['receipt_tolerance'],
+                ]);
+
+            $template->details()->attach($detail);
+        }
+
+        return $this->respondWithSuccess($items);
     }
 
     public function createTemplateDetail(Request $request)

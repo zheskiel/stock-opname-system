@@ -14,11 +14,21 @@ use App\Services\ {
     ProvinceService
 };
 
-use App\Models\Admin;
+use App\Models\ {
+    Admin,
+    Staff
+};
+
+use Spatie\Permission\Models\{
+    Permission, Role
+};
 
 class HierarchyDataSeeder extends BaseSeeder
 {
     private $admin;
+    private $staff;
+    private $role;
+    private $permission;
     private $brandService;
     private $managerService;
     private $staffService;
@@ -55,9 +65,16 @@ class HierarchyDataSeeder extends BaseSeeder
         StaffTypeService $staffTypeService,
         SupervisorService $supervisorService,
         SupervisorTypeService $supervisorTypeService,
-        Admin $admin
+        Admin $admin,
+        Staff $staff,
+        Role $role,
+        Permission $permission
     ) {
         $this->admin                 = $admin;
+        $this->staff                 = $staff;
+        $this->role                  = $role;
+        $this->permission            = $permission;
+
         $this->brandService          = $brandService;
         $this->managerService        = $managerService;
         $this->staffService          = $staffService;
@@ -199,6 +216,54 @@ class HierarchyDataSeeder extends BaseSeeder
         }
     }
 
+    private function setPermissionForSupervisor($email)
+    {
+        $item = [
+            'guard_name' => 'staff-api',
+            'name' => 'supervisor',
+            'permissions' => [
+                ['name' => 'dashboard'],
+                ['name' => 'templates'],
+                ['name' => 'template.view'],
+                ['name' => 'forms'],
+                ['name' => 'form.create'],
+                ['name' => 'form.details'],
+                ['name' => 'form.edit'],
+                ['name' => 'report'],
+                ['name' => 'combined'],
+                ['name' => 'compare'],
+                ['name' => 'final'],
+            ],
+            'model' => new $this->staff,
+        ];
+
+        $permissions = $item['permissions'];
+        $guard       = $item['guard_name'];
+        $model       = $item['model'];
+        $name        = $item['name'];
+
+        // Create Roles
+        $role = $this->role->where('name', $name)->first();
+
+        if (!$role) {
+            $role = $this->role->create([
+                'guard_name' => $guard,
+                'name' => $name
+            ]);
+        }
+
+        // Assign Permissions To Roles
+        foreach ($permissions as $permission) {
+            $target = $this->permission->findByName($permission['name'], $guard);
+
+            $role->givePermissionTo($target);
+        }
+
+        // Assign Permissions To Roles
+        $user = $model->where('email', $email)->first();
+        $user->assignRole($name);
+    }
+
     public function buildSupervisor($svItems, $manager, $outlet):void
     {
         if (isset($svItems['supervisor'])) {
@@ -231,6 +296,8 @@ class HierarchyDataSeeder extends BaseSeeder
                     // 'supervisor_id' => NULL,
                     // 'staff_type_id' => NULL
                 ]);
+
+                $this->setPermissionForSupervisor( $crStaff->email );
             }
         }
     }
