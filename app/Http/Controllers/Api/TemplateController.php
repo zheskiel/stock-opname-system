@@ -29,21 +29,23 @@ class TemplateController extends BaseController
         $this->limit = 15;
     }
 
-    private function handleFetchData($templateId, $page = 1, $sort = 'id', $order = 'desc')
+    private function handleFetchData($templateId, $page = 1, $sort = 'id', $order = 'desc', $total = 0, $items = [])
     {
         $template = $this->templates->where('id', $templateId)->first();
 
-        $model = $this->details;
-        $query = $model->where('templates_id', $template->id);
+        if ($template) {
+            $model = $this->details;
+            $query = $model->where('templates_id', $template->id);
 
-        $total = $query->count();
-        $query = $query
-            ->orderBy($sort, $order)
-            ->limit($this->limit)
-            ->offset($this->limit * ($page - 1))
-            ->get();
+            $total = $query->count();
+            $query = $query
+                ->orderBy($sort, $order)
+                ->limit($this->limit)
+                ->offset($this->limit * ($page - 1))
+                ->get();
 
-        $items = $this->sortItemsByParams($query);
+            $items = $this->sortItemsByParams($query);
+        }
 
         $newItems = $template;
         $newItems['details'] = $items;

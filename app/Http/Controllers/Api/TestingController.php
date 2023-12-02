@@ -48,6 +48,7 @@ class TestingController extends BaseController
         $staff = $this->staff
             ->where('manager_id', $managerId)
             ->where('outlet_id', $outletId)
+            ->where('is_supervisor', 0)
             ->get();
         
         $manager->staff = $staff;

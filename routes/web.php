@@ -2,13 +2,25 @@
 
 Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
     Route::group(["prefix" => "v1"], function() {
-        // Outlet
+        // Outlet --- start
         Route::group(["prefix" => "/outlet"], function() {
             Route::get("/", "Api\OutletController@FetchOutlets");
             Route::post("/supervisors", "Api\SupervisorController@FetchSupervisorsByOutlet");
         });
+        // Outlet --- end
 
-        // Testing
+        // Forms --- start
+        Route::group(["prefix" => "/forms"], function() {
+            Route::post("/", "Api\FormsController@Index");
+
+            Route::post('/managers', 'Api\FormsController@fetchManager');
+            Route::post('/outlets', 'Api\FormsController@fetchOutletsByManager');
+            Route::post('/templates', 'Api\FormsController@fetchTemplatesByManager');
+            Route::post('/supervisors', 'Api\FormsController@fetchSupervisorByManager');
+        });
+        // Forms --- End
+
+        // Testing --- start
         Route::group(["prefix" => "/testing"], function() {
             Route::group(["prefix" => "/manager/{managerId}"], function() {
                 Route::group(["prefix" => "/outlet"], function() {
@@ -22,15 +34,18 @@ Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
 
             Route::post("/forms", "Api\TestingController@CreateDailyFormReport");
         });
+        // Testing --- end
 
-        // Waste
+        // Waste --- start
         Route::get("/fetch/{templateId}/waste", "Api\ReportsController@fetchWasteByTemplate");
-        Route::get("/forms", "Api\FormsController@Index");
+        // Waste --- end
 
+        // Reports --- start
         Route::group(["prefix" => "/reports"], function() {
             Route::get("/", "Api\ReportsController@Index");
             Route::post("/create", "Api\ReportsController@Store");
         });
+        // Reports --- end
 
         // Superadmin or Admin only
         Route::group(["middleware" => ["route.permission"]], function() {
@@ -41,6 +56,7 @@ Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
             });
         });
 
+        // Form --- start
         Route::group(["prefix" => "/form"], function() {
             Route::group(["prefix" => "/position"], function() {
                 Route::group(["prefix" => "/report"], function() {
@@ -56,22 +72,26 @@ Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
 
             Route::get("/compare/{templateId}/waste", "Api\ReportsController@FetchWaste");
 
-
             Route::group(["prefix" => "/{managerId}"], function() {
                 Route::group(["prefix" => "/outlet/{outletId}"], function() {
                     Route::get("/combined", "Api\FormsController@fetchCombinedForm");
                 });
 
-                Route::group(["prefix" => "/{staffId}"], function() {
-                    Route::get("/details", "Api\FormsController@FetchFormByStaffId");
-                    Route::get("/all", "Api\FormsController@FetchAllSelected");
+                Route::group(["prefix" => "/staff"], function() {
+                    Route::group(["prefix" => "/{staffId}"], function() {
+                        Route::get("/details", "Api\FormsController@FetchFormByStaffId");
+                        Route::get("/all", "Api\FormsController@FetchAllSelected");
+                    });
+                });
 
+                Route::group(["prefix" => "/{staffId}"], function() {
                     Route::post("/create-detail", "Api\FormsController@createFormDetail");
                     Route::post("/remove-detail", "Api\FormsController@removeFormDetail");
                     Route::post("/remove-all-detail", "Api\FormsController@removeAllFormDetail");
                 });
             });
         });
+        // Form --- end
 
         Route::get("/test_templates", "Api\TemplatesController@Test");
         Route::post("/templates", "Api\TemplatesController@Index");
@@ -89,13 +109,14 @@ Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
             });
         });
 
-        // Staffs
+        // Staffs --- start
         Route::group([
             "prefix" => "{userType}",
             "where" => ["userType" => "staff|manager|admin"]
         ], function() {
             Route::post("/login", "Api\AuthController@login");
         });
+        // Staffs --- end
 
         Route::group(["prefix" => "staff"], function() {
             Route::group(["middleware" => "guest:staff"], function() {
@@ -103,19 +124,21 @@ Route::group(["prefix" => "api", "middleware" => ["cors"]], function() {
             });
         });
 
-        // Managers
+        // Managers --- start
         Route::group(["prefix" => "manager"], function() {
             Route::group(["middleware" => "guest:manager"], function() {
                 Route::get("/test", "Api\TestController@testManagerPage");
             });
         });
+        // Managers --- end
 
-        // Admins
+        // Admin --- start
         Route::group(["prefix" => "admin"], function() {
             Route::group(["middleware" => "guest:admin"], function() {
                 Route::get("/test", "Api\TestController@testAdminPage");
             });
         });
+        // Admin --- end
 
         Route::post("/logout", "Api\AuthController@Logout");
 

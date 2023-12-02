@@ -4,15 +4,23 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 
-use App\Models\Forms;
-use App\Models\Items;
-use App\Models\Notes;
-use App\Models\Manager;
-use App\Models\Templates;
-use App\Traits\HelpersTrait;
-use App\Traits\HierarchyTrait;
+use DB;
 
-use JWTAuth;
+use App\Models\{
+    Forms,
+    Items,
+    Notes,
+    Staff,
+    Manager,
+    Templates,
+    Outlet
+};
+
+use App\Traits\ {
+    HelpersTrait,
+    HierarchyTrait
+};
+
 use Carbon\Carbon;
 
 class FormsController extends BaseController
@@ -23,27 +31,99 @@ class FormsController extends BaseController
     private $forms;
     private $items;
     private $notes;
+    private $staff;
+    private $outlet;
     private $manager;
     private $templates;
 
     public function __construct(
         Templates $templates,
         Manager $manager,
+        Outlet $outlet,
+        Staff $staff,
         Notes $notes,
         Items $items,
         Forms $forms
     ) {
         $this->templates = $templates;
         $this->manager = $manager;
+        $this->outlet = $outlet;
+        $this->staff = $staff;
         $this->notes = $notes;
         $this->items = $items;
         $this->forms = $forms;
         $this->limit = 15;
     }
 
-    public function Index()
+    public function fetchManager()
     {
-        $manager = $this->manager->with(['staff'])->first();
+        $managers = $this->manager->get();
+
+        return $this->respondWithSuccess($managers);
+    }
+
+    public function fetchTemplatesByManager(Request $request)
+    {
+        $managerId = $request->get('managerId');
+
+        $items = $this->templates
+            ->where('manager_id', $managerId)
+            ->get();
+
+        return $this->respondWithSuccess($items);
+    }
+
+    public function fetchOutletsByManager(Request $request)
+    {
+        $managerId = $request->get('managerId');
+
+        $items = $this->outlet
+            ->where('manager_id', $managerId)
+            ->get();
+
+        return $this->respondWithSuccess($items);
+    }
+
+    public function fetchSupervisorByManager(Request $request)
+    {
+        $managerId = $request->get('managerId');
+        $outletId = $request->get('outletId');
+
+        $manager = $this->manager
+            ->with([
+                'supervisor' => function($query) use ($outletId) {
+                    return $query
+                        ->with(['supervisor_pic'])
+                        ->wherePivot('outlet_id', $outletId)
+                        ->orderBy('name');
+                }
+            ])
+            ->where('id', $managerId)
+            ->first();
+
+        return $this->respondWithSuccess($manager);
+    }
+
+    public function Index(Request $request)
+    {
+        $managerId = $request->get('managerId');
+        $supervisorId = $request->get('supervisorId', 2);
+
+        $manager = $this->manager->where('id', $managerId)->first();
+        $staffs = DB::select(
+            DB::raw(
+                "SELECT staff.id, staff.name,
+                    CASE WHEN forms.staff_id IS NOT NULL THEN 1 ELSE 0 END AS has_form_record
+                FROM staff
+                LEFT JOIN forms ON staff.id = forms.staff_id
+                WHERE staff.manager_id = :managerId AND staff.supervisor_id = :supervisorId AND staff.is_supervisor = 0;"
+            ), [
+                "managerId" => $managerId,
+                "supervisorId" => $supervisorId
+            ]
+        );
+
+        $manager->staff = $staffs;
 
         return $this->respondWithSuccess($manager);
     }

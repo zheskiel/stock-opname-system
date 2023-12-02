@@ -65,6 +65,26 @@ class AfterHierarchySeederTable extends Seeder
 
         return [
             [
+                'guard_name' => $guards['staff'],
+                'name' => 'staff',
+                'permissions' => [
+                    ['name' => 'dashboard'],
+                    ['name' => 'forms'],
+                ],
+                'model' => $models['staff'],
+                'email' => "head-production-cook-staff-1@gmail.com"
+            ],
+            [
+                'guard_name' => $guards['staff'],
+                'name' => 'staff',
+                'permissions' => [
+                    ['name' => 'dashboard'],
+                    ['name' => 'forms'],
+                ],
+                'model' => $models['staff'],
+                'email' => "central-kitchen-supervisor-store-keeper-staff-1@gmail.com"
+            ],
+            [
                 'guard_name' => $guards['admin'],
                 'name' => 'superadmin',
                 'permissions' => $permissionList,
@@ -100,17 +120,28 @@ class AfterHierarchySeederTable extends Seeder
                 'model' => $models['manager'],
                 'email' => "manager-1@gmail.com"
             ],
-            // [
-            //     'guard_name' => $guards['staff'],
-            //     'name' => 'staff',
-            //     'permissions' => [
-            //         ['name' => 'dashboard'],
-            //         ['name' => 'templates'],
-            //         ['name' => 'forms'],
-            //     ],
-            //     'model' => $models['staff'],
-            //     'email' => "head-production-cook-staff-1@gmail.com"
-            // ]
+            [
+                'guard_name' => $guards['manager'],
+                'name' => 'manager',
+                'permissions' => [
+                    ['name' => 'dashboard'],
+                    ['name' => 'master'],
+                    ['name' => 'templates'],
+                    ['name' => 'template.create'],
+                    ['name' => 'template.view'],
+                    ['name' => 'template.edit'],
+                    ['name' => 'forms'],
+                    ['name' => 'form.create'],
+                    ['name' => 'form.details'],
+                    ['name' => 'form.edit'],
+                    ['name' => 'report'],
+                    ['name' => 'combined'],
+                    ['name' => 'compare'],
+                    ['name' => 'final'],
+                ],
+                'model' => $models['manager'],
+                'email' => "manager-2@gmail.com"
+            ]
         ];
     }
 
