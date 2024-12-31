@@ -1,7 +1,7 @@
 <?php
 namespace App\Services;
 
-use App\Repositories\brandRepository;
+use App\Repositories\BrandRepository;
 
 class BrandService extends BaseService
 {
