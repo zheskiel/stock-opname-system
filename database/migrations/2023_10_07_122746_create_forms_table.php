@@ -56,7 +56,7 @@ class CreateFormsTable extends Migration
                     ->references('id')
                     ->on('items')
                     ->onDelete('cascade');
-                
+
                 $table->primary(['forms_id', 'items_id']);
             });
         }

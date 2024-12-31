@@ -53,27 +53,27 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-        try {
+        // try {
 
-            JWTAuth::parseToken()->authenticate();
+        //     JWTAuth::parseToken()->authenticate();
 
-        } catch (TokenExpiredException $e) {
-            return $this
-                ->respondUnAuthenticated('Token Expired');
+        // } catch (TokenExpiredException $e) {
+        //     return $this
+        //         ->respondUnAuthenticated('Token Expired');
 
-        } catch (TokenInvalidException $e) {
-            return $this
-                ->respondUnAuthenticated('Token Invalid');
+        // } catch (TokenInvalidException $e) {
+        //     return $this
+        //         ->respondUnAuthenticated('Token Invalid');
 
-        } catch (JWTException $e) {
-            return $this
-                ->respondUnAuthenticated('Token not provided');
+        // } catch (JWTException $e) {
+        //     return $this
+        //         ->respondUnAuthenticated('Token not provided');
 
-        } catch (Exception $e) {
-            return $this
-                ->respondError($e->getMessage());
+        // } catch (Exception $e) {
+        //     return $this
+        //         ->respondError($e->getMessage());
 
-        }
+        // }
 
         return parent::render($request, $exception);
     }

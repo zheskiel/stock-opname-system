@@ -22,7 +22,7 @@ class Outlet extends Model
 
     protected $hidden = [
         // 'id',
-        'manager_id',
+        // 'manager_id',
         'location_id',
         'created_at',
         'updated_at',

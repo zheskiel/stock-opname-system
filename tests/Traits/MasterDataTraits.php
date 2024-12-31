@@ -91,7 +91,7 @@ trait MasterDatatraits
 
     public function getCollection()
     {
-        $filePath = '/../../database/seeds/Master Product Data.xlsx';
+        $filePath = '/../../database/seeds/master.xlsx';
         $file = __DIR__ . $filePath;
 
         $excel = C::make('Excel');

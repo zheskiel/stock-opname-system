@@ -44,7 +44,7 @@ class Staff extends Model implements JWTSubject, AuthenticatableContract, Author
     protected $hidden = [
         // 'id',
         'outlet_id',
-        // 'manager_id',
+        'manager_id',
         'staff_type_id',
         'supervisor_id',
         'is_supervisor',

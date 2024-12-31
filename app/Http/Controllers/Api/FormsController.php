@@ -104,6 +104,22 @@ class FormsController extends BaseController
         return $this->respondWithSuccess($manager);
     }
 
+    public function fetchStaffBySupervisor(Request $request)
+    {
+        $supervisorId = $request->get("supervisorId");
+        $managerId = $request->get('managerId');
+        $outletId = $request->get('outletId');
+
+        $items = $this->staff
+            ->where('is_supervisor', 0)
+            ->where('supervisor_id', $supervisorId)
+            ->where('manager_id', $managerId)
+            ->where('outlet_id', $outletId)
+            ->get();
+
+        return $this->respondWithSuccess($items);
+    }
+
     public function Index(Request $request)
     {
         $managerId = $request->get('managerId');
@@ -112,7 +128,7 @@ class FormsController extends BaseController
         $manager = $this->manager->where('id', $managerId)->first();
         $staffs = DB::select(
             DB::raw(
-                "SELECT staff.id, staff.name,
+                "SELECT staff.id, staff.name, staff.manager_id,
                     CASE WHEN forms.staff_id IS NOT NULL THEN 1 ELSE 0 END AS has_form_record
                 FROM staff
                 LEFT JOIN forms ON staff.id = forms.staff_id
@@ -219,16 +235,19 @@ class FormsController extends BaseController
         return $this->respondWithSuccess($result);
     }
 
-    private function handleFetchData($managerId, $staffId, $page = 1, $sort = 'id', $order = 'desc')
-    {
+    private function handleFetchData(
+        $managerId,
+        $staffId,
+        $page = 1,
+        $sort = 'id',
+        $order = 'desc',
+        $withLimit = true
+    ) {
         $form = $this->forms
             ->with(['staff'])
             ->where('manager_id', $managerId)
             ->where('staff_id', $staffId)
             ->first();
-
-        $start = $this->limit * ($page - 1);
-        $end = $this->limit;
 
         $model = $this->items;
         $items = $model
@@ -261,10 +280,16 @@ class FormsController extends BaseController
         }
 
         $total = count($items);
-        $items = array_slice($items, $start, $end);
+
+        if ($withLimit != false) {
+            $start = $this->limit * ($page - 1);
+            $end = $this->limit;
+
+            $items = array_slice($items, $start, $end);
+        }
 
         $newItems = $form;
-        $newItems['items'] = $items;
+        $newItems['items'] = array_values($items);
 
         $result = $this->generatePagination($newItems, $total, $this->limit, $page);
 
@@ -276,10 +301,118 @@ class FormsController extends BaseController
         $page  = (int) $request->get('page', 1);
         $sort  = $request->get("sort", "id");
         $order = $request->get("order", "desc");
+        $withLimit = (bool) $request->get("withLimit", true);
 
-        $result = $this->handleFetchData($managerId, $staffId, $page, $sort, $order);
+        $result = $this->handleFetchData(
+            $managerId, $staffId, $page, $sort, $order, $withLimit
+        );
 
         return $this->respondWithSuccess($result);
+    }
+
+    public function UpdateFormDetail(Request $request)
+    {
+        $formId    = $request->get('form_id');
+        $outletId  = $request->get('outlet_id');
+        $items     = $request->get('items');
+
+        usort($items, function($a, $b) {
+            // First compare by product_id (ascending)
+            if ($a['product_id'] == $b['product_id']) {
+                // If product_id is the same, compare by unit_value (descending)
+                return $b['unit_value'] <=> $a['unit_value'];
+            }
+
+            return $a['product_id'] <=> $b['product_id'];
+        });
+
+        // first find the record
+        $form = $this->forms
+            ->where('id', $formId)
+            ->where('outlet_id', $outletId)
+            ->first();
+
+        // detach all many to many relation
+        $form->items()->detach();
+
+        // delete all items by form id
+        $this->items->where('forms_id', $formId)->delete();
+
+        foreach($items as $item) {
+            $newItem = $this->items->create([
+                'forms_id'     => $form->id,
+                'product_id'   => $item['product_id'],
+                'product_code' => $item['product_code'],
+                'product_name' => $item['product_name'],
+                'unit'         => $item['unit'],
+                'unit_value'   => $item['unit_value'],
+                'unit_sku'     => $item['unit_sku'],
+                'value'        => 0
+            ]);
+
+            if ($newItem) {
+                $form->items()->syncWithoutDetaching($newItem);
+            }
+        }
+
+        return $this->respondWithSuccess( $items );
+    }
+
+    public function CreateNewFormDetail(Request $request)
+    {
+        $templateId    = $request->get('template_id');
+        $outletId      = $request->get('outlet_id'); 
+        $managerId     = $request->get('manager_id');
+        $supervisorId  = $request->get('supervisor_id');
+        $staffId       = $request->get('staff_id');
+        $items         = $request->get('items');
+
+        usort($items, function($a, $b) {
+            // First compare by product_id (ascending)
+            if ($a['product_id'] == $b['product_id']) {
+                // If product_id is the same, compare by unit_value (descending)
+                return $b['unit_value'] <=> $a['unit_value'];
+            }
+
+            return $a['product_id'] <=> $b['product_id'];
+        });
+
+        $formParam = [
+            'template_id'   => $templateId,
+            'outlet_id'     => $outletId,
+            'manager_id'    => $managerId,
+            'supervisor_id' => $supervisorId,
+            'staff_id'      => $staffId
+        ];
+
+        $form = $this->forms
+            ->firstOrCreate($formParam, $formParam);
+
+        foreach($items as $item) {
+            $params = [
+                'forms_id'     => $form->id,
+                'product_id'   => $item['product_id'],
+                'product_code' => $item['product_code'],
+                'product_name' => $item['product_name'],
+                'unit'         => $item['unit'],
+                'unit_value'   => $item['unit_value'],
+                'unit_sku'     => $item['unit_sku'],
+                'value'        => 0
+            ];
+
+            $newItem = $this->items->firstOrCreate([
+                'forms_id'     => $form->id,
+                'product_id'   => $item['product_id'],
+                'product_code' => $item['product_code'],
+                'unit'         => $item['unit'],
+            ], $params);
+
+            if ($newItem) {
+                $form->items()->syncWithoutDetaching($newItem);
+            }
+        }
+
+        return $this->respondWithSuccess( $newItem );
     }
 
     public function createFormDetail(Request $request)

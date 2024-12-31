@@ -53,7 +53,13 @@ class TemplatesController extends BaseController
                 'manager'  => $item[0]->manager,
                 'newItems' => $newItems
             ];
+
+            // $list[] = $this->sortItems($finalItem, 'manager');
+
+            // $list = $this->sortItems($list, 'manager');
         }
+
+        
 
         return $list;
     }
@@ -156,7 +162,7 @@ class TemplatesController extends BaseController
         $query = $query
             ->limit($this->limit)
             ->offset($this->limit * ($page - 1))
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->get()
             ->groupBy('manager_id');
 

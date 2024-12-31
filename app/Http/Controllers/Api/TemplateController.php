@@ -29,8 +29,15 @@ class TemplateController extends BaseController
         $this->limit = 15;
     }
 
-    private function handleFetchData($templateId, $page = 1, $sort = 'id', $order = 'desc', $total = 0, $items = [])
-    {
+    private function handleFetchData(
+        $templateId,
+        $page = 1,
+        $sort = 'id',
+        $order = 'desc',
+        $withLimit = true,
+        $total = 0,
+        $items = []
+    ) {
         $template = $this->templates->where('id', $templateId)->first();
 
         if ($template) {
@@ -38,11 +45,13 @@ class TemplateController extends BaseController
             $query = $model->where('templates_id', $template->id);
 
             $total = $query->count();
-            $query = $query
-                ->orderBy($sort, $order)
-                ->limit($this->limit)
-                ->offset($this->limit * ($page - 1))
-                ->get();
+            $query = $query->orderBy($sort, $order);
+
+            if ($withLimit !== false) {
+                $query = $query->limit($this->limit)->offset($this->limit * ($page - 1));
+            }
+
+            $query = $query->get();
 
             $items = $this->sortItemsByParams($query);
         }
@@ -63,10 +72,43 @@ class TemplateController extends BaseController
         $page = (int) $request->get('page', 1);
         $sort = $request->get("sort", "id");
         $order = $request->get("order", "desc");
+        $withLimit = (bool) $request->get("withLimit", true);
 
-        $result = $this->handleFetchData($templateId, $page, $sort, $order);
+        $result = $this->handleFetchData(
+            $templateId, $page, $sort, $order, $withLimit
+        );
 
         return $this->respondWithSuccess($result);
+    }
+
+    public function updateTemplateForOutlet($templateId, Request $request)
+    {
+        $items     = $request->get('items');
+
+        $items = json_decode($items, true);
+
+        $template = $this->templates->find($templateId);
+
+        foreach($items as $item) {
+            $detail = $this->templateDetails
+                ->firstOrCreate([
+                    'templates_id' => $template->id,
+                    'product_id'   => $item['product_id'],
+                    'product_code' => $item['product_code'],
+                ],
+                [
+                    'templates_id' => $template->id,
+                    'product_id'   => $item['product_id'],
+                    'product_code' => $item['product_code'],
+                    'product_name' => $item['product_name'],
+                    'units'        => json_encode($item['units']),
+                    'receipt_tolerance' => $item['receipt_tolerance'],
+                ]);
+
+            $template->details()->syncWithoutDetaching($detail);
+        }
+
+        return $this->respondWithSuccess($items);
     }
 
     public function createTemplateForOutlet(Request $request)
@@ -195,6 +237,15 @@ class TemplateController extends BaseController
         $model  = $this->templates;
         $source = $model
             ->with(['details'])
+            ->select([
+                "id",
+                "product_code",
+                "product_id",
+                "product_name",
+                "receipt_tolerance",
+                "templates_id",
+                "units",
+            ])
             ->where('id', $templateId)
             ->first();
 
