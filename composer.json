@@ -12,6 +12,7 @@
         "barryvdh/laravel-debugbar": "3.2.3",
         "cyber-duck/laravel-excel": "^1.2",
         "fideloper/proxy": "^4.0",
+        "fruitcake/laravel-cors": "^2.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
         "spatie/laravel-permission": "^3.18",
