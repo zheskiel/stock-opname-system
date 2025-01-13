@@ -83,12 +83,13 @@ class TemplateController extends BaseController
 
     public function updateTemplateForOutlet($templateId, Request $request)
     {
-        $items     = $request->get('items');
+        $items = $request->get('items');
 
         $items = json_decode($items, true);
 
         $template = $this->templates->find($templateId);
 
+        $detailList = [];
         foreach($items as $item) {
             $detail = $this->templateDetails
                 ->firstOrCreate([
@@ -105,8 +106,14 @@ class TemplateController extends BaseController
                     'receipt_tolerance' => $item['receipt_tolerance'],
                 ]);
 
-            $template->details()->syncWithoutDetaching($detail);
+            $detailList[] = $detail->id;
         }
+
+        // Sync the relationship
+        $template->details()->sync($detailList);
+
+        // Delete all other record
+        $this->details->whereNotIn('id', $detailList)->delete();
 
         return $this->respondWithSuccess($items);
     }
